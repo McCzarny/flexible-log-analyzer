@@ -6,6 +6,8 @@ detector:
   type: "first-line"
   # Simple pattern to match Chromium log lines
   pattern: "^\\[.*\\] .*$"
+  # Flag to change language mode of a file to "log" when this detector matches
+  changeLanguageMode: true
 
   # Simple matchers for common patterns
 matchers:

@@ -9,14 +9,14 @@ let configManager: ConfigManager;
 let patternMatcher: PatternMatcher;
 let enhancedTreeView: EnhancedTreeView;
 let treeView: vscode.TreeView<any>;
+let outputChannel: vscode.OutputChannel;
 
 // this method is called when your extension is activated
 // your extension is activated the very first time the command is executed
 export async function activate(context: vscode.ExtensionContext) {
-	
-	// Use the console to output diagnostic information (console.log) and errors (console.error)
-	// This line of code will only be executed once when your extension is activated
-	console.log('Congratulations, your extension "flexible-log-analyzer" is now active!');
+	// Create shared output channel
+	outputChannel = vscode.window.createOutputChannel('Flexible Log Analyzer');
+	context.subscriptions.push(outputChannel);
 
 	try {
 		// Initialize the new configuration-driven system
@@ -30,21 +30,21 @@ export async function activate(context: vscode.ExtensionContext) {
 		
 		// Set up file watchers and auto-analysis
 		setupFileWatchers(context);
-		
-		console.log('Flexible Log Analyzer: Configuration system initialized successfully');
+
+		outputChannel.appendLine('Flexible Log Analyzer: Configuration system initialized successfully');
 	} catch (error) {
-		console.error('Failed to initialize Flexible Log Analyzer:', error);
+		outputChannel.appendLine(`Failed to initialize Flexible Log Analyzer: ${error}`);
 		vscode.window.showErrorMessage(`Failed to initialize Flexible Log Analyzer: ${error}`);
 	}
 }
 
 async function initializeConfigurationSystem(context: vscode.ExtensionContext): Promise<void> {
-	// Initialize configuration manager
-	configManager = new ConfigManager();
+	// Initialize configuration manager with shared output channel
+	configManager = new ConfigManager(outputChannel);
 	await configManager.initialize();
 	
-	// Initialize pattern matcher
-	patternMatcher = new PatternMatcher();
+	// Initialize pattern matcher with shared output channel
+	patternMatcher = new PatternMatcher(outputChannel);
 	
 	// Initialize enhanced tree view
 	enhancedTreeView = new EnhancedTreeView(context);
@@ -62,11 +62,6 @@ function registerCommands(context: vscode.ExtensionContext): void {
 		await analyzeCurrentFile();
 	});
 	context.subscriptions.push(analyzeCurrentFileCommand);
-
-	const analyzeAllFilesCommand = vscode.commands.registerCommand('flexible-log-analyzer.analyzeAllFiles', async () => {
-		await analyzeAllLogFiles();
-	});
-	context.subscriptions.push(analyzeAllFilesCommand);
 
 	// Configuration management commands
 	const openConfigCommand = vscode.commands.registerCommand('flexible-log-analyzer.openConfiguration', async () => {
@@ -144,10 +139,13 @@ function shouldAutoAnalyze(document: vscode.TextDocument): boolean {
 
 	// Check file patterns and size
 	const fileName = document.fileName.toLowerCase();
+	outputChannel.appendLine(`Checking auto-analysis for file: ${fileName}`);
 	const logExtensions = ['.log', '.out', '.txt'];
 	const hasLogExtension = logExtensions.some(ext => fileName.endsWith(ext));
-	
-	return hasLogExtension && !document.isUntitled;
+	const hasNoExtension = fileName.indexOf('.') === -1;
+	const result = hasLogExtension || !document.isUntitled || hasNoExtension;
+	outputChannel.appendLine(`Auto-analysis result for ${fileName}: ${result}`);
+	return result;
 }
 
 async function analyzeCurrentFile(): Promise<void> {
@@ -170,7 +168,7 @@ async function analyzeDocument(document: vscode.TextDocument): Promise<void> {
 		}, async (progress) => {
 			progress.report({ increment: 20, message: 'Loading configuration...' });
 			
-			// Get configuration for this file
+			// Get configuration for this file (this will also handle language mode change)
 			const config = await configManager.getConfigForFile(document.fileName);
 			if (!config) {
 				vscode.window.showWarningMessage(`No configuration found for ${document.fileName}`);
@@ -199,62 +197,8 @@ async function analyzeDocument(document: vscode.TextDocument): Promise<void> {
 			}
 		});
 	} catch (error) {
-		console.error('Error analyzing document:', error);
+		outputChannel.appendLine(`Error analyzing document: ${error}`);
 		vscode.window.showErrorMessage(`Analysis failed: ${error}`);
-	}
-}
-
-async function analyzeAllLogFiles(): Promise<void> {
-	try {
-		const workspaceFolders = vscode.workspace.workspaceFolders;
-		if (!workspaceFolders) {
-			vscode.window.showWarningMessage('No workspace folder open');
-			return;
-		}
-
-		// Find all log files in workspace
-		const logFiles = await vscode.workspace.findFiles(
-			'**/*.{log,out,txt}',
-			'**/node_modules/**',
-			100 // Limit to prevent overwhelming the system
-		);
-
-		if (logFiles.length === 0) {
-			vscode.window.showInformationMessage('No log files found in workspace');
-			return;
-		}
-
-		await vscode.window.withProgress({
-			location: vscode.ProgressLocation.Notification,
-			title: `Analyzing ${logFiles.length} log files`,
-			cancellable: true
-		}, async (progress, token) => {
-			for (let i = 0; i < logFiles.length; i++) {
-				if (token.isCancellationRequested) {
-					break;
-				}
-
-				const file = logFiles[i];
-				const fileName = file.path.split('/').pop();
-				
-				progress.report({
-					increment: (100 / logFiles.length),
-					message: `Analyzing ${fileName}... (${i + 1}/${logFiles.length})`
-				});
-
-				try {
-					const document = await vscode.workspace.openTextDocument(file);
-					await analyzeDocument(document);
-				} catch (error) {
-					console.error(`Failed to analyze ${file.path}:`, error);
-				}
-			}
-		});
-
-		vscode.window.showInformationMessage(`Analysis complete: ${logFiles.length} files processed`);
-	} catch (error) {
-		console.error('Error analyzing all files:', error);
-		vscode.window.showErrorMessage(`Batch analysis failed: ${error}`);
 	}
 }
 
@@ -407,5 +351,8 @@ export function deactivate() {
 	}
 	if (patternMatcher) {
 		patternMatcher.dispose();
+	}
+	if (outputChannel) {
+		outputChannel.dispose();
 	}
 }

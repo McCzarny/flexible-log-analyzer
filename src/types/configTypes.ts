@@ -19,6 +19,7 @@ export interface LogDetector {
   type: 'first-line' | 'content' | 'filename';
   pattern: string;
   confidence?: number;
+  changeLanguageMode?: boolean;
 }
 
 export interface ConfigSettings {

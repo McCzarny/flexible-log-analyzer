@@ -18,7 +18,6 @@
   "activationEvents": [
     "onView:flexible-log-analyzer-view",
     "onCommand:flexible-log-analyzer.analyzeCurrentFile",
-    "onCommand:flexible-log-analyzer.analyzeAllFiles",
     "*"
   ],
   "main": "./dist/extension.js",
@@ -49,11 +48,6 @@
         "icon": "$(search)"
       },
       {
-        "command": "flexible-log-analyzer.analyzeAllFiles",
-        "title": "Analyze All Log Files",
-        "icon": "$(run-all)"
-      },
-      {
         "command": "flexible-log-analyzer.clearResults",
         "title": "Clear Analysis Results",
         "icon": "$(clear-all)"
@@ -82,11 +76,6 @@
       "view/title": [
         {
           "command": "flexible-log-analyzer.analyzeCurrentFile",
-          "group": "navigation",
-          "when": "view == flexible-log-analyzer-view"
-        },
-        {
-          "command": "flexible-log-analyzer.analyzeAllFiles",
           "group": "navigation",
           "when": "view == flexible-log-analyzer-view"
         },

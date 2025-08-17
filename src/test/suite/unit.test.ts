@@ -12,15 +12,24 @@ suite('Unit Tests', () => {
 	suite('Log Parsing Tests', () => {
 		let configManager: ConfigManager;
 		let patternMatcher: PatternMatcher;
+		let outputChannel: vscode.OutputChannel;
 		
 		setup(() => {
-			configManager = new ConfigManager();
-			patternMatcher = new PatternMatcher();
+			// Create a shared output channel for testing
+			outputChannel = vscode.window.createOutputChannel('Test Log Analyzer');
+			configManager = new ConfigManager(outputChannel);
+			patternMatcher = new PatternMatcher(outputChannel);
 		});
 		
 		teardown(() => {
 			if (configManager) {
 				configManager.dispose();
+			}
+			if (patternMatcher) {
+				patternMatcher.dispose();
+			}
+			if (outputChannel) {
+				outputChannel.dispose();
 			}
 		});
 
@@ -89,6 +98,11 @@ suite('Unit Tests', () => {
 				// Check groups exist
 				assert.ok(config.groups, 'Groups should exist');
 				assert.ok(Array.isArray(config.groups), 'Groups should be an array');
+				
+				// Check changeLanguageMode flag in detector
+				assert.ok(config.detector, 'Detector should exist');
+				assert.strictEqual(config.detector.changeLanguageMode, true, 'changeLanguageMode should be true in detector');
+				assert.strictEqual(typeof config.detector.changeLanguageMode, 'boolean', 'changeLanguageMode should be a boolean');
 				
 			} catch (error) {
 				assert.fail(`Failed to load or parse chromium.yaml: ${error}`);

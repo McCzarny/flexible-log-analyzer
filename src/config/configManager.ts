@@ -12,9 +12,9 @@ export class ConfigManager {
   private validator: ConfigValidator;
   private outputChannel: vscode.OutputChannel;
 
-  constructor() {
+  constructor(outputChannel: vscode.OutputChannel) {
     this.validator = new ConfigValidator();
-    this.outputChannel = vscode.window.createOutputChannel('Log Analyzer Config');
+    this.outputChannel = outputChannel;
   }
 
   async initialize(): Promise<void> {
@@ -44,20 +44,29 @@ export class ConfigManager {
     // First, try to find workspace-specific configuration
     const workspaceConfig = await this.findWorkspaceConfig(filePath);
     if (workspaceConfig) {
+      this.outputChannel.appendLine(`Using workspace config for ${fileName}`);
+      // Don't trigger language mode change for file pattern matches
       return workspaceConfig;
     }
 
     // Then check global configuration
     const globalConfig = this.configs.get('global');
     if (globalConfig && this.configMatches(globalConfig, fileName, fileExtension)) {
+      this.outputChannel.appendLine(`Using global config for ${fileName}`);
+      // Don't trigger language mode change for file pattern matches
       return globalConfig;
     }
 
     // Try to auto-detect based on file content
     const detectedConfig = await this.detectConfigFromFile(filePath);
     if (detectedConfig) {
+      this.outputChannel.appendLine(`Auto-detected config for ${fileName}`);
+      // Handle language mode change only when detector matches
+      await this.handleLanguageModeChange(filePath, detectedConfig);
       return detectedConfig;
     }
+
+    this.outputChannel.appendLine(`No configuration found for ${fileName}`);
 
     // No configuration found
     return undefined;
@@ -72,7 +81,7 @@ export class ConfigManager {
     for (const [configName, config] of this.configs) {
       if (configName !== 'global') {
         this.outputChannel.appendLine(`Checking workspace config '${configName}' for ${fileName}`);
-        this.outputChannel.appendLine(`Config content: ${JSON.stringify(config, null, 2)}`);
+        this.outputChannel.appendLine(`Config metadata: name='${config.name}', filePatterns=${Array.isArray(config.filePatterns) ? config.filePatterns.length : 0}, detector=${config.detector ? 'present' : 'absent'}`);
         if (this.configMatches(config, fileName, fileExtension)) {
           this.outputChannel.appendLine(`Using workspace config '${configName}' for ${fileName}`);
           return config;
@@ -101,14 +110,6 @@ export class ConfigManager {
       this.outputChannel.appendLine(`No file patterns specified in config for ${fileName}`);
     }
     
-    // If no file patterns specified, use detector if available
-    if (config.detector) {
-      this.outputChannel.appendLine(`Using detector for config: ${config.name}`);
-      // For now, just check basic extension matching
-      // TODO: Implement detector logic
-      return true;
-    }
-    
     return false;
   }
 
@@ -126,10 +127,12 @@ export class ConfigManager {
     try {
       const fileUri = vscode.Uri.file(filePath);
       const content = await vscode.workspace.fs.readFile(fileUri);
+      // TODO: Use more optimized way to read the first line
       const firstLine = content.toString().split('\n')[0];
 
       // Try to match against detector patterns from loaded configs
       for (const [configName, config] of this.configs) {
+        this.outputChannel.appendLine(`Checking config '${configName}' for file: ${filePath} has detector: ${!!config.detector}`);
         if (config.detector && this.matchesDetector(firstLine, config.detector)) {
           this.outputChannel.appendLine(`Auto-detected config: ${config.name} for file: ${filePath}`);
           return config;
@@ -362,8 +365,37 @@ export class ConfigManager {
     // TODO: Implement event emission system
   }
 
+  private async handleLanguageModeChange(filePath: string, config: LogConfig): Promise<void> {
+    // Check if the configuration has the changeLanguageMode flag set in detector and detector matched
+    if (config.detector?.changeLanguageMode === true) {
+      this.outputChannel.appendLine(`Changing language mode to 'log' for file: ${path.basename(filePath)} (detector matched)`);
+      try {
+        // Find the document if it's already open
+        const openDoc = vscode.workspace.textDocuments.find(doc => doc.fileName === filePath);
+        
+        if (openDoc) {
+          // Check if it's already set to 'log' language mode
+          if (openDoc.languageId !== 'log') {
+            // Change the language mode to 'log'
+            await vscode.languages.setTextDocumentLanguage(openDoc, 'log');
+
+            this.outputChannel.appendLine(`Successfully changed language mode to 'log' for: ${path.basename(filePath)}`);
+          } else {
+            this.outputChannel.appendLine(`File ${path.basename(filePath)} already has 'log' language mode`);
+          }
+        } else {
+          this.outputChannel.appendLine(`File ${path.basename(filePath)} is not currently open, will change language mode when opened`);
+        }
+      } catch (error) {
+        this.outputChannel.appendLine(`Failed to change language mode for ${path.basename(filePath)}: ${error}`);
+      }
+    } else {
+      this.outputChannel.appendLine(`Language mode change requested but detector did not match for: ${path.basename(filePath)}`);
+    }
+  }
+
   dispose(): void {
     this.fileWatchers.forEach(watcher => watcher.dispose());
-    this.outputChannel.dispose();
+    // Note: outputChannel is shared and disposed by the extension
   }
 }

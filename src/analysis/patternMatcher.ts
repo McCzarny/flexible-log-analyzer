@@ -7,8 +7,8 @@ export class PatternMatcher {
   private outputChannel: vscode.OutputChannel;
   private isCompiled: boolean = false;
 
-  constructor() {
-    this.outputChannel = vscode.window.createOutputChannel('Log Analyzer Matcher');
+  constructor(outputChannel: vscode.OutputChannel) {
+    this.outputChannel = outputChannel;
   }
 
   compile(config: LogConfig): void {
@@ -288,6 +288,6 @@ export class PatternMatcher {
   dispose(): void {
     this.compiledMatchers = [];
     this.isCompiled = false;
-    this.outputChannel.dispose();
+    // Note: outputChannel is shared and disposed by the extension
   }
 }

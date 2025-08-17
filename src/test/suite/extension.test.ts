@@ -17,7 +17,6 @@ suite('Extension Test Suite', () => {
 		const commands = await vscode.commands.getCommands(true);
 		const extensionCommands = [
 			'flexible-log-analyzer.analyzeCurrentFile',
-			'flexible-log-analyzer.analyzeAllFiles',
 			'flexible-log-analyzer.clearResults',
 			'flexible-log-analyzer.openConfiguration',
 			'flexible-log-analyzer.createConfiguration',

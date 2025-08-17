@@ -1,0 +1,23 @@
+version: "1.0"
+name: "Chromium log without language mode"
+description: "Test configuration with changeLanguageMode disabled"
+
+detector:
+  type: "first-line"
+  pattern: "[0-9]{4}-[0-9]{2}-[0-9]{2} [0-9]{2}:[0-9]{2}:[0-9]{2}\\.[0-9]{3}.*"
+  changeLanguageMode: false
+
+matchers:
+  - name: "Error Messages"
+    type: "error"
+    severity: "high"
+    pattern: '(error|fail|exception|crash)'
+    color: "#FF4444"
+    minimap: true
+    description: "Lines containing error-related keywords"
+    ignoreCase: true
+    icon: "$(error)"
+
+filePatterns:
+  - "*chromium-log*"
+  - "*.log"
