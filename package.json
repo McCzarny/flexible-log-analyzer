@@ -1,14 +1,14 @@
 {
-  "name": "customisable-log-analyser",
-  "displayName": "customisable-log-analyser",
+  "name": "flexible-log-analyzer",
+  "displayName": "Flexible Log Analyzer",
   "description": "Analyses and highlights log files with custom rules",
-  "publisher": "Potato cake",
-  "icon": "images/icon-placeholder.png",
-	"repository": {
-		"type": "git",
-		"url": "https://github.com/McCzarny/customisable-log-analyser"
-	},
-  "version": "0.0.1",
+  "publisher": "McCzarny",
+  "icon": "images/icon-color.png",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/McCzarny/flexible-log-analyzer"
+  },
+  "version": "0.1.1",
   "engines": {
     "vscode": "^1.71.0"
   },
@@ -16,71 +16,137 @@
     "Other"
   ],
   "activationEvents": [
-    "onCommand:customisable-log-analyser.helloWorld",
-		"onView:testView",
+    "onView:flexible-log-analyzer-view",
+    "onCommand:flexible-log-analyzer.analyzeCurrentFile",
+    "onCommand:flexible-log-analyzer.analyzeAllFiles",
     "*"
   ],
   "main": "./dist/extension.js",
   "contributes": {
     "viewsContainers": {
-			"activitybar": [
-				{
-					"id": "customisable-log-analyser",
-					"title": "Customisable Log Analyser",
-					"icon": "images/icon-placeholder.svg"
-				}
-			]
-		},
+      "activitybar": [
+        {
+          "id": "flexible-log-analyzer",
+          "title": "Flexible Log Analyzer",
+          "icon": "images/icon-mono.svg"
+        }
+      ]
+    },
     "views": {
-			"customisable-log-analyser": [
-				{
-					"id": "customisable-log-analyser-view",
-					"name": "Customisable Log Analyser",
-					"icon": "images/icon-placeholder.svg",
-					"contextualTitle": "Customisable Log Analyser"
-				}
-			]
+      "flexible-log-analyzer": [
+        {
+          "id": "flexible-log-analyzer-view",
+          "name": "Log Analysis Results",
+          "icon": "images/images/icon-mono.svg",
+          "contextualTitle": "Flexible Log Analyzer"
+        }
+      ]
     },
     "commands": [
       {
-        "command": "customisable-log-analyser.runscripts.all",
-        "title": "Run scripts with the all files",
+        "command": "flexible-log-analyzer.analyzeCurrentFile",
+        "title": "Analyze Current Log File",
+        "icon": "$(search)"
+      },
+      {
+        "command": "flexible-log-analyzer.analyzeAllFiles",
+        "title": "Analyze All Log Files",
         "icon": "$(run-all)"
       },
       {
-        "command": "customisable-log-analyser.runscripts.current",
-        "title": "Run scripts with the current file",
-        "icon": "$(play)"
+        "command": "flexible-log-analyzer.clearResults",
+        "title": "Clear Analysis Results",
+        "icon": "$(clear-all)"
       },
       {
-        "command": "customisable-log-analyser.clear",
-        "title": "Clear all issues",
-        "icon": "$(clear-all)"
+        "command": "flexible-log-analyzer.openConfiguration",
+        "title": "Open Log Configuration",
+        "icon": "$(gear)"
+      },
+      {
+        "command": "flexible-log-analyzer.createConfiguration",
+        "title": "Create Log Configuration",
+        "icon": "$(add)"
+      },
+      {
+        "command": "flexible-log-analyzer.refreshTree",
+        "title": "Refresh",
+        "icon": "$(refresh)"
+      },
+      {
+        "command": "flexible-log-analyzer.jumpToLocation",
+        "title": "Go to Location"
       }
     ],
-		"menus": {
+    "menus": {
       "view/title": [
         {
-          "command": "customisable-log-analyser.runscripts.current",
-					"group": "navigation"
+          "command": "flexible-log-analyzer.analyzeCurrentFile",
+          "group": "navigation",
+          "when": "view == flexible-log-analyzer-view"
         },
         {
-          "command": "customisable-log-analyser.runscripts.all",
-					"group": "navigation"
+          "command": "flexible-log-analyzer.analyzeAllFiles",
+          "group": "navigation",
+          "when": "view == flexible-log-analyzer-view"
         },
         {
-          "command": "customisable-log-analyser.clear",
-					"group": "navigation"
+          "command": "flexible-log-analyzer.refreshTree",
+          "group": "navigation",
+          "when": "view == flexible-log-analyzer-view"
+        },
+        {
+          "command": "flexible-log-analyzer.clearResults",
+          "group": "navigation",
+          "when": "view == flexible-log-analyzer-view"
+        },
+        {
+          "command": "flexible-log-analyzer.openConfiguration",
+          "group": "2_workspace",
+          "when": "view == flexible-log-analyzer-view"
+        },
+        {
+          "command": "flexible-log-analyzer.createConfiguration",
+          "group": "2_workspace",
+          "when": "view == flexible-log-analyzer-view"
+        }
+      ],
+      "view/item/context": [
+        {
+          "command": "flexible-log-analyzer.jumpToLocation",
+          "when": "view == flexible-log-analyzer-view && viewItem == fileLocation",
+          "group": "inline"
         }
       ]
     },
     "configuration": {
-      "title": "Customisable Log Analyser",
+      "type": "object",
+      "title": "Flexible Log Analyzer Configuration",
       "properties": {
-        "customisable-log-analyser.scripsDirectory": {
-          "type": ["string"],
+        "flexible-log-analyzer.enableAutoAnalysis": {
+          "type": "boolean",
+          "default": true,
+          "description": "Automatically analyze files when they are opened or saved"
+        },
+        "flexible-log-analyzer.configWatchEnabled": {
+          "type": "boolean",
+          "default": true,
+          "description": "Watch for changes in .logconfig files and reload automatically"
+        },
+        "flexible-log-analyzer.showMinimapDecorations": {
+          "type": "boolean",
+          "default": true,
+          "description": "Show error and warning decorations in the minimap"
+        },
+        "flexible-log-analyzer.maxResultsPerFile": {
+          "type": "number",
+          "default": 1000,
+          "description": "Maximum number of analysis results to show per file"
+        },
+        "flexible-log-analyzer.scripsDirectory": {
+          "type": "string",
           "default": ".analysers",
-          "description": "Specifies the folder path containing the scripts for log analysis."
+          "description": "Legacy: Specifies the folder path containing the scripts for log analysis (deprecated - use .logconfig files instead)"
         }
       }
     }
@@ -94,22 +160,25 @@
     "watch-tests": "tsc -p . -w --outDir out",
     "pretest": "npm run compile-tests && npm run compile && npm run lint",
     "lint": "eslint src --ext ts",
-    "test": "node ./out/test/runTest.js"
+    "test": "vscode-test"
   },
   "devDependencies": {
-    "@types/vscode": "^1.71.0",
     "@types/glob": "^7.2.0",
+    "@types/js-yaml": "^4.0.9",
     "@types/mocha": "^9.1.1",
     "@types/node": "16.x",
+    "@types/vscode": "^1.71.0",
     "@typescript-eslint/eslint-plugin": "^5.31.0",
     "@typescript-eslint/parser": "^5.31.0",
+    "@vscode/test-cli": "^0.0.11",
+    "@vscode/test-electron": "^2.5.2",
     "eslint": "^8.20.0",
     "glob": "^8.0.3",
+    "js-yaml": "^4.1.0",
     "mocha": "^10.0.0",
-    "typescript": "^4.7.4",
     "ts-loader": "^9.3.1",
+    "typescript": "^4.7.4",
     "webpack": "^5.74.0",
-    "webpack-cli": "^4.10.0",
-    "@vscode/test-electron": "^2.1.5"
+    "webpack-cli": "^4.10.0"
   }
 }
