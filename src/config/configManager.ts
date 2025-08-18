@@ -45,7 +45,24 @@ export class ConfigManager {
     const workspaceConfig = await this.findWorkspaceConfig(filePath);
     if (workspaceConfig) {
       this.outputChannel.appendLine(`Using workspace config for ${fileName}`);
-      // Don't trigger language mode change for file pattern matches
+      
+      // If the config has a detector, check if it matches the file content and trigger language mode change
+      if (workspaceConfig.detector) {
+        try {
+          const fileUri = vscode.Uri.file(filePath);
+          const content = await vscode.workspace.fs.readFile(fileUri);
+          const firstLine = content.toString().split('\n')[0];
+          
+          if (this.matchesDetector(firstLine, workspaceConfig.detector)) {
+            this.outputChannel.appendLine(`Detector also matches for workspace config ${workspaceConfig.name}`);
+            // Handle language mode change since detector matched
+            await this.handleLanguageModeChange(filePath, workspaceConfig);
+          }
+        } catch (error) {
+          this.outputChannel.appendLine(`Error checking detector for workspace config: ${error}`);
+        }
+      }
+      
       return workspaceConfig;
     }
 

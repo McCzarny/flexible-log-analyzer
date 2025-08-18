@@ -94,7 +94,7 @@ suite('Language Mode Change Tests', () => {
 			const config = await configManager.getConfigForFile(testFilePath);
 			
 			assert.ok(config, 'Should find a configuration for Chromium log');
-			assert.strictEqual(config.name, 'Chromium Log Format', 'Should match the test config');
+			assert.strictEqual(config.name, 'Chromium log with language mode', 'Should match the test config');
 			assert.ok(config.detector, 'Config should have detector');
 			assert.strictEqual(config.detector.changeLanguageMode, true, 'changeLanguageMode should be true');
 		});
@@ -124,7 +124,7 @@ suite('Language Mode Change Tests', () => {
 			const config = await configManager.getConfigForFile(testFilePath);
 			
 			assert.ok(config, 'Should find a configuration for Chromium log');
-			assert.strictEqual(config.name, 'Chromium Log Format', 'Should match the test config');
+			assert.strictEqual(config.name, 'Chromium log without language mode', 'Should match the test config');
 			assert.ok(config.detector, 'Config should have detector');
 			assert.strictEqual(config.detector.changeLanguageMode, false, 'changeLanguageMode should be false');
 		});
@@ -182,7 +182,7 @@ suite('Language Mode Change Tests', () => {
 				}];
 			}
 
-			(configManager as any).configs.set('test-config-with-mode', testConfig);
+			(configManager as any).configs.set('chromium-with-mode', testConfig);
 
 			const testFilePath = path.join(__dirname, '../fixtures/chromium-log-no-ext');
 			
@@ -191,7 +191,6 @@ suite('Language Mode Change Tests', () => {
 			
 			// Verify initial language mode (should not be 'log')
 			const initialLanguageId = document.languageId;
-			outputChannel.appendLine(`Initial language mode: ${initialLanguageId}`);
 			
 			// Call getConfigForFile which should trigger language mode change
 			const config = await configManager.getConfigForFile(testFilePath);
@@ -201,11 +200,11 @@ suite('Language Mode Change Tests', () => {
 			assert.strictEqual(config.detector.changeLanguageMode, true, 'Config should have changeLanguageMode=true');
 			
 			// Give a moment for the language mode change to take effect
-			await new Promise(resolve => setTimeout(resolve, 100));
+			await new Promise(resolve => setTimeout(resolve, 200));
 			
-			// Check if language mode was changed to 'log'
-			const finalLanguageId = document.languageId;
-			outputChannel.appendLine(`Final language mode: ${finalLanguageId}`);
+			// Verify the document again (get fresh reference)
+			const refreshedDoc = vscode.workspace.textDocuments.find(doc => doc.fileName === testFilePath);
+			const finalLanguageId = refreshedDoc ? refreshedDoc.languageId : document.languageId;
 			
 			assert.strictEqual(finalLanguageId, 'log', 'Document language mode should be changed to "log"');
 		});
