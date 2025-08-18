@@ -8,7 +8,7 @@
     "type": "git",
     "url": "https://github.com/McCzarny/flexible-log-analyzer"
   },
-  "version": "0.1.1",
+  "version": "0.1.2",
   "engines": {
     "vscode": "^1.71.0"
   },
@@ -18,7 +18,7 @@
   "activationEvents": [
     "onView:flexible-log-analyzer-view",
     "onCommand:flexible-log-analyzer.analyzeCurrentFile",
-    "*"
+    "onStartupFinished"
   ],
   "main": "./dist/extension.js",
   "contributes": {
@@ -80,11 +80,6 @@
           "when": "view == flexible-log-analyzer-view"
         },
         {
-          "command": "flexible-log-analyzer.refreshTree",
-          "group": "navigation",
-          "when": "view == flexible-log-analyzer-view"
-        },
-        {
           "command": "flexible-log-analyzer.clearResults",
           "group": "navigation",
           "when": "view == flexible-log-analyzer-view"
@@ -116,6 +111,17 @@
           "type": "boolean",
           "default": true,
           "description": "Automatically analyze files when they are opened or saved"
+        },
+        "flexible-log-analyzer.enableAutoAnalysisOnChange": {
+          "type": "boolean",
+          "default": false,
+          "description": "Automatically analyze files when their content changes (may impact performance on large files)"
+        },
+        "flexible-log-analyzer.changeAnalysisDelay": {
+          "type": "number",
+          "default": 1000,
+          "minimum": 100,
+          "description": "Delay in milliseconds before analyzing file changes (debouncing)"
         },
         "flexible-log-analyzer.configWatchEnabled": {
           "type": "boolean",

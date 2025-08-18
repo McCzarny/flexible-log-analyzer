@@ -119,6 +119,49 @@ function setupFileWatchers(context: vscode.ExtensionContext): void {
 	});
 	context.subscriptions.push(onDidSaveTextDocument);
 
+	// Auto-analyze when file content changes (with debouncing)
+	let changeTimeout: NodeJS.Timeout;
+	const onDidChangeTextDocument = vscode.workspace.onDidChangeTextDocument((event) => {
+		const document = event.document;
+		if (shouldAutoAnalyze(document) && shouldAnalyzeOnChange()) {
+			// Clear existing timeout
+			if (changeTimeout) {
+				clearTimeout(changeTimeout);
+			}
+			
+			// Debounce the analysis to avoid too frequent updates
+			changeTimeout = setTimeout(async () => {
+				await analyzeDocument(document);
+			}, getChangeAnalysisDelay());
+		}
+	});
+	context.subscriptions.push(onDidChangeTextDocument);
+
+	// Watch for configuration file changes and reload configurations
+	const configWatcher = vscode.workspace.createFileSystemWatcher('**/.logconfig{,/**}');
+	
+	configWatcher.onDidCreate(async (uri) => {
+		outputChannel.appendLine(`Configuration file created: ${uri.fsPath}`);
+		await configManager.initialize();
+	});
+	
+	configWatcher.onDidChange(async (uri) => {
+		outputChannel.appendLine(`Configuration file changed: ${uri.fsPath}`);
+		await configManager.initialize();
+		
+		// Re-analyze active file if auto-analysis is enabled
+		if (vscode.window.activeTextEditor && shouldAutoAnalyze(vscode.window.activeTextEditor.document)) {
+			await analyzeDocument(vscode.window.activeTextEditor.document);
+		}
+	});
+	
+	configWatcher.onDidDelete(async (uri) => {
+		outputChannel.appendLine(`Configuration file deleted: ${uri.fsPath}`);
+		await configManager.initialize();
+	});
+	
+	context.subscriptions.push(configWatcher);
+
 	// Auto-analyze currently active file on activation
 	if (vscode.window.activeTextEditor) {
 		const document = vscode.window.activeTextEditor.document;
@@ -148,6 +191,16 @@ function shouldAutoAnalyze(document: vscode.TextDocument): boolean {
 	return result;
 }
 
+function shouldAnalyzeOnChange(): boolean {
+	const config = vscode.workspace.getConfiguration('flexible-log-analyzer');
+	return config.get<boolean>('enableAutoAnalysisOnChange', false);
+}
+
+function getChangeAnalysisDelay(): number {
+	const config = vscode.workspace.getConfiguration('flexible-log-analyzer');
+	return config.get<number>('changeAnalysisDelay', 1000);
+}
+
 async function analyzeCurrentFile(): Promise<void> {
 	const activeEditor = vscode.window.activeTextEditor;
 	if (!activeEditor) {
@@ -171,7 +224,6 @@ async function analyzeDocument(document: vscode.TextDocument): Promise<void> {
 			// Get configuration for this file (this will also handle language mode change)
 			const config = await configManager.getConfigForFile(document.fileName);
 			if (!config) {
-				vscode.window.showWarningMessage(`No configuration found for ${document.fileName}`);
 				return;
 			}
 

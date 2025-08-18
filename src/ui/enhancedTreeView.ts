@@ -227,7 +227,7 @@ export class EnhancedTreeView implements vscode.TreeDataProvider<EnhancedTreeNod
 
   private createFileLocationItem(element: FileLocationNode): vscode.TreeItem {
     const item = new vscode.TreeItem(
-      `${this.getFileName(element.filePath)}:${element.line}:${element.column} - ${element.matcherName}`,
+      `${element.matcherName} - ${this.getFileName(element.filePath)}:${element.line}:${element.column}`,
       vscode.TreeItemCollapsibleState.None
     );
     

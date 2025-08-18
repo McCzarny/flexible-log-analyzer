@@ -22,9 +22,21 @@ A powerful VS Code extension for analyzing log files using configurable pattern 
 This extension contributes the following settings:
 
 * `flexible-log-analyzer.enableAutoAnalysis`: Enable/disable automatic analysis when files are opened or saved
+* `flexible-log-analyzer.enableAutoAnalysisOnChange`: Enable automatic analysis when file content changes (default: false, may impact performance on large files)
+* `flexible-log-analyzer.changeAnalysisDelay`: Delay in milliseconds before analyzing file changes for debouncing (default: 1000ms)
 * `flexible-log-analyzer.configWatchEnabled`: Watch for changes in .logconfig files and reload automatically
 * `flexible-log-analyzer.showMinimapDecorations`: Show error and warning decorations in the minimap
 * `flexible-log-analyzer.maxResultsPerFile`: Maximum number of analysis results to show per file (default: 1000)
+
+### Auto-Analysis Features
+
+The extension supports multiple auto-analysis modes:
+
+1. **File Open/Save Analysis** (enabled by default): Automatically analyzes files when opened or saved
+2. **Real-time Content Analysis** (opt-in): Analyzes files as you type or modify content with configurable debouncing
+3. **Configuration Hot-reload**: Automatically re-analyzes files when `.logconfig` files are modified
+
+To enable real-time analysis on file changes, set `enableAutoAnalysisOnChange` to `true` in your VS Code settings. The `changeAnalysisDelay` setting controls how long to wait after the last change before triggering analysis (default: 1 second).
 
 ## Getting Started
 
