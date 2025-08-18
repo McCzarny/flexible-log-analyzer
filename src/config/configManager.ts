@@ -1,10 +1,14 @@
-import * as vscode from 'vscode';
-import * as path from 'path';
-import * as os from 'os';
-import * as yaml from 'js-yaml';
-import { LogConfig, ConfigSettings } from '../types/configTypes';
-import { ConfigDiscoveryResult, ConfigLoadResult, ValidationResult } from '../types/analysisTypes';
-import { ConfigValidator } from './configValidator';
+import * as vscode from "vscode";
+import * as path from "path";
+import * as os from "os";
+import * as yaml from "js-yaml";
+import { LogConfig, ConfigSettings } from "../types/configTypes";
+import {
+  ConfigDiscoveryResult,
+  ConfigLoadResult,
+  ValidationResult,
+} from "../types/analysisTypes";
+import { ConfigValidator } from "./configValidator";
 
 export class ConfigManager {
   private configs: Map<string, LogConfig> = new Map();
@@ -23,8 +27,8 @@ export class ConfigManager {
   }
 
   async loadAllConfigurations(): Promise<void> {
-    this.outputChannel.appendLine('Loading log configurations...');
-    
+    this.outputChannel.appendLine("Loading log configurations...");
+
     // Clear existing configurations
     this.configs.clear();
 
@@ -34,7 +38,9 @@ export class ConfigManager {
     // Load local workspace configurations from .logconfig/*.yaml
     await this.loadWorkspaceConfigurations();
 
-    this.outputChannel.appendLine(`Total configurations loaded: ${this.configs.size}`);
+    this.outputChannel.appendLine(
+      `Total configurations loaded: ${this.configs.size}`
+    );
   }
 
   async getConfigForFile(filePath: string): Promise<LogConfig | undefined> {
@@ -45,30 +51,37 @@ export class ConfigManager {
     const workspaceConfig = await this.findWorkspaceConfig(filePath);
     if (workspaceConfig) {
       this.outputChannel.appendLine(`Using workspace config for ${fileName}`);
-      
+
       // If the config has a detector, check if it matches the file content and trigger language mode change
       if (workspaceConfig.detector) {
         try {
           const fileUri = vscode.Uri.file(filePath);
           const content = await vscode.workspace.fs.readFile(fileUri);
-          const firstLine = content.toString().split('\n')[0];
-          
+          const firstLine = content.toString().split("\n")[0];
+
           if (this.matchesDetector(firstLine, workspaceConfig.detector)) {
-            this.outputChannel.appendLine(`Detector also matches for workspace config ${workspaceConfig.name}`);
+            this.outputChannel.appendLine(
+              `Detector also matches for workspace config ${workspaceConfig.name}`
+            );
             // Handle language mode change since detector matched
             await this.handleLanguageModeChange(filePath, workspaceConfig);
           }
         } catch (error) {
-          this.outputChannel.appendLine(`Error checking detector for workspace config: ${error}`);
+          this.outputChannel.appendLine(
+            `Error checking detector for workspace config: ${error}`
+          );
         }
       }
-      
+
       return workspaceConfig;
     }
 
     // Then check global configuration
-    const globalConfig = this.configs.get('global');
-    if (globalConfig && this.configMatches(globalConfig, fileName, fileExtension)) {
+    const globalConfig = this.configs.get("global");
+    if (
+      globalConfig &&
+      this.configMatches(globalConfig, fileName, fileExtension)
+    ) {
       this.outputChannel.appendLine(`Using global config for ${fileName}`);
       // Don't trigger language mode change for file pattern matches
       return globalConfig;
@@ -89,76 +102,105 @@ export class ConfigManager {
     return undefined;
   }
 
-  private async findWorkspaceConfig(filePath: string): Promise<LogConfig | undefined> {
+  private async findWorkspaceConfig(
+    filePath: string
+  ): Promise<LogConfig | undefined> {
     // Check if the file matches any of the loaded workspace configurations
     const fileName = path.basename(filePath);
     const fileExtension = path.extname(filePath);
-    
+
     // Iterate through all workspace configurations (non-global)
     for (const [configName, config] of this.configs) {
-      if (configName !== 'global') {
-        this.outputChannel.appendLine(`Checking workspace config '${configName}' for ${fileName}`);
-        this.outputChannel.appendLine(`Config metadata: name='${config.name}', filePatterns=${Array.isArray(config.filePatterns) ? config.filePatterns.length : 0}, detector=${config.detector ? 'present' : 'absent'}`);
+      if (configName !== "global") {
+        this.outputChannel.appendLine(
+          `Checking workspace config '${configName}' for ${fileName}`
+        );
+        this.outputChannel.appendLine(
+          `Config metadata: name='${config.name}', filePatterns=${
+            Array.isArray(config.filePatterns) ? config.filePatterns.length : 0
+          }, detector=${config.detector ? "present" : "absent"}`
+        );
         if (this.configMatches(config, fileName, fileExtension)) {
-          this.outputChannel.appendLine(`Using workspace config '${configName}' for ${fileName}`);
+          this.outputChannel.appendLine(
+            `Using workspace config '${configName}' for ${fileName}`
+          );
           return config;
-        }
-        else {
-          this.outputChannel.appendLine(`Config '${configName}' does not match ${fileName}`);
+        } else {
+          this.outputChannel.appendLine(
+            `Config '${configName}' does not match ${fileName}`
+          );
         }
       }
     }
-    
+
     return undefined;
   }
 
-  private configMatches(config: LogConfig, fileName: string, _fileExtension: string): boolean {
+  private configMatches(
+    config: LogConfig,
+    fileName: string,
+    _fileExtension: string
+  ): boolean {
     // Check if the configuration file patterns match the file
     if (config.filePatterns) {
       for (const pattern of config.filePatterns) {
-        this.outputChannel.appendLine(`Checking file pattern '${pattern}' for ${fileName}`);
+        this.outputChannel.appendLine(
+          `Checking file pattern '${pattern}' for ${fileName}`
+        );
         if (this.matchesGlobPattern(fileName, pattern)) {
-          this.outputChannel.appendLine(`File ${fileName} matches pattern '${pattern}'`);
+          this.outputChannel.appendLine(
+            `File ${fileName} matches pattern '${pattern}'`
+          );
           return true;
         }
       }
+    } else {
+      this.outputChannel.appendLine(
+        `No file patterns specified in config for ${fileName}`
+      );
     }
-    else {
-      this.outputChannel.appendLine(`No file patterns specified in config for ${fileName}`);
-    }
-    
+
     return false;
   }
 
   private matchesGlobPattern(fileName: string, pattern: string): boolean {
     // Simple glob pattern matching (supports * wildcards)
-    const regexPattern = pattern
-      .replace(/\./g, '\\.')
-      .replace(/\*/g, '.*');
-    
-    const regex = new RegExp(`^${regexPattern}$`, 'i');
+    const regexPattern = pattern.replace(/\./g, "\\.").replace(/\*/g, ".*");
+
+    const regex = new RegExp(`^${regexPattern}$`, "i");
     return regex.test(fileName);
   }
 
-  private async detectConfigFromFile(filePath: string): Promise<LogConfig | undefined> {
+  private async detectConfigFromFile(
+    filePath: string
+  ): Promise<LogConfig | undefined> {
     try {
       const fileUri = vscode.Uri.file(filePath);
       const content = await vscode.workspace.fs.readFile(fileUri);
       // TODO: Use more optimized way to read the first line
-      const firstLine = content.toString().split('\n')[0];
+      const firstLine = content.toString().split("\n")[0];
 
       // Try to match against detector patterns from loaded configs
       for (const [configName, config] of this.configs) {
-        this.outputChannel.appendLine(`Checking config '${configName}' for file: ${filePath} has detector: ${!!config.detector}`);
-        if (config.detector && this.matchesDetector(firstLine, config.detector)) {
-          this.outputChannel.appendLine(`Auto-detected config: ${config.name} for file: ${filePath}`);
+        this.outputChannel.appendLine(
+          `Checking config '${configName}' for file: ${filePath} has detector: ${!!config.detector}`
+        );
+        if (
+          config.detector &&
+          this.matchesDetector(firstLine, config.detector)
+        ) {
+          this.outputChannel.appendLine(
+            `Auto-detected config: ${config.name} for file: ${filePath}`
+          );
           return config;
         }
       }
 
       return undefined;
     } catch (error) {
-      this.outputChannel.appendLine(`Error detecting config for ${filePath}: ${error}`);
+      this.outputChannel.appendLine(
+        `Error detecting config for ${filePath}: ${error}`
+      );
       return undefined;
     }
   }
@@ -168,12 +210,16 @@ export class ConfigManager {
       const regex = new RegExp(detector.pattern);
       return regex.test(content);
     } catch (error) {
-      this.outputChannel.appendLine(`Invalid detector pattern: ${detector.pattern}`);
+      this.outputChannel.appendLine(
+        `Invalid detector pattern: ${detector.pattern}`
+      );
       return false;
     }
   }
 
-  private async loadConfigFromPath(configPath: string): Promise<ConfigLoadResult> {
+  private async loadConfigFromPath(
+    configPath: string
+  ): Promise<ConfigLoadResult> {
     try {
       const configUri = vscode.Uri.file(configPath);
       const content = await vscode.workspace.fs.readFile(configUri);
@@ -181,7 +227,7 @@ export class ConfigManager {
 
       // Parse YAML configuration using js-yaml
       const config = yaml.load(configText) as LogConfig;
-      
+
       // Validate configuration
       const validation = this.validator.validate(config);
       if (!validation.isValid) {
@@ -189,7 +235,7 @@ export class ConfigManager {
           success: false,
           errors: validation.errors.map((e: any) => e.message),
           warnings: validation.warnings.map((w: any) => w.message),
-          path: configPath
+          path: configPath,
         };
       }
 
@@ -197,13 +243,13 @@ export class ConfigManager {
         success: true,
         config,
         warnings: validation.warnings.map((w: any) => w.message),
-        path: configPath
+        path: configPath,
       };
     } catch (error) {
       return {
         success: false,
         errors: [`Failed to load configuration: ${error}`],
-        path: configPath
+        path: configPath,
       };
     }
   }
@@ -212,11 +258,14 @@ export class ConfigManager {
     const paths: string[] = [];
 
     // Get configured paths from VS Code settings
-    const config = vscode.workspace.getConfiguration('flexible-log-analyzer');
-    const configPaths = config.get<string[]>('configPaths', ['.logconfig', '~/.logconfig']);
+    const config = vscode.workspace.getConfiguration("flexible-log-analyzer");
+    const configPaths = config.get<string[]>("configPaths", [
+      ".logconfig",
+      "~/.logconfig",
+    ]);
 
     for (const configPath of configPaths) {
-      if (configPath.startsWith('~/')) {
+      if (configPath.startsWith("~/")) {
         paths.push(path.join(os.homedir(), configPath.substring(2)));
       } else if (path.isAbsolute(configPath)) {
         paths.push(configPath);
@@ -232,84 +281,107 @@ export class ConfigManager {
   }
 
   private async loadGlobalConfiguration(): Promise<void> {
-    const globalConfigPath = path.join(os.homedir(), '.logconfig');
+    const globalConfigPath = path.join(os.homedir(), ".logconfig");
 
     try {
       await vscode.workspace.fs.stat(vscode.Uri.file(globalConfigPath));
     } catch (error) {
-      this.outputChannel.appendLine(`No global configuration found at ${globalConfigPath}`);
+      this.outputChannel.appendLine(
+        `No global configuration found at ${globalConfigPath}`
+      );
       return;
     }
 
     try {
-      this.outputChannel.appendLine(`Loading global configuration from: ${globalConfigPath}`);
+      this.outputChannel.appendLine(
+        `Loading global configuration from: ${globalConfigPath}`
+      );
       const result = await this.loadConfigFromPath(globalConfigPath);
-      
+
       if (result.success && result.config) {
-        this.configs.set('global', result.config);
-        this.outputChannel.appendLine(`Global configuration loaded successfully`);
+        this.configs.set("global", result.config);
+        this.outputChannel.appendLine(
+          `Global configuration loaded successfully`
+        );
       } else if (result.errors) {
-        this.outputChannel.appendLine(`Failed to load global config: ${result.errors.join(', ')}`);
+        this.outputChannel.appendLine(
+          `Failed to load global config: ${result.errors.join(", ")}`
+        );
       }
     } catch (error) {
-      this.outputChannel.appendLine(`Got error while loading global configuration: ${error}`);
+      this.outputChannel.appendLine(
+        `Got error while loading global configuration: ${error}`
+      );
     }
   }
 
   private async loadWorkspaceConfigurations(): Promise<void> {
     if (!vscode.workspace.workspaceFolders) {
-      this.outputChannel.appendLine('No workspace folders found, skipping workspace configurations');
+      this.outputChannel.appendLine(
+        "No workspace folders found, skipping workspace configurations"
+      );
       return;
     }
 
     for (const folder of vscode.workspace.workspaceFolders) {
-      const configDir = path.join(folder.uri.fsPath, '.logconfig');
-      
+      const configDir = path.join(folder.uri.fsPath, ".logconfig");
+
       try {
-        // Check if .logconfig directory exists
-        const configDirStat = await vscode.workspace.fs.stat(vscode.Uri.file(configDir));
-        
-        if (configDirStat.type === vscode.FileType.Directory) {
-          this.outputChannel.appendLine(`Loading workspace configurations from: ${configDir}`);
-          
-          // Read all .yaml files in the .logconfig directory
-          const files = await vscode.workspace.fs.readDirectory(vscode.Uri.file(configDir));
-          
-          for (const [fileName, fileType] of files) {
-            if (fileType === vscode.FileType.File && (fileName.endsWith('.yaml') || fileName.endsWith('.yml'))) {
-              const configPath = path.join(configDir, fileName);
-              const configName = path.basename(fileName, path.extname(fileName));
-              
-              try {
-                const result = await this.loadConfigFromPath(configPath);
-                
-                if (result.success && result.config) {
-                  this.configs.set(configName, result.config);
-                  this.outputChannel.appendLine(`✅ Loaded workspace config: ${fileName}`);
-                } else if (result.errors) {
-                  this.outputChannel.appendLine(`❌ Failed to load ${fileName}: ${result.errors.join(', ')}`);
-                }
-              } catch (error) {
-                this.outputChannel.appendLine(`❌ Error loading ${fileName}: ${error}`);
+        this.outputChannel.appendLine(
+          `Loading workspace configurations from: ${configDir}`
+        );
+
+        // Read all .yaml files in the .logconfig directory
+        const files = await vscode.workspace.fs.readDirectory(
+          vscode.Uri.file(configDir)
+        );
+
+        for (const [fileName, fileType] of files) {
+          if (
+            fileType === vscode.FileType.File &&
+            (fileName.endsWith(".yaml") || fileName.endsWith(".yml"))
+          ) {
+            const configPath = path.join(configDir, fileName);
+            const configName = path.basename(fileName, path.extname(fileName));
+
+            try {
+              const result = await this.loadConfigFromPath(configPath);
+
+              if (result.success && result.config) {
+                this.configs.set(configName, result.config);
+                this.outputChannel.appendLine(
+                  `✅ Loaded workspace config: ${fileName}`
+                );
+              } else if (result.errors) {
+                this.outputChannel.appendLine(
+                  `❌ Failed to load ${fileName}: ${result.errors.join(", ")}`
+                );
               }
+            } catch (error) {
+              this.outputChannel.appendLine(
+                `❌ Error loading ${fileName}: ${error}`
+              );
             }
           }
         }
       } catch (error) {
-        this.outputChannel.appendLine(`ℹ️ No .logconfig directory found in workspace: ${folder.uri.fsPath}`);
+        this.outputChannel.appendLine(
+          `ℹ️ No .logconfig directory found in workspace: ${folder.uri.fsPath}`
+        );
       }
     }
   }
 
   private setupFileWatchers(): void {
     // Clean up existing watchers
-    this.fileWatchers.forEach(watcher => watcher.dispose());
+    this.fileWatchers.forEach((watcher) => watcher.dispose());
     this.fileWatchers = [];
 
     // Watch for global configuration file ~/.logconfig
-    const globalConfigPath = path.join(os.homedir(), '.logconfig');
-    const globalWatcher = vscode.workspace.createFileSystemWatcher(globalConfigPath);
-    
+    const globalConfigPath = path.join(os.homedir(), ".logconfig");
+    const globalWatcher =
+      vscode.workspace.createFileSystemWatcher(globalConfigPath);
+
     globalWatcher.onDidChange(() => {
       this.outputChannel.appendLine(`Global configuration changed`);
       this.loadGlobalConfiguration();
@@ -322,26 +394,34 @@ export class ConfigManager {
 
     globalWatcher.onDidDelete(() => {
       this.outputChannel.appendLine(`Global configuration deleted`);
-      this.configs.delete('global');
+      this.configs.delete("global");
     });
 
     this.fileWatchers.push(globalWatcher);
 
     // Watch for workspace .logconfig directory and .yaml files
-    const workspaceConfigWatcher = vscode.workspace.createFileSystemWatcher('**/.logconfig/*.{yaml,yml}');
-    
-    workspaceConfigWatcher.onDidChange(uri => {
-      this.outputChannel.appendLine(`Workspace configuration changed: ${uri.fsPath}`);
+    const workspaceConfigWatcher = vscode.workspace.createFileSystemWatcher(
+      "**/.logconfig/*.{yaml,yml}"
+    );
+
+    workspaceConfigWatcher.onDidChange((uri) => {
+      this.outputChannel.appendLine(
+        `Workspace configuration changed: ${uri.fsPath}`
+      );
       this.reloadWorkspaceConfig(uri.fsPath);
     });
 
-    workspaceConfigWatcher.onDidCreate(uri => {
-      this.outputChannel.appendLine(`Workspace configuration created: ${uri.fsPath}`);
+    workspaceConfigWatcher.onDidCreate((uri) => {
+      this.outputChannel.appendLine(
+        `Workspace configuration created: ${uri.fsPath}`
+      );
       this.reloadWorkspaceConfig(uri.fsPath);
     });
 
-    workspaceConfigWatcher.onDidDelete(uri => {
-      this.outputChannel.appendLine(`Workspace configuration deleted: ${uri.fsPath}`);
+    workspaceConfigWatcher.onDidDelete((uri) => {
+      this.outputChannel.appendLine(
+        `Workspace configuration deleted: ${uri.fsPath}`
+      );
       const configName = path.basename(uri.fsPath, path.extname(uri.fsPath));
       this.configs.delete(configName);
     });
@@ -360,19 +440,25 @@ export class ConfigManager {
 
   private async reloadWorkspaceConfig(configPath: string): Promise<void> {
     const configName = path.basename(configPath, path.extname(configPath));
-    
+
     try {
       const result = await this.loadConfigFromPath(configPath);
-      
+
       if (result.success && result.config) {
         this.configs.set(configName, result.config);
-        this.outputChannel.appendLine(`✅ Reloaded workspace config: ${configName}`);
+        this.outputChannel.appendLine(
+          `✅ Reloaded workspace config: ${configName}`
+        );
         this.notifyConfigChange(configName, result.config);
       } else if (result.errors) {
-        this.outputChannel.appendLine(`❌ Failed to reload ${configName}: ${result.errors.join(', ')}`);
+        this.outputChannel.appendLine(
+          `❌ Failed to reload ${configName}: ${result.errors.join(", ")}`
+        );
       }
     } catch (error) {
-      this.outputChannel.appendLine(`❌ Error reloading ${configName}: ${error}`);
+      this.outputChannel.appendLine(
+        `❌ Error reloading ${configName}: ${error}`
+      );
     }
   }
 
@@ -382,37 +468,64 @@ export class ConfigManager {
     // TODO: Implement event emission system
   }
 
-  private async handleLanguageModeChange(filePath: string, config: LogConfig): Promise<void> {
+  private async handleLanguageModeChange(
+    filePath: string,
+    config: LogConfig
+  ): Promise<void> {
     // Check if the configuration has the changeLanguageMode flag set in detector and detector matched
     if (config.detector?.changeLanguageMode === true) {
-      this.outputChannel.appendLine(`Changing language mode to 'log' for file: ${path.basename(filePath)} (detector matched)`);
+      this.outputChannel.appendLine(
+        `Changing language mode to 'log' for file: ${path.basename(
+          filePath
+        )} (detector matched)`
+      );
       try {
         // Find the document if it's already open
-        const openDoc = vscode.workspace.textDocuments.find(doc => doc.fileName === filePath);
-        
+        const openDoc = vscode.workspace.textDocuments.find(
+          (doc) => doc.fileName === filePath
+        );
+
         if (openDoc) {
           // Check if it's already set to 'log' language mode
-          if (openDoc.languageId !== 'log') {
+          if (openDoc.languageId !== "log") {
             // Change the language mode to 'log'
-            await vscode.languages.setTextDocumentLanguage(openDoc, 'log');
+            await vscode.languages.setTextDocumentLanguage(openDoc, "log");
 
-            this.outputChannel.appendLine(`Successfully changed language mode to 'log' for: ${path.basename(filePath)}`);
+            this.outputChannel.appendLine(
+              `Successfully changed language mode to 'log' for: ${path.basename(
+                filePath
+              )}`
+            );
           } else {
-            this.outputChannel.appendLine(`File ${path.basename(filePath)} already has 'log' language mode`);
+            this.outputChannel.appendLine(
+              `File ${path.basename(filePath)} already has 'log' language mode`
+            );
           }
         } else {
-          this.outputChannel.appendLine(`File ${path.basename(filePath)} is not currently open, will change language mode when opened`);
+          this.outputChannel.appendLine(
+            `File ${path.basename(
+              filePath
+            )} is not currently open, will change language mode when opened`
+          );
         }
       } catch (error) {
-        this.outputChannel.appendLine(`Failed to change language mode for ${path.basename(filePath)}: ${error}`);
+        this.outputChannel.appendLine(
+          `Failed to change language mode for ${path.basename(
+            filePath
+          )}: ${error}`
+        );
       }
     } else {
-      this.outputChannel.appendLine(`Language mode change requested but detector did not match for: ${path.basename(filePath)}`);
+      this.outputChannel.appendLine(
+        `Language mode change requested but detector did not match for: ${path.basename(
+          filePath
+        )}`
+      );
     }
   }
 
   dispose(): void {
-    this.fileWatchers.forEach(watcher => watcher.dispose());
+    this.fileWatchers.forEach((watcher) => watcher.dispose());
     // Note: outputChannel is shared and disposed by the extension
   }
 }
