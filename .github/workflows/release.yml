@@ -49,21 +49,12 @@ jobs:
       
     - name: Create Release
       id: create_release
-      uses: actions/create-release@v1
+      uses: softprops/action-gh-release@v2
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       with:
         tag_name: ${{ github.ref }}
         release_name: Release ${{ steps.get_version.outputs.VERSION }}
         draft: false
-        prerelease: false
-        
-    - name: Upload VSIX to release
-      uses: actions/upload-release-asset@v1
-      env:
-        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-      with:
-        upload_url: ${{ steps.create_release.outputs.upload_url }}
-        asset_path: ./flexible-log-analyzer-${{ steps.get_version.outputs.VERSION }}.vsix
-        asset_name: flexible-log-analyzer-${{ steps.get_version.outputs.VERSION }}.vsix
-        asset_content_type: application/zip
+        prerelease: false,
+        files: ./*.vsix
