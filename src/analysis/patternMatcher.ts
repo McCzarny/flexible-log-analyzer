@@ -1,6 +1,6 @@
 import * as vscode from 'vscode';
 import { LogConfig, Matcher, CompiledMatcher, MatchResult, AnalysisResult, SeverityLevel } from '../types/configTypes';
-import { FileAnalysisContext, AnalysisProgress, PerformanceMetrics } from '../types/analysisTypes';
+import { FileAnalysisContext, PerformanceMetrics } from '../types/analysisTypes';
 
 export class PatternMatcher {
   private compiledMatchers: CompiledMatcher[] = [];

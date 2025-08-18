@@ -1,4 +1,4 @@
-import { LogConfig, Matcher, SeverityLevel } from '../types/configTypes';
+import { SeverityLevel } from '../types/configTypes';
 import { ValidationResult, ValidationError, ValidationWarning } from '../types/analysisTypes';
 
 export class ConfigValidator {

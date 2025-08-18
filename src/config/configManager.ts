@@ -2,11 +2,9 @@ import * as vscode from "vscode";
 import * as path from "path";
 import * as os from "os";
 import * as yaml from "js-yaml";
-import { LogConfig, ConfigSettings } from "../types/configTypes";
+import { LogConfig } from "../types/configTypes";
 import {
-  ConfigDiscoveryResult,
   ConfigLoadResult,
-  ValidationResult,
 } from "../types/analysisTypes";
 import { ConfigValidator } from "./configValidator";
 
