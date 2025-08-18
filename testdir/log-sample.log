@@ -1,0 +1,70 @@
+[91167:11504282:0816/095805.977857:ERROR:chrome/browser/mac/code_sign_clone_manager.mm:98] error removing quarantine attribute "/var/folders/x6/g5skccc96j70w72tchlflfw40000gn/X/"
+[91167:11504282:0816/095806.002410:ERROR:chrome/browser/mac/code_sign_clone_manager.mm:98] error removing quarantine attribute "/var/folders/x6/g5skccc96j70w72tchlflfw40000gn/X/"
+[91167:11503885:0816/095806.172187:WARNING:chrome/browser/signin/account_consistency_mode_manager.cc:73] Desktop Identity Consistency cannot be enabled as no OAuth client ID and client secret have been configured.
+[91167:11503885:0816/095807.749393:INFO:CONSOLE:183] "%s service worker initialized 2025-08-16T07:58:07.744Z", source: chrome-extension://test/background.js (183)
+[91167:11503885:0816/095807.901037:INFO:CONSOLE:57803] "Event handler of 'popstate' event must be added on the initial evaluation of worker script.", source: chrome-extension://pupa/static/background/index.js (57803)
+[91167:11503885:0816/095807.901528:INFO:CONSOLE:55750] "Event handler of 'error' event must be added on the initial evaluation of worker script.", source: chrome-extension://pupa/static/background/index.js (55750)
+[91167:11503885:0816/095807.901645:INFO:CONSOLE:55793] "Event handler of 'unhandledrejection' event must be added on the initial evaluation of worker script.", source: chrome-extension://pupa/static/background/index.js (55793)
+[91167:11503885:0816/095808.242405:INFO:CONSOLE:34598] "[object Object]", source: chrome-extension://pupa/static/background/index.js (34598)
+[91167:11503885:0816/095810.123507:INFO:chrome/browser/ui/startup/startup_browser_creator.cc:785] User data loaded successfully, launching browser.
+[91167:11503885:0816/095810.735303:ERROR:ui/views/widget/native_widget_mac.mm:720] Not implemented reached in virtual void views::NativeWidgetMac::Show(ui::mojom::WindowShowState, const gfx::Rect &)
+[91167:11504369:0816/095813.723682:ERROR:google_apis/gcm/engine/registration_request.cc:291] Registration response error message: QUOTA_EXCEEDED
+[91167:11503885:0816/095814.943324:FATAL:base/threading/thread_restrictions.cc:165] DCHECK failed: !tls_base_sync_primitives_disallowed. Waiting on a //base sync primitive is not allowed on this thread to prevent jank and deadlock. If waiting on a //base sync primitive is unavoidable, do it within the scope of a ScopedAllowBaseSyncPrimitives. If in a test, use ScopedAllowBaseSyncPrimitivesForTesting.
+tls_base_sync_primitives_disallowed 1 set by
+0   libbase.dylib                       0x0000000105d93698 base::debug::CollectStackTrace(base::span<void const*, 18446744073709551615ul, void const**>) + 84
+1   libbase.dylib                       0x0000000105d339f8 base::debug::StackTrace::StackTrace(unsigned long) + 156
+2   libbase.dylib                       0x0000000105d33aa0 base::debug::StackTrace::StackTrace(unsigned long) + 36
+3   libbase.dylib                       0x0000000105d33a6c base::debug::StackTrace::StackTrace() + 40
+4   libbase.dylib                       0x0000000105cd8f58 base::debug::StackTrace* std::__Cr::construct_at<base::debug::StackTrace, base::debug::StackTrace*>(base::debug::StackTrace*) + 72
+5   libbase.dylib                       0x0000000105cd8f04 base::debug::StackTrace* std::__Cr::__construct_at<base::debug::StackTrace, base::debug::StackTrace*>(base::debug::StackTrace*) + 24
+6   libbase.dylib                       0x0000000105cd8ed4 void std::__Cr::__optional_storage_base<base::debug::StackTrace, false>::__construct<>() + 28
+7   libbase.dylib                       0x0000000105cd6410 base::debug::StackTrace& std::__Cr::optional<base::debug::StackTrace>::emplace<0>() + 36
+8   libbase.dylib                       0x0000000105cd63d8 base::BooleanWithOptionalStack::BooleanWithOptionalStack(bool) + 84
+9   libbase.dylib                       0x0000000105cd644c base::BooleanWithOptionalStack::BooleanWithOptionalStack(bool) + 40
+10  libbase.dylib                       0x0000000105cd6c14 base::DisallowBaseSyncPrimitives() + 48
+11  libbase.dylib                       0x0000000105cd84fc base::DisallowUnresponsiveTasks() + 40
+12  libcontent.dylib                    0x000000012cdef000 content::BrowserMainLoop::PreMainMessageLoopRun() + 492
+13  libcontent.dylib                    0x000000012cdf8298 int base::internal::DecayedFunctorTraits<int (content::BrowserMainLoop::*)(), content::BrowserMainLoop*>::Invoke<int (content::BrowserMainLoop::*)(), content::BrowserMainLoop*>(int (content::BrowserMainLoop::*)(), content::BrowserMainLoop*&&) + 140
+14  libcontent.dylib                    0x000000012cdf81d8 int base::internal::InvokeHelper<false, base::internal::FunctorTraits<int (content::BrowserMainLoop::*&&)(), content::BrowserMainLoop*>, int, 0ul>::MakeItSo<int (content::BrowserMainLoop::*)(), std::__Cr::tuple<base::internal::UnretainedWrapper<content::BrowserMainLoop, base::unretained_traits::MayNotDangle, (partition_alloc::internal::RawPtrTraits)0>>>(int (content::BrowserMainLoop::*&&)(), std::__Cr::tuple<base::internal::UnretainedWrapper<content::BrowserMainLoop, base::unretained_traits::MayNotDangle, (partition_alloc::internal::RawPtrTraits)0>>&&) + 108
+15  libcontent.dylib                    0x000000012cdf8160 int base::internal::Invoker<base::internal::FunctorTraits<int (content::BrowserMainLoop::*&&)(), content::BrowserMainLoop*>, base::internal::BindState<true, true, false, int (content::BrowserMainLoop::*)(), base::internal::UnretainedWrapper<content::BrowserMainLoop, base::unretained_traits::MayNotDangle, (partition_alloc::internal::RawPtrTraits)0>>, int ()>::RunImpl<int (content::BrowserMainLoop::*)(), std::__Cr::tuple<base::internal::UnretainedWrapper<content::BrowserMainLoop, base::unretained_traits::MayNotDangle, (partition_alloc::internal::RawPtrTraits)0>>, 0ul>(int (content::BrowserMainLoop::*&&)(), std::__Cr::tuple<base::internal::UnretainedWrapper<content::BrowserMainLoop, base::unretained_traits::MayNotDangle, (partition_alloc::internal::RawPtrTraits)0>>&&, std::__Cr::integer_sequence<unsigned long, 0ul>) + 32
+16  libcontent.dylib                    0x000000012cdf80b4 base::internal::Invoker<base::internal::FunctorTraits<int (content::BrowserMainLoop::*&&)(), content::BrowserMainLoop*>, base::internal::BindState<true, true, false, int (content::BrowserMainLoop::*)(), base::internal::UnretainedWrapper<content::BrowserMainLoop, base::unretained_traits::MayNotDangle, (partition_alloc::internal::RawPtrTraits)0>>, int ()>::RunOnce(base::internal::BindStateBase*) + 44
+17  libcontent.dylib                    0x000000012ec06050 base::OnceCallback<int ()>::Run() && + 176
+18  libcontent.dylib                    0x000000012ec05e60 content::StartupTaskRunner::RunAllTasksNow() + 112
+19  libcontent.dylib                    0x000000012cdee7ec content::BrowserMainLoop::CreateStartupTasks() + 756
+20  libcontent.dylib                    0x000000012ce051b8 content::BrowserMainRunnerImpl::Initialize(content::MainFunctionParams) + 644
+21  libcontent.dylib                    0x000000012cde9d48 content::BrowserMain(content::MainFunctionParams) + 136
+22  libcontent.dylib                    0x0000000130532b30 content::RunBrowserProcessMain(content::MainFunctionParams, content::ContentMainDelegate*) + 296
+23  libcontent.dylib                    0x0000000130535450 content::ContentMainRunnerImpl::RunBrowser(content::MainFunctionParams, bool) + 1660
+24  libcontent.dylib                    0x0000000130534b20 content::ContentMainRunnerImpl::Run() + 872
+25  libcontent.dylib                    0x0000000130530374 content::RunContentProcess(content::ContentMainParams, content::ContentMainRunner*) + 648
+26  libcontent.dylib                    0x0000000130530a6c content::ContentMain(content::ContentMainParams) + 84
+27  libchrome_dll.dylib                 0x000000030000b0ac ChromeMain + 564
+It can be useful to know that tls_blocking_disallowed is 1 set by
+0   libbase.dylib                       0x0000000105d93698 base::debug::CollectStackTrace(base::span<void const*, 18446744073709551615ul, void const**>) + 84
+1   libbase.dylib                       0x0000000105d339f8 base::debug::StackTrace::StackTrace(unsigned long) + 156
+2   libbase.dylib                       0x0000000105d33aa0 base::debug::StackTrace::StackTrace(unsigned long) + 36
+3   libbase.dylib                       0x0000000105d33a6c base::debug::StackTrace::StackTrace() + 40
+4   libbase.dylib                       0x0000000105cd8f58 base::debug::StackTrace* std::__Cr::construct_at<base::debug::StackTrace, base::debug::StackTrace*>(base::debug::StackTrace*) + 72
+5   libbase.dylib                       0x0000000105cd8f04 base::debug::StackTrace* std::__Cr::__construct_at<base::debug::StackTrace, base::debug::StackTrace*>(base::debug::StackTrace*) + 24
+6   libbase.dylib                       0x0000000105cd8ed4 void std::__Cr::__optional_storage_base<base::debug::StackTrace, false>::__construct<>() + 28
+7   libbase.dylib                       0x0000000105cd6410 base::debug::StackTrace& std::__Cr::optional<base::debug::StackTrace>::emplace<0>() + 36
+8   libbase.dylib                       0x0000000105cd63d8 base::BooleanWithOptionalStack::BooleanWithOptionalStack(bool) + 84
+9   libbase.dylib                       0x0000000105cd644c base::BooleanWithOptionalStack::BooleanWithOptionalStack(bool) + 40
+10  libbase.dylib                       0x0000000105cd6888 base::DisallowBlocking() + 48
+11  libbase.dylib                       0x0000000105cd84f8 base::DisallowUnresponsiveTasks() + 36
+12  libcontent.dylib                    0x000000012cdef000 content::BrowserMainLoop::PreMainMessageLoopRun() + 492
+13  libcontent.dylib                    0x000000012cdf8298 int base::internal::DecayedFunctorTraits<int (content::BrowserMainLoop::*)(), content::BrowserMainLoop*>::Invoke<int (content::BrowserMainLoop::*)(), content::BrowserMainLoop*>(int (content::BrowserMainLoop::*)(), content::BrowserMainLoop*&&) + 140
+14  libcontent.dylib                    0x000000012cdf81d8 int base::internal::InvokeHelper<false, base::internal::FunctorTraits<int (content::BrowserMainLoop::*&&)(), content::BrowserMainLoop*>, int, 0ul>::MakeItSo<int (content::BrowserMainLoop::*)(), std::__Cr::tuple<base::internal::UnretainedWrapper<content::BrowserMainLoop, base::unretained_traits::MayNotDangle, (partition_alloc::internal::RawPtrTraits)0>>>(int (content::BrowserMainLoop::*&&)(), std::__Cr::tuple<base::internal::UnretainedWrapper<content::BrowserMainLoop, base::unretained_traits::MayNotDangle, (partition_alloc::internal::RawPtrTraits)0>>&&) + 108
+15  libcontent.dylib                    0x000000012cdf8160 int base::internal::Invoker<base::internal::FunctorTraits<int (content::BrowserMainLoop::*&&)(), content::BrowserMainLoop*>, base::internal::BindState<true, true, false, int (content::BrowserMainLoop::*)(), base::internal::UnretainedWrapper<content::BrowserMainLoop, base::unretained_traits::MayNotDangle, (partition_alloc::internal::RawPtrTraits)0>>, int ()>::RunImpl<int (content::BrowserMainLoop::*)(), std::__Cr::tuple<base::internal::UnretainedWrapper<content::BrowserMainLoop, base::unretained_traits::MayNotDangle, (partition_alloc::internal::RawPtrTraits)0>>, 0ul>(int (content::BrowserMainLoop::*&&)(), std::__Cr::tuple<base::internal::UnretainedWrapper<content::BrowserMainLoop, base::unretained_traits::MayNotDangle, (partition_alloc::internal::RawPtrTraits)0>>&&, std::__Cr::integer_sequence<unsigned long, 0ul>) + 32
+16  libcontent.dylib                    0x000000012cdf80b4 base::internal::Invoker<base::internal::FunctorTraits<int (content::BrowserMainLoop::*&&)(), content::BrowserMainLoop*>, base::internal::BindState<true, true, false, int (content::BrowserMainLoop::*)(), base::internal::UnretainedWrapper<content::BrowserMainLoop, base::unretained_traits::MayNotDangle, (partition_alloc::internal::RawPtrTraits)0>>, int ()>::RunOnce(base::internal::BindStateBase*) + 44
+17  libcontent.dylib                    0x000000012ec06050 base::OnceCallback<int ()>::Run() && + 176
+18  libcontent.dylib                    0x000000012ec05e60 content::StartupTaskRunner::RunAllTasksNow() + 112
+19  libcontent.dylib                    0x000000012cdee7ec content::BrowserMainLoop::CreateStartupTasks() + 756
+20  libcontent.dylib                    0x000000012ce051b8 content::BrowserMainRunnerImpl::Initialize(content::MainFunctionParams) + 644
+21  libcontent.dylib                    0x000000012cde9d48 content::BrowserMain(content::MainFunctionParams) + 136
+22  libcontent.dylib                    0x0000000130532b30 content::RunBrowserProcessMain(content::MainFunctionParams, content::ContentMainDelegate*) + 296
+23  libcontent.dylib                    0x0000000130535450 content::ContentMainRunnerImpl::RunBrowser(content::MainFunctionParams, bool) + 1660
+24  libcontent.dylib                    0x0000000130534b20 content::ContentMainRunnerImpl::Run() + 872
+25  libcontent.dylib                    0x0000000130530374 content::RunContentProcess(content::ContentMainParams, content::ContentMainRunner*) + 648
+26  libcontent.dylib                    0x0000000130530a6c content::ContentMain(content::ContentMainParams) + 84
+27  libchrome_dll.dylib                 0x000000030000b0ac ChromeMain + 564

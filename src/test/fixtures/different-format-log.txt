@@ -1,0 +1,3 @@
+This is a different log format that should not match Chromium detector
+Some regular log line without timestamp format
+Another line that doesn't match the pattern

@@ -1,0 +1,4 @@
+[1234:5678:0817/161230.123:INFO:browser_main.cc(1234)] Starting Chrome browser
+[1234:5678:0817/161230.124:WARNING:network_service.cc(567)] Network connection timeout
+[1234:5678:0817/161230.125:ERROR:renderer_host.cc(890)] Failed to initialize renderer process
+[1234:5678:0817/161230.126:INFO:tab_manager.cc(345)] Tab created successfully

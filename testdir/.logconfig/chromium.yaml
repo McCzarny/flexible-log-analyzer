@@ -1,0 +1,125 @@
+version: "1.0"
+name: "Chromium log configuration"
+description: "Basic configuration for Chromium log file analysis"
+
+detector:
+  type: "first-line"
+  # Simple pattern to match Chromium log lines
+  pattern: "^\\[.*\\] .*$"
+  # Flag to change language mode of a file to "log" when this detector matches
+  changeLanguageMode: true
+
+  # Simple matchers for common patterns
+matchers:
+  # Basic error detection
+  - name: "Error Messages"
+    type: "error"
+    severity: "high"
+    pattern: '(error|fail|exception|crash)'
+    color: "#FF4444"
+    minimap: true
+    description: "Lines containing error-related keywords"
+    ignoreCase: true
+    icon: "$(error)"
+    
+  - name: "Warning Messages"
+    type: "warning"
+    severity: "medium"
+    pattern: '(warn|warning|caution|alert)'
+    color: "#FFA500"
+    minimap: true
+    description: "Lines containing warning-related keywords"
+    ignoreCase: true
+    icon: "$(warning)"
+    
+  - name: "Success Messages"
+    type: "success"
+    severity: "low"
+    pattern: '(success|complete|done|ok|passed)'
+    color: "#00AA00"
+    minimap: false
+    description: "Lines indicating successful operations"
+    ignoreCase: true
+    icon: "$(check)"
+    
+  # Common log levels
+  - name: "Fatal/Critical"
+    type: "fatal"
+    severity: "critical"
+    pattern: '(fatal|critical|severe)'
+    color: "#8B0000"
+    minimap: true
+    description: "Critical errors and fatal conditions"
+    ignoreCase: true
+    icon: "$(error)"
+    
+  # Common issues
+  - name: "Timeout Issues"
+    type: "timeout"
+    severity: "medium"
+    pattern: '(timeout|timed out|time.*out)'
+    color: "#FF6600"
+    minimap: true
+    description: "Timeout-related issues"
+    ignoreCase: true
+    icon: "$(watch)"
+    
+  - name: "Connection Issues"
+    type: "connection"
+    severity: "medium"
+    pattern: '(connection.*failed|connection.*refused|connection.*lost|disconnected)'
+    color: "#FF7700"
+    minimap: true
+    description: "Network connection problems"
+    ignoreCase: true
+    icon: "$(plug)"
+
+# Simple highlighting
+highlighting:
+  # Highlight common error words
+  - name: "Error Keywords"
+    pattern: '(error|fail|exception|crash)'
+    style:
+      color: "#FF0000"
+      fontWeight: "bold"
+      
+  - name: "Warning Keywords"
+    pattern: '(warn|warning|caution|alert)'
+    style:
+      color: "#FF8800"
+      fontWeight: "bold"
+      
+  - name: "Success Keywords"
+    pattern: '(success|complete|done|ok|passed)'
+    style:
+      color: "#00AA00"
+      fontWeight: "bold"
+
+# Simple grouping
+groups:
+  - name: "Critical Issues"
+    description: "Fatal errors and critical problems"
+    matchers: ["fatal", "error"]
+    icon: "$(error)"
+    color: "#FF0000"
+    priority: 1
+    
+  - name: "Warnings & Issues"
+    description: "Warnings and non-critical issues"
+    matchers: ["warning", "timeout", "connection"]
+    icon: "$(warning)"
+    color: "#FFA500"
+    priority: 2
+
+# Match common log file extensions
+filePatterns:
+  - "*.log"
+  - "*.out"
+  - "*.txt"
+
+# Conservative performance settings
+performance:
+  maxLinesPerAnalysis: 25000
+  analysisTimeout: 30
+  cacheResults: true
+  debounceInterval: 500
