@@ -251,36 +251,22 @@ async function createConfigurationFile(): Promise<void> {
 			return;
 		}
 
-		// Show template selection
-		const template = await vscode.window.showQuickPick([
-			{ label: 'Chrome Browser Logs', value: 'chrome' },
-			{ label: 'Apache/Nginx Access Logs', value: 'apache' },
-			{ label: 'Application Logs', value: 'application' },
-			{ label: 'Default Configuration', value: 'default' }
-		], {
-			placeHolder: 'Select a configuration template'
-		});
-
-		if (!template) {
-			return;
-		}
-
 		const configPath = vscode.Uri.joinPath(workspaceFolders[0].uri, '.logconfig');
-		const templateContent = getConfigurationTemplate(template.value);
+		const templateContent = getConfigurationTemplate();
 		
 		const encoder = new (require('util').TextEncoder)();
 		await vscode.workspace.fs.writeFile(configPath, encoder.encode(templateContent));
 		
 		const document = await vscode.workspace.openTextDocument(configPath);
 		await vscode.window.showTextDocument(document);
-		
-		vscode.window.showInformationMessage(`Created ${template.label} configuration template`);
+
+		vscode.window.showInformationMessage(`Created configuration template`);
 	} catch (error) {
 		vscode.window.showErrorMessage(`Failed to create configuration: ${error}`);
 	}
 }
 
-function getConfigurationTemplate(_templateType: string): string {
+function getConfigurationTemplate(): string {
 	// Return basic template content - in a real implementation, 
 	// you'd load these from template files
 	const baseTemplate = `version: "1.0"

@@ -1,4 +1,5 @@
 import * as vscode from 'vscode';
+import * as path from 'path';
 import { AnalysisResult } from '../types/configTypes';
 import { EnhancedTreeNode, ConfigGroupNode, MatchGroupNode, FileLocationNode } from '../types/analysisTypes';
 
@@ -281,7 +282,7 @@ export class EnhancedTreeView implements vscode.TreeDataProvider<EnhancedTreeNod
   }
 
   private getFileName(filePath: string): string {
-    return filePath.split('/').pop() || filePath;
+    return path.basename(filePath);
   }
 
   private capitalizeType(type: string): string {
