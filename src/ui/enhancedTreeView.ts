@@ -20,7 +20,8 @@ export class EnhancedTreeView implements vscode.TreeDataProvider<EnhancedTreeNod
   private setupActiveEditorTracking(): void {
     // Track active editor changes
     const onDidChangeActiveTextEditor = vscode.window.onDidChangeActiveTextEditor((editor) => {
-      if (editor) {
+      // Only update if we have a valid file editor, otherwise keep showing the last file's results
+      if (editor && editor.document && editor.document.uri.scheme === 'file') {
         const newActiveFile = editor.document.fileName;
         if (newActiveFile !== this.currentActiveFile) {
           this.currentActiveFile = newActiveFile;
@@ -32,7 +33,7 @@ export class EnhancedTreeView implements vscode.TreeDataProvider<EnhancedTreeNod
     this.context.subscriptions.push(onDidChangeActiveTextEditor);
 
     // Set initial active file
-    if (vscode.window.activeTextEditor) {
+    if (vscode.window.activeTextEditor && vscode.window.activeTextEditor.document.uri.scheme === 'file') {
       this.currentActiveFile = vscode.window.activeTextEditor.document.fileName;
     }
   }

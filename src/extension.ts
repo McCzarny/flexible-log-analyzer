@@ -203,6 +203,12 @@ function setupFileWatchers(context: vscode.ExtensionContext): void {
         const shouldForceAnalysis = timeSinceLastChange > FORCED_ANALYSIS_INTERVAL;
         const delay = shouldForceAnalysis ? 0 : getChangeAnalysisDelay();
         
+        if (shouldForceAnalysis) {
+          outputChannel.appendLine(`[DEBUG] Forcing analysis for: ${filePath}`);
+        } else {
+          outputChannel.appendLine(`[DEBUG] Delaying analysis for: ${filePath} by ${delay}ms`);
+        }
+
         // Set new timeout for this specific file
         const newTimeout = setTimeout(async () => {
           await analyzeDocument(document);
@@ -242,8 +248,11 @@ function setupFileWatchers(context: vscode.ExtensionContext): void {
       );
       
       // Analyze all newly visible editors that should be auto-analyzed
+      // Only process file editors to avoid issues with output panels, settings, etc.
       for (const editor of editors) {
-        if (editor && editor.document && shouldAutoAnalyze(editor.document)) {
+        if (editor && editor.document && 
+            editor.document.uri.scheme === 'file' && 
+            shouldAutoAnalyze(editor.document)) {
           const fileName = editor.document.fileName.split("/").pop() || editor.document.fileName;
           outputChannel.appendLine(
             `[DEBUG ${timestamp}] Triggering analysis from tab switch for: ${fileName}`
@@ -340,7 +349,11 @@ function shouldAutoAnalyze(document: vscode.TextDocument): boolean {
 
 function shouldAnalyzeOnChange(): boolean {
   const config = vscode.workspace.getConfiguration("flexible-log-analyzer");
-  return config.get<boolean>("enableAutoAnalysisOnChange", false);
+  const result = config.get<boolean>("enableAutoAnalysisOnChange", true);
+  outputChannel.appendLine(
+    `Auto-analysis on change is ${result ? "enabled" : "disabled"}`
+  );
+  return result;
 }
 
 function getChangeAnalysisDelay(): number {
@@ -393,6 +406,7 @@ async function analyzeDocument(document: vscode.TextDocument): Promise<void> {
       
       // Check if we have a valid cached result
       const cachedResult = enhancedTreeView.getCachedResult(document.fileName, checksum);
+
       if (cachedResult) {
         outputChannel.appendLine(
           `[DEBUG ${timestamp}] Using cached analysis for: ${fileName} (config checksum: ${checksum.substring(0, 8)}...)`
@@ -400,7 +414,6 @@ async function analyzeDocument(document: vscode.TextDocument): Promise<void> {
         
         // Update tree view with cached result
         enhancedTreeView.updateResults(cachedResult);
-        return;
       }
 
       outputChannel.appendLine(
