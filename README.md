@@ -24,9 +24,22 @@ This extension contributes the following settings:
 * `flexible-log-analyzer.enableAutoAnalysis`: Enable/disable automatic analysis when files are opened or saved
 * `flexible-log-analyzer.enableAutoAnalysisOnChange`: Enable automatic analysis when file content changes (default: false, may impact performance on large files)
 * `flexible-log-analyzer.changeAnalysisDelay`: Delay in milliseconds before analyzing file changes for debouncing (default: 1000ms)
+* `flexible-log-analyzer.analysisResultCacheSize`: Number of analysis results to cache for quick switching (default: 10)
 * `flexible-log-analyzer.configWatchEnabled`: Watch for changes in .logconfig files and reload automatically
 * `flexible-log-analyzer.showMinimapDecorations`: Show error and warning decorations in the minimap
 * `flexible-log-analyzer.maxResultsPerFile`: Maximum number of analysis results to show per file (default: 1000)
+
+### Tree View and Caching Features
+
+The extension provides a focused tree view with efficient caching:
+
+1. **Active File Focus**: Shows analysis results only for the currently active/open file
+2. **Smart Caching**: Maintains a configurable cache of recent analysis results for instant switching
+3. **LRU Eviction**: Automatically removes oldest cached results when cache limit is reached
+
+**Commands available in tree view:**
+- `Clear Results`: Clear all cached analysis results
+- `Refresh`: Manually refresh the tree view
 
 ### Auto-Analysis Features
 
@@ -37,6 +50,12 @@ The extension supports multiple auto-analysis modes:
 3. **Configuration Hot-reload**: Automatically re-analyzes files when `.logconfig` files are modified
 
 To enable real-time analysis on file changes, set `enableAutoAnalysisOnChange` to `true` in your VS Code settings. The `changeAnalysisDelay` setting controls how long to wait after the last change before triggering analysis (default: 1 second).
+
+### Performance and Usage Tips
+
+- **Cache Size**: Adjust `analysisResultCacheSize` based on your workflow - larger values use more memory but provide faster switching
+- **Real-time Analysis**: Enable cautiously on large files as it may impact editor responsiveness
+- **Cache Management**: Use "Clear Results" command to free memory when needed
 
 ## Getting Started
 

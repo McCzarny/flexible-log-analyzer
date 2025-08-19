@@ -123,6 +123,12 @@
           "minimum": 100,
           "description": "Delay in milliseconds before analyzing file changes (debouncing)"
         },
+        "flexible-log-analyzer.analysisResultCacheSize": {
+          "type": "number",
+          "default": 10,
+          "minimum": 1,
+          "description": "Number of analysis results to cache for quick tree view switching"
+        },
         "flexible-log-analyzer.configWatchEnabled": {
           "type": "boolean",
           "default": true,

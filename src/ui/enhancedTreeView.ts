@@ -8,10 +8,38 @@ export class EnhancedTreeView implements vscode.TreeDataProvider<EnhancedTreeNod
   readonly onDidChangeTreeData: vscode.Event<EnhancedTreeNode | undefined | null | void> = this._onDidChangeTreeData.event;
 
   private treeData: EnhancedTreeNode[] = [];
-  private analysisResults: Map<string, AnalysisResult> = new Map();
+  private analysisResultsCache: Map<string, AnalysisResult> = new Map();
+  private cacheAccessOrder: string[] = []; // Track access order for LRU eviction
+  private currentActiveFile: string | null = null;
 
   constructor(private context: vscode.ExtensionContext) {
     this.registerCommands();
+    this.setupActiveEditorTracking();
+  }
+
+  private setupActiveEditorTracking(): void {
+    // Track active editor changes
+    const onDidChangeActiveTextEditor = vscode.window.onDidChangeActiveTextEditor((editor) => {
+      if (editor) {
+        const newActiveFile = editor.document.fileName;
+        if (newActiveFile !== this.currentActiveFile) {
+          this.currentActiveFile = newActiveFile;
+          this.rebuildTreeDataForActiveFile();
+          this.refresh();
+        }
+      }
+    });
+    this.context.subscriptions.push(onDidChangeActiveTextEditor);
+
+    // Set initial active file
+    if (vscode.window.activeTextEditor) {
+      this.currentActiveFile = vscode.window.activeTextEditor.document.fileName;
+    }
+  }
+
+  private getCacheSize(): number {
+    const config = vscode.workspace.getConfiguration('flexible-log-analyzer');
+    return config.get<number>('analysisResultCacheSize', 10);
   }
 
   private registerCommands(): void {
@@ -75,40 +103,81 @@ export class EnhancedTreeView implements vscode.TreeDataProvider<EnhancedTreeNod
   }
 
   updateResults(result: AnalysisResult): void {
-    this.analysisResults.set(result.filePath, result);
-    this.rebuildTreeData();
-    this.refresh();
+    this.addToCache(result);
+    
+    // Only rebuild if this is the active file
+    if (result.filePath === this.currentActiveFile) {
+      this.rebuildTreeDataForActiveFile();
+      this.refresh();
+    }
   }
 
   removeResults(filePath: string): void {
-    this.analysisResults.delete(filePath);
-    this.rebuildTreeData();
-    this.refresh();
+    this.removeFromCache(filePath);
+    
+    if (filePath === this.currentActiveFile) {
+      this.rebuildTreeDataForActiveFile();
+      this.refresh();
+    }
   }
 
   clearResults(): void {
-    this.analysisResults.clear();
+    this.analysisResultsCache.clear();
+    this.cacheAccessOrder = [];
     this.rebuildTreeData();
     this.refresh();
   }
 
-  private rebuildTreeData(): void {
-    this.treeData = [];
+  private addToCache(result: AnalysisResult): void {
+    const filePath = result.filePath;
+    
+    // Update or add to cache
+    this.analysisResultsCache.set(filePath, result);
+    
+    // Update access order
+    const existingIndex = this.cacheAccessOrder.indexOf(filePath);
+    if (existingIndex !== -1) {
+      this.cacheAccessOrder.splice(existingIndex, 1);
+    }
+    this.cacheAccessOrder.push(filePath);
+    
+    // Evict oldest entries if cache is full
+    const maxCacheSize = this.getCacheSize();
+    while (this.cacheAccessOrder.length > maxCacheSize) {
+      const oldestFile = this.cacheAccessOrder.shift();
+      if (oldestFile) {
+        this.analysisResultsCache.delete(oldestFile);
+      }
+    }
+  }
 
-    for (const [filePath, result] of this.analysisResults) {
+  private removeFromCache(filePath: string): void {
+    this.analysisResultsCache.delete(filePath);
+    const index = this.cacheAccessOrder.indexOf(filePath);
+    if (index !== -1) {
+      this.cacheAccessOrder.splice(index, 1);
+    }
+  }
+
+  private rebuildTreeDataForActiveFile(): void {
+    this.treeData = [];
+    
+    if (!this.currentActiveFile) {
+      return;
+    }
+    
+    const result = this.analysisResultsCache.get(this.currentActiveFile);
+    if (result) {
       const configGroup = this.createConfigGroupFromResult(result);
       if (configGroup.children.length > 0) {
         this.treeData.push(configGroup);
       }
     }
+  }
 
-    // Sort by priority and match count
-    this.treeData.sort((a, b) => {
-      if (a.type === 'config-group' && b.type === 'config-group') {
-        return b.totalMatches - a.totalMatches;
-      }
-      return 0;
-    });
+  private rebuildTreeData(): void {
+    // Always show only active file
+    this.rebuildTreeDataForActiveFile();
   }
 
   private createConfigGroupFromResult(result: AnalysisResult): ConfigGroupNode {
