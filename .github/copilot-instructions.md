@@ -220,3 +220,4 @@ Remember: This extension aims to provide a powerful yet user-friendly log analys
 - There is no need for a long summary at the end.
 - Try to stick to things you were asked for. If you have a good idea, first confirm it with the user.
 - Try to implement tests whenever possible.
+- Do not document bug fixes with dummy test cases that do not test anything like "assert.ok(true, "something")".

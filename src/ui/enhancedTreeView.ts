@@ -112,6 +112,54 @@ export class EnhancedTreeView implements vscode.TreeDataProvider<EnhancedTreeNod
     }
   }
 
+  /**
+   * Check if cached result is still valid based on configuration checksum
+   */
+  isCacheValid(filePath: string, currentChecksum: string): boolean {
+    const cachedResult = this.analysisResultsCache.get(filePath);
+    if (!cachedResult) {
+      return false;
+    }
+    
+    // If no checksum was stored (legacy cache), consider it invalid
+    if (!cachedResult.configChecksum) {
+      return false;
+    }
+    
+    return cachedResult.configChecksum === currentChecksum;
+  }
+
+  /**
+   * Get cached result only if it's valid for the current configuration
+   */
+  getCachedResult(filePath: string, currentChecksum: string): AnalysisResult | undefined {
+    if (this.isCacheValid(filePath, currentChecksum)) {
+      // Update access order for LRU
+      this.updateAccessOrder(filePath);
+      return this.analysisResultsCache.get(filePath);
+    }
+    
+    // Cache is invalid, remove it
+    this.removeFromCache(filePath);
+    return undefined;
+  }
+
+  /**
+   * Invalidate cache entries that use a specific configuration path
+   */
+  invalidateCacheForConfigPath(configPath: string): string[] {
+    const invalidatedFiles: string[] = [];
+    
+    for (const [filePath, result] of this.analysisResultsCache.entries()) {
+      if (result.configPath === configPath) {
+        this.removeFromCache(filePath);
+        invalidatedFiles.push(filePath);
+      }
+    }
+    
+    return invalidatedFiles;
+  }
+
   removeResults(filePath: string): void {
     this.removeFromCache(filePath);
     
@@ -157,6 +205,14 @@ export class EnhancedTreeView implements vscode.TreeDataProvider<EnhancedTreeNod
     if (index !== -1) {
       this.cacheAccessOrder.splice(index, 1);
     }
+  }
+
+  private updateAccessOrder(filePath: string): void {
+    const existingIndex = this.cacheAccessOrder.indexOf(filePath);
+    if (existingIndex !== -1) {
+      this.cacheAccessOrder.splice(existingIndex, 1);
+    }
+    this.cacheAccessOrder.push(filePath);
   }
 
   private rebuildTreeDataForActiveFile(): void {
@@ -214,7 +270,7 @@ export class EnhancedTreeView implements vscode.TreeDataProvider<EnhancedTreeNod
         message: match.message,
         matcherName: match.matcher.name,
         severity: match.matcher.severity,
-        preview: this.createPreview(match.originalLine),
+        preview: this.createPreview(match.originalLine.substring(match.column)),
         uri: ['location', result.filePath, match.line.toString(), match.column.toString()]
       };
 
@@ -296,7 +352,7 @@ export class EnhancedTreeView implements vscode.TreeDataProvider<EnhancedTreeNod
 
   private createFileLocationItem(element: FileLocationNode): vscode.TreeItem {
     const item = new vscode.TreeItem(
-      `${element.matcherName} - ${this.getFileName(element.filePath)}:${element.line}:${element.column}`,
+      `${element.matcherName}: ${element.preview}`,
       vscode.TreeItemCollapsibleState.None
     );
     

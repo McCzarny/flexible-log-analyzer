@@ -120,6 +120,8 @@ export interface AnalysisResult {
   analysisTime: number;
   errors?: string[];
   summary: AnalysisSummary;
+  configChecksum?: string; // SHA256 hash of the configuration used for analysis
+  configPath?: string;     // Path to the configuration file used
 }
 
 export interface AnalysisSummary {

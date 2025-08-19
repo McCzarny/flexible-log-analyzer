@@ -1,6 +1,7 @@
 // The module 'vscode' contains the VS Code extensibility API
 // Import the module and reference it with the alias vscode in your code below
 import * as vscode from "vscode";
+import * as path from "path";
 import { ConfigManager } from "./config/configManager";
 import { PatternMatcher } from "./analysis/patternMatcher";
 import { EnhancedTreeView } from "./ui/enhancedTreeView";
@@ -14,6 +15,11 @@ let outputChannel: vscode.OutputChannel;
 // Deduplication mechanism to prevent double analysis
 const analysisInProgress = new Map<string, boolean>();
 let lastAnalyzedFile: string | undefined;
+
+// Per-file change tracking for debounced analysis
+const changeTimeouts = new Map<string, NodeJS.Timeout>();
+const lastAnalysisTime = new Map<string, number>();
+const FORCED_ANALYSIS_INTERVAL = 5000; // Force analysis every 5 seconds for frequently changing files
 
 // this method is called when your extension is activated
 // your extension is activated the very first time the command is executed
@@ -132,15 +138,17 @@ function setupTreeView(context: vscode.ExtensionContext): void {
   });
 
   context.subscriptions.push(treeView);
-
-  // Update tree view title with statistics
-  treeView.title = "Log Analysis Results";
 }
 
 function setupFileWatchers(context: vscode.ExtensionContext): void {
   // Auto-analyze when log files are opened
   const onDidOpenTextDocument = vscode.workspace.onDidOpenTextDocument(
     async (document) => {
+	  // Ignore anything that is not a file
+	  if (document.uri.scheme !== 'file') {
+		return;
+	  }
+
       const fileName = document.fileName.split("/").pop() || document.fileName;
       const timestamp = new Date().toISOString();
       outputChannel.appendLine(
@@ -174,25 +182,78 @@ function setupFileWatchers(context: vscode.ExtensionContext): void {
   );
   context.subscriptions.push(onDidSaveTextDocument);
 
-  // Auto-analyze when file content changes (with debouncing)
-  let changeTimeout: NodeJS.Timeout;
+  // Auto-analyze when file content changes (with per-file debouncing)
   const onDidChangeTextDocument = vscode.workspace.onDidChangeTextDocument(
     (event) => {
       const document = event.document;
+      const filePath = document.fileName;
+      
       if (shouldAutoAnalyze(document) && shouldAnalyzeOnChange()) {
-        // Clear existing timeout
-        if (changeTimeout) {
-          clearTimeout(changeTimeout);
+        const now = Date.now();
+        const lastChange = lastAnalysisTime.get(filePath) || 0;
+        const timeSinceLastChange = now - lastChange;
+        
+        // Clear existing timeout for this specific file
+        const existingTimeout = changeTimeouts.get(filePath);
+        if (existingTimeout) {
+          clearTimeout(existingTimeout);
         }
 
-        // Debounce the analysis to avoid too frequent updates
-        changeTimeout = setTimeout(async () => {
+        // Check if we should force analysis due to frequent changes
+        const shouldForceAnalysis = timeSinceLastChange > FORCED_ANALYSIS_INTERVAL;
+        const delay = shouldForceAnalysis ? 0 : getChangeAnalysisDelay();
+        
+        // Set new timeout for this specific file
+        const newTimeout = setTimeout(async () => {
           await analyzeDocument(document);
-        }, getChangeAnalysisDelay());
+
+          // Update last analysis time
+          lastAnalysisTime.set(filePath, Date.now());
+          // Clean up the timeout reference after it fires
+          changeTimeouts.delete(filePath);
+        }, delay);
+        
+        changeTimeouts.set(filePath, newTimeout);
       }
     }
   );
   context.subscriptions.push(onDidChangeTextDocument);
+
+  // Clean up timeouts when documents are closed to prevent memory leaks
+  const onDidCloseTextDocument = vscode.workspace.onDidCloseTextDocument(
+    (document) => {
+      const filePath = document.fileName;
+      const timeout = changeTimeouts.get(filePath);
+      if (timeout) {
+        clearTimeout(timeout);
+        changeTimeouts.delete(filePath);
+      }
+      lastAnalysisTime.delete(filePath);
+    }
+  );
+  context.subscriptions.push(onDidCloseTextDocument);
+
+  // Auto-analyze when switching between tabs/editors
+  const onDidChangeVisibleTextEditors = vscode.window.onDidChangeVisibleTextEditors(
+    async (editors) => {
+      const timestamp = new Date().toISOString();
+      outputChannel.appendLine(
+        `[DEBUG ${timestamp}] onDidChangeVisibleTextEditors fired with ${editors.length} editors`
+      );
+      
+      // Analyze all newly visible editors that should be auto-analyzed
+      for (const editor of editors) {
+        if (editor && editor.document && shouldAutoAnalyze(editor.document)) {
+          const fileName = editor.document.fileName.split("/").pop() || editor.document.fileName;
+          outputChannel.appendLine(
+            `[DEBUG ${timestamp}] Triggering analysis from tab switch for: ${fileName}`
+          );
+          await analyzeDocument(editor.document);
+        }
+      }
+    }
+  );
+  context.subscriptions.push(onDidChangeVisibleTextEditors);
 
   // Watch for configuration file changes and reload configurations
   const configWatcher = vscode.workspace.createFileSystemWatcher(
@@ -206,6 +267,13 @@ function setupFileWatchers(context: vscode.ExtensionContext): void {
 
   configWatcher.onDidChange(async (uri) => {
     outputChannel.appendLine(`Configuration file changed: ${uri.fsPath}`);
+    
+    // Invalidate cache entries that use this configuration
+    const invalidatedFiles = enhancedTreeView.invalidateCacheForConfigPath(uri.fsPath);
+    if (invalidatedFiles.length > 0) {
+      outputChannel.appendLine(`Invalidated cache for ${invalidatedFiles.length} files due to config change: ${invalidatedFiles.map(f => path.basename(f)).join(', ')}`);
+    }
+    
     await configManager.initialize();
 
     // Re-analyze active file if auto-analysis is enabled
@@ -213,6 +281,7 @@ function setupFileWatchers(context: vscode.ExtensionContext): void {
       vscode.window.activeTextEditor &&
       shouldAutoAnalyze(vscode.window.activeTextEditor.document)
     ) {
+      outputChannel.appendLine(`Re-analyzing active file due to configuration change: ${path.basename(vscode.window.activeTextEditor.document.fileName)}`);
       await analyzeDocument(vscode.window.activeTextEditor.document);
     }
   });
@@ -249,7 +318,7 @@ function shouldAutoAnalyze(document: vscode.TextDocument): boolean {
   if (
     !autoAnalysis ||
     document.isUntitled ||
-    document.uri.scheme === "output"
+    document.uri.scheme !== "file"
   ) {
     return false;
   }
@@ -311,25 +380,45 @@ async function analyzeDocument(document: vscode.TextDocument): Promise<void> {
     analysisInProgress.set(document.fileName, true);
 
     try {
-      // Get configuration for this file (this will also handle language mode change)
-      const config = await configManager.getConfigForFile(document.fileName);
-      if (!config) {
+      // Get configuration with checksum for this file
+      const configWithChecksum = await configManager.getConfigWithChecksum(document.fileName);
+      if (!configWithChecksum) {
         outputChannel.appendLine(
           `[DEBUG ${timestamp}] No config found for: ${fileName}`
         );
         return;
       }
 
+      const { config, checksum, configPath } = configWithChecksum;
+      
+      // Check if we have a valid cached result
+      const cachedResult = enhancedTreeView.getCachedResult(document.fileName, checksum);
+      if (cachedResult) {
+        outputChannel.appendLine(
+          `[DEBUG ${timestamp}] Using cached analysis for: ${fileName} (config checksum: ${checksum.substring(0, 8)}...)`
+        );
+        
+        // Update tree view with cached result
+        enhancedTreeView.updateResults(cachedResult);
+        return;
+      }
+
+      outputChannel.appendLine(
+        `[DEBUG ${timestamp}] Performing fresh analysis for: ${fileName} (config checksum: ${checksum.substring(0, 8)}...)`
+      );
+
       // Analyze the file
       const result = await patternMatcher.analyzeFile(
         document.fileName,
         config
       );
+      
+      // Add checksum and metadata to result
+      result.configChecksum = checksum;
+      result.configPath = configPath;
+      
       // Update tree view
       enhancedTreeView.updateResults(result);
-
-      // Update tree view title with statistics
-      updateTreeViewTitle(result);
 
       // Show summary
       const message = `Analysis complete: ${result.matches.length} issues found in ${result.totalLines} lines`;
@@ -476,25 +565,15 @@ groups:
   return baseTemplate;
 }
 
-function updateTreeViewTitle(result: any): void {
-  if (treeView) {
-    const totalMatches = result.matches?.length || 0;
-    const criticalCount = result.summary?.matchesBySeverity?.critical || 0;
-    const highCount = result.summary?.matchesBySeverity?.high || 0;
-
-    if (totalMatches > 0) {
-      treeView.title = `Log Analysis Results (${totalMatches})`;
-      if (criticalCount > 0 || highCount > 0) {
-        treeView.title += ` ⚠️`;
-      }
-    } else {
-      treeView.title = "Log Analysis Results";
-    }
-  }
-}
-
 // this method is called when your extension is deactivated
 export function deactivate() {
+  // Clean up all pending timeouts
+  for (const timeout of changeTimeouts.values()) {
+    clearTimeout(timeout);
+  }
+  changeTimeouts.clear();
+  lastAnalysisTime.clear();
+  
   if (configManager) {
     configManager.dispose();
   }

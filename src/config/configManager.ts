@@ -1,6 +1,7 @@
 import * as vscode from "vscode";
 import * as path from "path";
 import * as os from "os";
+import * as crypto from "crypto";
 import * as yaml from "js-yaml";
 import { LogConfig } from "../types/configTypes";
 import {
@@ -520,6 +521,50 @@ export class ConfigManager {
         )}`
       );
     }
+  }
+
+  /**
+   * Calculate SHA256 checksum of a configuration object
+   */
+  calculateConfigChecksum(config: LogConfig, configPath?: string): string {
+    const configString = JSON.stringify(config, null, 0); // Deterministic serialization
+    const pathString = configPath || '';
+    const combined = `${configString}:${pathString}`;
+    return crypto.createHash('sha256').update(combined).digest('hex');
+  }
+
+  /**
+   * Get configuration with checksum information
+   */
+  async getConfigWithChecksum(filePath: string): Promise<{ config: LogConfig; checksum: string; configPath?: string } | undefined> {
+    const config = await this.getConfigForFile(filePath);
+    if (!config) {
+      return undefined;
+    }
+
+    // Try to determine the configuration file path
+    let configPath: string | undefined;
+    const workspaceConfig = await this.findWorkspaceConfig(filePath);
+    if (workspaceConfig) {
+      // This came from workspace config
+      const workspaceFolders = vscode.workspace.workspaceFolders;
+      if (workspaceFolders && workspaceFolders.length > 0) {
+        configPath = path.join(workspaceFolders[0].uri.fsPath, '.logconfig');
+      }
+    } else {
+      // Check if it came from global config
+      const globalConfigPath = path.join(os.homedir(), '.logconfig');
+      try {
+        await vscode.workspace.fs.stat(vscode.Uri.file(globalConfigPath));
+        configPath = globalConfigPath;
+      } catch {
+        // Global config doesn't exist, might be built-in or auto-detected
+        configPath = 'builtin';
+      }
+    }
+
+    const checksum = this.calculateConfigChecksum(config, configPath);
+    return { config, checksum, configPath };
   }
 
   dispose(): void {

@@ -35,7 +35,7 @@ matchers:
   - name: "Success Messages"
     type: "success"
     severity: "low"
-    pattern: '(success|complete|done|ok|passed)'
+    pattern: '(success|complete|done|passed)'
     color: "#00AA00"
     minimap: false
     description: "Lines indicating successful operations"
@@ -90,7 +90,7 @@ highlighting:
       fontWeight: "bold"
       
   - name: "Success Keywords"
-    pattern: '(success|complete|done|ok|passed)'
+    pattern: '(success|complete|done|passed)'
     style:
       color: "#00AA00"
       fontWeight: "bold"
