@@ -24,6 +24,7 @@ suite("Configuration Change Detection Tests", () => {
           minimap: true,
         },
       ],
+      checksum: "x"
     };
 
     const checksum1 = configManager.calculateConfigChecksum(
@@ -317,6 +318,7 @@ test("Should detect configuration content changes through checksum", async () =>
         minimap: true,
       },
     ],
+    checksum: ""
   };
 
   const config2 = {
@@ -332,6 +334,7 @@ test("Should detect configuration content changes through checksum", async () =>
         minimap: true,
       },
     ],
+    checksum: ""
   };
 
   // Different configuration content should produce different checksum
@@ -348,6 +351,7 @@ test("Should detect configuration content changes through checksum", async () =>
         minimap: true,
       },
     ],
+    checksum: ""
   };
 
   const checksum1 = configManager.calculateConfigChecksum(config1, "/test");

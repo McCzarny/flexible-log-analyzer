@@ -1,11 +1,22 @@
-import * as vscode from 'vscode';
-import * as path from 'path';
-import { AnalysisResult } from '../types/configTypes';
-import { EnhancedTreeNode, ConfigGroupNode, MatchGroupNode, FileLocationNode } from '../types/analysisTypes';
+import * as vscode from "vscode";
+import * as path from "path";
+import { AnalysisResult } from "../types/configTypes";
+import {
+  EnhancedTreeNode,
+  ConfigGroupNode,
+  MatchGroupNode,
+  FileLocationNode,
+} from "../types/analysisTypes";
 
-export class EnhancedTreeView implements vscode.TreeDataProvider<EnhancedTreeNode> {
-  private _onDidChangeTreeData: vscode.EventEmitter<EnhancedTreeNode | undefined | null | void> = new vscode.EventEmitter<EnhancedTreeNode | undefined | null | void>();
-  readonly onDidChangeTreeData: vscode.Event<EnhancedTreeNode | undefined | null | void> = this._onDidChangeTreeData.event;
+export class EnhancedTreeView
+  implements vscode.TreeDataProvider<EnhancedTreeNode>
+{
+  private _onDidChangeTreeData: vscode.EventEmitter<
+    EnhancedTreeNode | undefined | null | void
+  > = new vscode.EventEmitter<EnhancedTreeNode | undefined | null | void>();
+  readonly onDidChangeTreeData: vscode.Event<
+    EnhancedTreeNode | undefined | null | void
+  > = this._onDidChangeTreeData.event;
 
   private treeData: EnhancedTreeNode[] = [];
   private analysisResultsCache: Map<string, AnalysisResult> = new Map();
@@ -19,69 +30,81 @@ export class EnhancedTreeView implements vscode.TreeDataProvider<EnhancedTreeNod
 
   private setupActiveEditorTracking(): void {
     // Track active editor changes
-    const onDidChangeActiveTextEditor = vscode.window.onDidChangeActiveTextEditor((editor) => {
-      // Only update if we have a valid file editor, otherwise keep showing the last file's results
-      if (editor && editor.document && editor.document.uri.scheme === 'file') {
-        const newActiveFile = editor.document.fileName;
-        if (newActiveFile !== this.currentActiveFile) {
-          this.currentActiveFile = newActiveFile;
-          this.rebuildTreeDataForActiveFile();
-          this.refresh();
+    const onDidChangeActiveTextEditor =
+      vscode.window.onDidChangeActiveTextEditor((editor) => {
+        // Only update if we have a valid file editor, otherwise keep showing the last file's results
+        if (
+          editor &&
+          editor.document &&
+          editor.document.uri.scheme === "file"
+        ) {
+          const newActiveFile = editor.document.fileName;
+          if (newActiveFile !== this.currentActiveFile) {
+            this.currentActiveFile = newActiveFile;
+            this.rebuildTreeDataForActiveFile();
+            this.refresh();
+          }
         }
-      }
-    });
+      });
     this.context.subscriptions.push(onDidChangeActiveTextEditor);
 
     // Set initial active file
-    if (vscode.window.activeTextEditor && vscode.window.activeTextEditor.document.uri.scheme === 'file') {
+    if (
+      vscode.window.activeTextEditor &&
+      vscode.window.activeTextEditor.document.uri.scheme === "file"
+    ) {
       this.currentActiveFile = vscode.window.activeTextEditor.document.fileName;
     }
   }
 
   private getCacheSize(): number {
-    const config = vscode.workspace.getConfiguration('flexible-log-analyzer');
-    return config.get<number>('analysisResultCacheSize', 10);
+    const config = vscode.workspace.getConfiguration("flexible-log-analyzer");
+    return config.get<number>("analysisResultCacheSize", 10);
   }
 
   private registerCommands(): void {
-    // Register tree item click command
-    const jumpToLocationCommand = vscode.commands.registerCommand(
-      'flexible-log-analyzer.jumpToLocation',
-      (node: FileLocationNode) => {
-        this.jumpToFileLocation(node);
-      }
-    );
-    this.context.subscriptions.push(jumpToLocationCommand);
+    try {
+      // Register tree item click command
+      const jumpToLocationCommand = vscode.commands.registerCommand(
+        "flexible-log-analyzer.jumpToLocation",
+        (node: FileLocationNode) => {
+          this.jumpToFileLocation(node);
+        }
+      );
+      this.context.subscriptions.push(jumpToLocationCommand);
 
-    // Register refresh command
-    const refreshCommand = vscode.commands.registerCommand(
-      'flexible-log-analyzer.refreshTree',
-      () => {
-        this.refresh();
-      }
-    );
-    this.context.subscriptions.push(refreshCommand);
+      // Register refresh command
+      const refreshCommand = vscode.commands.registerCommand(
+        "flexible-log-analyzer.refreshTree",
+        () => {
+          this.refresh();
+        }
+      );
+      this.context.subscriptions.push(refreshCommand);
 
-    // Register clear command
-    const clearCommand = vscode.commands.registerCommand(
-      'flexible-log-analyzer.clearResults',
-      () => {
-        this.clearResults();
-      }
-    );
-    this.context.subscriptions.push(clearCommand);
+      // Register clear command
+      const clearCommand = vscode.commands.registerCommand(
+        "flexible-log-analyzer.clearResults",
+        () => {
+          this.clearResults();
+        }
+      );
+      this.context.subscriptions.push(clearCommand);
+    } catch (error) {
+      console.error("Error registering commands:", error);
+    }
   }
 
   getTreeItem(element: EnhancedTreeNode): vscode.TreeItem {
     switch (element.type) {
-      case 'config-group':
+      case "config-group":
         return this.createConfigGroupItem(element);
-      case 'match-group':
+      case "match-group":
         return this.createMatchGroupItem(element);
-      case 'file-location':
+      case "file-location":
         return this.createFileLocationItem(element);
       default:
-        return new vscode.TreeItem('Unknown');
+        return new vscode.TreeItem("Unknown");
     }
   }
 
@@ -92,11 +115,11 @@ export class EnhancedTreeView implements vscode.TreeDataProvider<EnhancedTreeNod
     }
 
     switch (element.type) {
-      case 'config-group':
+      case "config-group":
         return Promise.resolve(element.children);
-      case 'match-group':
+      case "match-group":
         return Promise.resolve(element.locations);
-      case 'file-location':
+      case "file-location":
         return Promise.resolve([]);
       default:
         return Promise.resolve([]);
@@ -105,7 +128,7 @@ export class EnhancedTreeView implements vscode.TreeDataProvider<EnhancedTreeNod
 
   updateResults(result: AnalysisResult): void {
     this.addToCache(result);
-    
+
     // Only rebuild if this is the active file
     if (result.filePath === this.currentActiveFile) {
       this.rebuildTreeDataForActiveFile();
@@ -121,28 +144,30 @@ export class EnhancedTreeView implements vscode.TreeDataProvider<EnhancedTreeNod
     if (!cachedResult) {
       return false;
     }
-    
-    // If no checksum was stored (legacy cache), consider it invalid
-    if (!cachedResult.configChecksum) {
-      return false;
-    }
-    
-    return cachedResult.configChecksum === currentChecksum;
+
+    return cachedResult.config.checksum === currentChecksum;
   }
 
   /**
    * Get cached result only if it's valid for the current configuration
    */
-  getCachedResult(filePath: string, currentChecksum: string): AnalysisResult | undefined {
+  getCachedResult(
+    filePath: string,
+    currentChecksum: string
+  ): AnalysisResult | undefined {
     if (this.isCacheValid(filePath, currentChecksum)) {
       // Update access order for LRU
       this.updateAccessOrder(filePath);
       return this.analysisResultsCache.get(filePath);
     }
-    
+
     // Cache is invalid, remove it
     this.removeFromCache(filePath);
     return undefined;
+  }
+
+  getCachedResultForTesting(filePath: string): AnalysisResult | undefined {
+    return this.analysisResultsCache.get(filePath);
   }
 
   /**
@@ -150,20 +175,20 @@ export class EnhancedTreeView implements vscode.TreeDataProvider<EnhancedTreeNod
    */
   invalidateCacheForConfigPath(configPath: string): string[] {
     const invalidatedFiles: string[] = [];
-    
+
     for (const [filePath, result] of this.analysisResultsCache.entries()) {
       if (result.configPath === configPath) {
         this.removeFromCache(filePath);
         invalidatedFiles.push(filePath);
       }
     }
-    
+
     return invalidatedFiles;
   }
 
   removeResults(filePath: string): void {
     this.removeFromCache(filePath);
-    
+
     if (filePath === this.currentActiveFile) {
       this.rebuildTreeDataForActiveFile();
       this.refresh();
@@ -179,17 +204,17 @@ export class EnhancedTreeView implements vscode.TreeDataProvider<EnhancedTreeNod
 
   private addToCache(result: AnalysisResult): void {
     const filePath = result.filePath;
-    
+
     // Update or add to cache
     this.analysisResultsCache.set(filePath, result);
-    
+
     // Update access order
     const existingIndex = this.cacheAccessOrder.indexOf(filePath);
     if (existingIndex !== -1) {
       this.cacheAccessOrder.splice(existingIndex, 1);
     }
     this.cacheAccessOrder.push(filePath);
-    
+
     // Evict oldest entries if cache is full
     const maxCacheSize = this.getCacheSize();
     while (this.cacheAccessOrder.length > maxCacheSize) {
@@ -218,11 +243,11 @@ export class EnhancedTreeView implements vscode.TreeDataProvider<EnhancedTreeNod
 
   private rebuildTreeDataForActiveFile(): void {
     this.treeData = [];
-    
+
     if (!this.currentActiveFile) {
       return;
     }
-    
+
     const result = this.analysisResultsCache.get(this.currentActiveFile);
     if (result) {
       const configGroup = this.createConfigGroupFromResult(result);
@@ -239,15 +264,17 @@ export class EnhancedTreeView implements vscode.TreeDataProvider<EnhancedTreeNod
 
   private createConfigGroupFromResult(result: AnalysisResult): ConfigGroupNode {
     const matchGroups = this.groupMatchesByType(result);
-    
+
     return {
-      type: 'config-group',
+      type: "config-group",
       id: `config-${result.filePath}`,
-      configName: `${result.config.name} (${this.getFileName(result.filePath)})`,
+      configName: `${result.config.name} (${this.getFileName(
+        result.filePath
+      )})`,
       totalMatches: result.matches.length,
       children: matchGroups,
-      icon: '$(file-text)',
-      uri: ['config', result.filePath]
+      icon: "$(file-text)",
+      uri: ["config", result.filePath],
     };
   }
 
@@ -262,7 +289,7 @@ export class EnhancedTreeView implements vscode.TreeDataProvider<EnhancedTreeNod
       }
 
       const locationNode: FileLocationNode = {
-        type: 'file-location',
+        type: "file-location",
         id: `location-${result.filePath}-${match.line}-${match.column}`,
         filePath: result.filePath,
         line: match.line,
@@ -272,7 +299,12 @@ export class EnhancedTreeView implements vscode.TreeDataProvider<EnhancedTreeNod
         matcherName: match.matcher.name,
         severity: match.matcher.severity,
         preview: this.createPreview(match.originalLine.substring(match.column)),
-        uri: ['location', result.filePath, match.line.toString(), match.column.toString()]
+        uri: [
+          "location",
+          result.filePath,
+          match.line.toString(),
+          match.column.toString(),
+        ],
       };
 
       groups.get(type)!.push(locationNode);
@@ -283,17 +315,20 @@ export class EnhancedTreeView implements vscode.TreeDataProvider<EnhancedTreeNod
     for (const [type, locations] of groups) {
       const firstLocation = locations[0];
       const groupConfig = this.findGroupConfig(result, type);
-      
+
       const matchGroup: MatchGroupNode = {
-        type: 'match-group',
+        type: "match-group",
         id: `group-${result.filePath}-${type}`,
         groupName: groupConfig?.name || this.capitalizeType(type),
         severity: firstLocation.severity,
         locations: locations.sort((a, b) => a.line - b.line),
-        icon: groupConfig?.icon || this.getIconForSeverity(firstLocation.severity),
-        color: groupConfig?.color || this.getColorForSeverity(firstLocation.severity),
-        uri: ['group', result.filePath, type],
-        totalMatches: locations.length
+        icon:
+          groupConfig?.icon || this.getIconForSeverity(firstLocation.severity),
+        color:
+          groupConfig?.color ||
+          this.getColorForSeverity(firstLocation.severity),
+        uri: ["group", result.filePath, type],
+        totalMatches: locations.length,
       };
 
       matchGroups.push(matchGroup);
@@ -315,7 +350,7 @@ export class EnhancedTreeView implements vscode.TreeDataProvider<EnhancedTreeNod
       return undefined;
     }
 
-    return result.config.groups.find(group => 
+    return result.config.groups.find((group) =>
       group.matchers.includes(matcherType)
     );
   }
@@ -325,12 +360,14 @@ export class EnhancedTreeView implements vscode.TreeDataProvider<EnhancedTreeNod
       `${element.configName} (${element.totalMatches})`,
       vscode.TreeItemCollapsibleState.Expanded
     );
-    
+
     item.id = element.id;
-    item.iconPath = new vscode.ThemeIcon(element.icon.replace('$(', '').replace(')', ''));
-    item.contextValue = 'configGroup';
+    item.iconPath = new vscode.ThemeIcon(
+      element.icon.replace("$(", "").replace(")", "")
+    );
+    item.contextValue = "configGroup";
     item.tooltip = `Configuration: ${element.configName}\nTotal matches: ${element.totalMatches}`;
-    
+
     return item;
   }
 
@@ -339,15 +376,15 @@ export class EnhancedTreeView implements vscode.TreeDataProvider<EnhancedTreeNod
       `${element.groupName} (${element.totalMatches})`,
       vscode.TreeItemCollapsibleState.Expanded
     );
-    
+
     item.id = element.id;
     item.iconPath = new vscode.ThemeIcon(
-      element.icon.replace('$(', '').replace(')', ''),
+      element.icon.replace("$(", "").replace(")", ""),
       new vscode.ThemeColor(this.getThemeColorForSeverity(element.severity))
     );
-    item.contextValue = 'matchGroup';
+    item.contextValue = "matchGroup";
     item.tooltip = `${element.groupName}\nSeverity: ${element.severity}\nMatches: ${element.totalMatches}`;
-    
+
     return item;
   }
 
@@ -356,26 +393,26 @@ export class EnhancedTreeView implements vscode.TreeDataProvider<EnhancedTreeNod
       `${element.matcherName}: ${element.preview}`,
       vscode.TreeItemCollapsibleState.None
     );
-    
+
     item.id = element.id;
     item.iconPath = new vscode.ThemeIcon(
-      'go-to-file',
+      "go-to-file",
       new vscode.ThemeColor(this.getThemeColorForSeverity(element.severity))
     );
-    item.contextValue = 'fileLocation';
+    item.contextValue = "fileLocation";
     item.command = {
-      command: 'flexible-log-analyzer.jumpToLocation',
-      title: 'Go to Location',
-      arguments: [element]
+      command: "flexible-log-analyzer.jumpToLocation",
+      title: "Go to Location",
+      arguments: [element],
     };
     item.tooltip = new vscode.MarkdownString(
       `**${element.matcherName}** (${element.severity})\n\n` +
-      `File: ${element.filePath}\n` +
-      `Line: ${element.line}, Column: ${element.column}\n\n` +
-      `Preview: \`${element.preview}\`\n\n` +
-      `Click to jump to location`
+        `File: ${element.filePath}\n` +
+        `Line: ${element.line}, Column: ${element.column}\n\n` +
+        `Preview: \`${element.preview}\`\n\n` +
+        `Click to jump to location`
     );
-    
+
     return item;
   }
 
@@ -384,13 +421,16 @@ export class EnhancedTreeView implements vscode.TreeDataProvider<EnhancedTreeNod
       const uri = vscode.Uri.file(node.filePath);
       const document = await vscode.workspace.openTextDocument(uri);
       const editor = await vscode.window.showTextDocument(document);
-      
+
       // Navigate to the specific line and column
       const position = new vscode.Position(node.line - 1, node.column);
       const range = new vscode.Range(position, position);
-      
+
       editor.selection = new vscode.Selection(range.start, range.end);
-      editor.revealRange(range, vscode.TextEditorRevealType.InCenterIfOutsideViewport);
+      editor.revealRange(
+        range,
+        vscode.TextEditorRevealType.InCenterIfOutsideViewport
+      );
     } catch (error) {
       vscode.window.showErrorMessage(`Failed to open file: ${error}`);
     }
@@ -399,12 +439,12 @@ export class EnhancedTreeView implements vscode.TreeDataProvider<EnhancedTreeNod
   private createPreview(line: string): string {
     const maxLength = 80;
     const trimmed = line.trim();
-    
+
     if (trimmed.length <= maxLength) {
       return trimmed;
     }
-    
-    return trimmed.substring(0, maxLength - 3) + '...';
+
+    return trimmed.substring(0, maxLength - 3) + "...";
   }
 
   private getFileName(filePath: string): string {
@@ -417,41 +457,61 @@ export class EnhancedTreeView implements vscode.TreeDataProvider<EnhancedTreeNod
 
   private getSeverityPriority(severity: string): number {
     switch (severity) {
-      case 'critical': return 1;
-      case 'high': return 2;
-      case 'medium': return 3;
-      case 'low': return 4;
-      default: return 5;
+      case "critical":
+        return 1;
+      case "high":
+        return 2;
+      case "medium":
+        return 3;
+      case "low":
+        return 4;
+      default:
+        return 5;
     }
   }
 
   private getIconForSeverity(severity: string): string {
     switch (severity) {
-      case 'critical': return '$(error)';
-      case 'high': return '$(error)';
-      case 'medium': return '$(warning)';
-      case 'low': return '$(info)';
-      default: return '$(circle-filled)';
+      case "critical":
+        return "$(error)";
+      case "high":
+        return "$(error)";
+      case "medium":
+        return "$(warning)";
+      case "low":
+        return "$(info)";
+      default:
+        return "$(circle-filled)";
     }
   }
 
   private getColorForSeverity(severity: string): string {
     switch (severity) {
-      case 'critical': return '#8B0000';
-      case 'high': return '#FF4444';
-      case 'medium': return '#FFA500';
-      case 'low': return '#0066CC';
-      default: return '#666666';
+      case "critical":
+        return "#8B0000";
+      case "high":
+        return "#FF4444";
+      case "medium":
+        return "#FFA500";
+      case "low":
+        return "#0066CC";
+      default:
+        return "#666666";
     }
   }
 
   private getThemeColorForSeverity(severity: string): string {
     switch (severity) {
-      case 'critical': return 'errorForeground';
-      case 'high': return 'errorForeground';
-      case 'medium': return 'warningForeground';
-      case 'low': return 'foreground';
-      default: return 'foreground';
+      case "critical":
+        return "errorForeground";
+      case "high":
+        return "errorForeground";
+      case "medium":
+        return "warningForeground";
+      case "low":
+        return "foreground";
+      default:
+        return "foreground";
     }
   }
 
@@ -459,15 +519,17 @@ export class EnhancedTreeView implements vscode.TreeDataProvider<EnhancedTreeNod
     this._onDidChangeTreeData.fire();
   }
 
-  getParent(element: EnhancedTreeNode): vscode.ProviderResult<EnhancedTreeNode> {
+  getParent(
+    element: EnhancedTreeNode
+  ): vscode.ProviderResult<EnhancedTreeNode> {
     // Find parent in tree hierarchy
     for (const rootNode of this.treeData) {
-      if (rootNode.type === 'config-group') {
+      if (rootNode.type === "config-group") {
         for (const groupNode of rootNode.children) {
           if (groupNode.id === element.id) {
             return rootNode;
           }
-          if (groupNode.type === 'match-group') {
+          if (groupNode.type === "match-group") {
             for (const locationNode of groupNode.locations) {
               if (locationNode.id === element.id) {
                 return groupNode;

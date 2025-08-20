@@ -5,7 +5,7 @@ import { FileAnalysisContext, PerformanceMetrics } from '../types/analysisTypes'
 export class PatternMatcher {
   private compiledMatchers: CompiledMatcher[] = [];
   private outputChannel: vscode.OutputChannel;
-  private isCompiled: boolean = false;
+  private compiledMatcherChecksum: string = '';
 
   constructor(outputChannel: vscode.OutputChannel) {
     this.outputChannel = outputChannel;
@@ -16,7 +16,7 @@ export class PatternMatcher {
     const startTime = Date.now();
 
     this.compiledMatchers = [];
-    this.isCompiled = false;
+    this.compiledMatcherChecksum = '';
 
     try {
       for (const matcher of config.matchers) {
@@ -26,7 +26,7 @@ export class PatternMatcher {
         }
       }
 
-      this.isCompiled = true;
+      this.compiledMatcherChecksum = config.checksum;
       const compileTime = Date.now() - startTime;
       this.outputChannel.appendLine(`Compiled ${this.compiledMatchers.length} matchers in ${compileTime}ms`);
     } catch (error) {
@@ -59,7 +59,7 @@ export class PatternMatcher {
   }
 
   matchLine(line: string, lineNumber: number): MatchResult[] {
-    if (!this.isCompiled) {
+    if (!this.compiledMatcherChecksum) {
       throw new Error('Patterns must be compiled before matching');
     }
 
@@ -94,7 +94,7 @@ export class PatternMatcher {
 
     try {
       // Compile patterns if not already compiled
-      if (!this.isCompiled) {
+      if (this.compiledMatcherChecksum !== config.checksum) {
         this.compile(config);
       }
 
@@ -270,7 +270,7 @@ export class PatternMatcher {
   }
 
   isReady(): boolean {
-    return this.isCompiled && this.compiledMatchers.length > 0;
+    return this.compiledMatcherChecksum.length > 0 && this.compiledMatchers.length > 0;
   }
 
   getPerformanceMetrics(): PerformanceMetrics {
@@ -287,7 +287,7 @@ export class PatternMatcher {
 
   dispose(): void {
     this.compiledMatchers = [];
-    this.isCompiled = false;
+    this.compiledMatcherChecksum = '';
     // Note: outputChannel is shared and disposed by the extension
   }
 }

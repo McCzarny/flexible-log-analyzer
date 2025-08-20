@@ -5,6 +5,7 @@ import * as yaml from 'js-yaml';
 import { ConfigManager } from '../../config/configManager';
 import { PatternMatcher } from '../../analysis/patternMatcher';
 import { LogConfig, MatchResult } from '../../types/configTypes';
+import { randomUUID } from 'crypto';
 
 // Unit tests that don't require VS Code API
 suite('Unit Tests', () => {
@@ -154,7 +155,8 @@ suite('Unit Tests', () => {
 						ignoreCase: true,
 						icon: '$(error)'
 					}
-				]
+				],
+                checksum: randomUUID()
 			};
 			
 			// Compile the configuration first

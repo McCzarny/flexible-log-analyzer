@@ -13,6 +13,7 @@ export interface LogConfig {
   filePatterns?: string[];
   performance?: PerformanceSettings;
   export?: ExportSettings;
+  checksum: string;
 }
 
 export interface LogDetector {
@@ -120,7 +121,6 @@ export interface AnalysisResult {
   analysisTime: number;
   errors?: string[];
   summary: AnalysisSummary;
-  configChecksum?: string; // SHA256 hash of the configuration used for analysis
   configPath?: string;     // Path to the configuration file used
 }
 

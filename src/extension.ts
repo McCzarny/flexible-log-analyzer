@@ -394,7 +394,7 @@ async function analyzeDocument(document: vscode.TextDocument): Promise<void> {
 
     try {
       // Get configuration with checksum for this file
-      const configWithChecksum = await configManager.getConfigWithChecksum(document.fileName);
+      const configWithChecksum = await configManager.getConfig(document.fileName);
       if (!configWithChecksum) {
         outputChannel.appendLine(
           `[DEBUG ${timestamp}] No config found for: ${fileName}`
@@ -402,14 +402,14 @@ async function analyzeDocument(document: vscode.TextDocument): Promise<void> {
         return;
       }
 
-      const { config, checksum, configPath } = configWithChecksum;
-      
+      const { config, configPath } = configWithChecksum;
+
       // Check if we have a valid cached result
-      const cachedResult = enhancedTreeView.getCachedResult(document.fileName, checksum);
+      const cachedResult = enhancedTreeView.getCachedResult(document.fileName, config.checksum);
 
       if (cachedResult) {
         outputChannel.appendLine(
-          `[DEBUG ${timestamp}] Using cached analysis for: ${fileName} (config checksum: ${checksum.substring(0, 8)}...)`
+          `[DEBUG ${timestamp}] Using cached analysis for: ${fileName} (config checksum: ${cachedResult.config.checksum.substring(0, 8)}...)`
         );
         
         // Update tree view with cached result
@@ -417,7 +417,7 @@ async function analyzeDocument(document: vscode.TextDocument): Promise<void> {
       }
 
       outputChannel.appendLine(
-        `[DEBUG ${timestamp}] Performing fresh analysis for: ${fileName} (config checksum: ${checksum.substring(0, 8)}...)`
+        `[DEBUG ${timestamp}] Performing fresh analysis for: ${fileName} (config checksum: ${config.checksum.substring(0, 8)}...)`
       );
 
       // Analyze the file
@@ -427,7 +427,6 @@ async function analyzeDocument(document: vscode.TextDocument): Promise<void> {
       );
       
       // Add checksum and metadata to result
-      result.configChecksum = checksum;
       result.configPath = configPath;
       
       // Update tree view

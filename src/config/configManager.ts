@@ -238,6 +238,8 @@ export class ConfigManager {
         };
       }
 
+      // Add checksum for the configuration
+      config.checksum = this.calculateConfigChecksum(config, configPath);
       return {
         success: true,
         config,
@@ -446,7 +448,7 @@ export class ConfigManager {
       if (result.success && result.config) {
         this.configs.set(configName, result.config);
         this.outputChannel.appendLine(
-          `✅ Reloaded workspace config: ${configName}`
+          `✅ Reloaded workspace config: ${configName} checksum: ${result.config.checksum}`
         );
         this.notifyConfigChange(configName, result.config);
       } else if (result.errors) {
@@ -536,7 +538,7 @@ export class ConfigManager {
   /**
    * Get configuration with checksum information
    */
-  async getConfigWithChecksum(filePath: string): Promise<{ config: LogConfig; checksum: string; configPath?: string } | undefined> {
+  async getConfig(filePath: string): Promise<{ config: LogConfig; configPath?: string } | undefined> {
     const config = await this.getConfigForFile(filePath);
     if (!config) {
       return undefined;
@@ -563,8 +565,7 @@ export class ConfigManager {
       }
     }
 
-    const checksum = this.calculateConfigChecksum(config, configPath);
-    return { config, checksum, configPath };
+    return { config, configPath };
   }
 
   dispose(): void {
