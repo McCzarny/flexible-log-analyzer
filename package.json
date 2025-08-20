@@ -8,7 +8,7 @@
     "type": "git",
     "url": "https://github.com/McCzarny/flexible-log-analyzer"
   },
-  "version": "0.1.5",
+  "version": "0.1.6",
   "engines": {
     "vscode": "^1.71.0"
   },
@@ -114,7 +114,7 @@
         },
         "flexible-log-analyzer.enableAutoAnalysisOnChange": {
           "type": "boolean",
-          "default": false,
+          "default": true,
           "description": "Automatically analyze files when their content changes (may impact performance on large files)"
         },
         "flexible-log-analyzer.changeAnalysisDelay": {

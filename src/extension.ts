@@ -432,12 +432,6 @@ async function analyzeDocument(document: vscode.TextDocument): Promise<void> {
       
       // Update tree view
       enhancedTreeView.updateResults(result);
-
-      // Show summary
-      const message = `Analysis complete: ${result.matches.length} issues found in ${result.totalLines} lines`;
-      if (result.matches.length > 0) {
-        vscode.window.showInformationMessage(message);
-      }
     } finally {
       // Always clear the in-progress flag
       analysisInProgress.delete(document.fileName);
@@ -510,10 +504,13 @@ async function createConfigurationFile(): Promise<void> {
       return;
     }
 
-    const configPath = vscode.Uri.joinPath(
+    const configDirPath = vscode.Uri.joinPath(
       workspaceFolders[0].uri,
       ".logconfig"
     );
+    await vscode.workspace.fs.createDirectory(configDirPath);
+    const configPath = vscode.Uri.joinPath(configDirPath, "example.yaml");
+
     const templateContent = getConfigurationTemplate();
 
     const encoder = new (require("util").TextEncoder)();
