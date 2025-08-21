@@ -36,7 +36,7 @@ suite('EnhancedTreeView Cache Management Tests', () => {
             environmentVariableCollection: {} as any,
             asAbsolutePath: (relativePath: string) => `/test/path/${relativePath}`,
             extension: {} as any,
-            languageModelAccessInformation: {} as any
+            languageModelAccessInformation: {} as vscode.LanguageModelAccessInformation | undefined
         } as vscode.ExtensionContext;
 
         treeView = new EnhancedTreeView(context);
