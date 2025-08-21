@@ -1,5 +1,6 @@
 {
   "name": "flexible-log-analyzer",
+  "type": "module",
   "displayName": "Flexible Log Analyzer",
   "description": "Analyses and highlights log files with custom rules",
   "publisher": "McCzarny",
@@ -10,14 +11,12 @@
   },
   "version": "0.1.7",
   "engines": {
-    "vscode": "^1.71.0"
+    "vscode": "^1.100.0"
   },
   "categories": [
     "Other"
   ],
   "activationEvents": [
-    "onView:flexible-log-analyzer-view",
-    "onCommand:flexible-log-analyzer.analyzeCurrentFile",
     "onStartupFinished"
   ],
   "main": "./dist/extension.js",
@@ -161,27 +160,26 @@
     "copy-test-fixtures": "cpx \"src/test/fixtures/**/*\" out/test/fixtures",
     "watch-tests": "tsc -p . -w --outDir out",
     "pretest": "npm run compile-tests && npm run compile && npm run lint",
-    "lint": "eslint src --ext ts",
+    "lint": "eslint src",
     "test": "vscode-test"
   },
+  "dependencies": {
+    "js-yaml": "^4.1.0"
+  },
   "devDependencies": {
-    "@types/glob": "^7.2.0",
     "@types/js-yaml": "^4.0.9",
-    "@types/mocha": "^9.1.1",
-    "@types/node": "16.x",
-    "@types/vscode": "^1.71.0",
-    "@typescript-eslint/eslint-plugin": "^5.31.0",
-    "@typescript-eslint/parser": "^5.31.0",
+    "@types/mocha": "^10.0.0",
+    "@types/node": "^18.0.0",
+    "@types/vscode": "^1.98.0",
+    "@typescript-eslint/eslint-plugin": "^8.0.0",
+    "@typescript-eslint/parser": "^8.0.0",
     "@vscode/test-cli": "^0.0.11",
     "@vscode/test-electron": "^2.5.2",
-    "cpx2": "^7.0.1",
-    "eslint": "^8.20.0",
-    "glob": "^8.0.3",
-    "js-yaml": "^4.1.0",
-    "mocha": "^10.0.0",
-    "ts-loader": "^9.3.1",
-    "typescript": "^4.7.4",
-    "webpack": "^5.74.0",
-    "webpack-cli": "^4.10.0"
+    "cpx2": "^7.0.2",
+    "eslint": "^9.0.0",
+    "ts-loader": "^9.5.2",
+    "typescript": "^5.0.0",
+    "webpack": "^5.101.3",
+    "webpack-cli": "^5.0.0"
   }
 }

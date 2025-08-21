@@ -14,7 +14,6 @@ let outputChannel: vscode.OutputChannel;
 
 // Deduplication mechanism to prevent double analysis
 const analysisInProgress = new Map<string, boolean>();
-let lastAnalyzedFile: string | undefined;
 
 // Per-file change tracking for debounced analysis
 const changeTimeouts = new Map<string, NodeJS.Timeout>();
@@ -24,6 +23,7 @@ const FORCED_ANALYSIS_INTERVAL = 5000; // Force analysis every 5 seconds for fre
 // this method is called when your extension is activated
 // your extension is activated the very first time the command is executed
 export async function activate(context: vscode.ExtensionContext) {
+  console.log("Flexible Log Analyzer activated");
   // Create shared output channel
   outputChannel = vscode.window.createOutputChannel("Flexible Log Analyzer");
   context.subscriptions.push(outputChannel);
