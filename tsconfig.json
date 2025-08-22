@@ -5,6 +5,8 @@
 		"lib": [
 			"ES2020"
 		],
+		"moduleResolution": "node",
+		"allowSyntheticDefaultImports": true,
 		"sourceMap": true,
 		"rootDir": "src",
 		"strict": true,   /* enable all strict type-checking options */
