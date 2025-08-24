@@ -1,6 +1,12 @@
 # Flexible Log Analyzer
 
+![ScreenShot](./images/screen-shot.png)
+
 A powerful VS Code extension for analyzing log files using configurable pattern matching rules. Transform your log analysis workflow with YAML-based configurations that detect errors, warnings, and custom patterns across your log files.
+
+## WIP extension
+
+This is a work-in-progress (WIP) extension, and features may change as development continues. Please provide feedback and suggestions for improvement.
 
 ## Features
 
@@ -11,11 +17,6 @@ A powerful VS Code extension for analyzing log files using configurable pattern 
 - **Hierarchical Configuration**: Supports workspace-specific, user-global, and built-in configurations
 - **Real-time Analysis**: Automatic analysis when files are opened or saved
 - **Flexible Pattern Matching**: Regex-based pattern engine with customizable matchers
-
-## Requirements
-
-- Visual Studio Code 1.71.0 or higher
-- No external dependencies required
 
 ## Extension Settings
 
@@ -89,41 +90,3 @@ matchers:
 - `Open Log Configuration`: Open the .logconfig file for editing
 - `Create Log Configuration`: Create a new .logconfig file template
 
-## Known Issues
-
-- Large log files (>10MB) may take longer to analyze
-- Regex patterns with high complexity may impact performance
-
-## Release Notes
-
-### 0.0.1
-
-Initial release of Flexible Log Analyzer with:
-- YAML-based configuration system
-- Pattern matching engine
-- Enhanced tree view
-- Minimap integration
-- Multi-level configuration support
-
----
-
-## Following extension guidelines
-
-Ensure that you've read through the extensions guidelines and follow the best practices for creating your extension.
-
-* [Extension Guidelines](https://code.visualstudio.com/api/references/extension-guidelines)
-
-## Working with Markdown
-
-You can author your README using Visual Studio Code. Here are some useful editor keyboard shortcuts:
-
-* Split the editor (`Cmd+\` on macOS or `Ctrl+\` on Windows and Linux).
-* Toggle preview (`Shift+Cmd+V` on macOS or `Shift+Ctrl+V` on Windows and Linux).
-* Press `Ctrl+Space` (Windows, Linux, macOS) to see a list of Markdown snippets.
-
-## For more information
-
-* [Visual Studio Code's Markdown Support](http://code.visualstudio.com/docs/languages/markdown)
-* [Markdown Syntax Reference](https://help.github.com/articles/markdown-basics/)
-
-**Enjoy!**
