@@ -143,7 +143,6 @@ suite('Utility Functions Tests', () => {
                     minimap: true,
                     description: 'Detailed error matcher',
                     ignoreCase: true,
-                    wholeWord: false,
                     multiline: false,
                     icon: '$(error)'
                 }],

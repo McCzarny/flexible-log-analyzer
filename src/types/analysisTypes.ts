@@ -93,13 +93,6 @@ export interface AnalysisEvent {
   data?: any;
 }
 
-export interface AnalysisProgress {
-  totalLines: number;
-  processedLines: number;
-  currentMatches: number;
-  estimatedTimeRemaining?: number;
-}
-
 // Minimap decoration information
 export interface MinimapDecoration {
   line: number;
@@ -107,19 +100,6 @@ export interface MinimapDecoration {
   color: string;
   tooltip: string;
   matcherType: string;
-}
-
-// Export/report data structures
-export interface ExportData {
-  metadata: {
-    fileName: string;
-    analysisDate: Date;
-    configName: string;
-    totalMatches: number;
-  };
-  results: MatchResult[];
-  statistics: AnalysisStatistics;
-  groupedResults?: GroupedResults;
 }
 
 export interface GroupedResults {
@@ -133,7 +113,6 @@ export interface ConfigDiscoveryResult {
   found: boolean;
   path?: string;
   source: 'workspace' | 'home' | 'builtin' | 'detected';
-  confidence?: number;
   detector?: string;
 }
 

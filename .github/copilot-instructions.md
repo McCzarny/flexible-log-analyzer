@@ -35,9 +35,9 @@ src/
 
 ### 📋 **Configuration System (.logconfig files)**
 - **YAML-based**: User-friendly configuration format
-- **Hierarchical loading**: Workspace → User → Built-in configs
+- **Hierarchical loading**: Workspace → User
 - **Hot-reload**: Automatic reanalysis when configs change
-- **Detection**: Auto-detect log formats with confidence scoring
+- **Detection**: Auto-detect log formats
 - **Language mode switching**: Automatically change VS Code language mode
 
 ```yaml
@@ -178,7 +178,6 @@ context.subscriptions.push(disposable);
 - Configuration-driven pattern matching allows user customization
 - Plugin-like architecture with modular components
 - Support for custom severity levels and colors
-- Extensible export formats and analysis results
 
 ### 🎯 **Integration Points**
 - File system watcher integration for hot-reload

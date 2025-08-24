@@ -6,38 +6,25 @@ export interface LogConfig {
   description?: string;
   detector?: LogDetector;
   settings?: ConfigSettings;
-  logFormat?: LogFormat;
   matchers: Matcher[];
   highlighting?: HighlightRule[];
   groups?: GroupRule[];
   filePatterns?: string[];
   performance?: PerformanceSettings;
-  export?: ExportSettings;
   checksum: string;
 }
 
 export interface LogDetector {
   type: 'first-line' | 'content' | 'filename';
   pattern: string;
-  confidence?: number;
   changeLanguageMode?: boolean;
 }
 
 export interface ConfigSettings {
   caseSensitive?: boolean;
-  wholeWord?: boolean;
   multiline?: boolean;
   maxFileSize?: string;
   encoding?: string;
-}
-
-export interface LogFormat {
-  name: string;
-  description?: string;
-  pattern: string;
-  groups: Record<string, number>;
-  timestampFormat?: string;
-  timezone?: string;
 }
 
 export interface Matcher {
@@ -50,7 +37,6 @@ export interface Matcher {
   minimap: boolean;
   description?: string;
   ignoreCase?: boolean;
-  wholeWord?: boolean;
   multiline?: boolean;
   icon?: string;
 }
@@ -83,15 +69,6 @@ export interface PerformanceSettings {
   analysisTimeout?: number;
   cacheResults?: boolean;
   debounceInterval?: number;
-}
-
-export interface ExportSettings {
-  formats?: string[];
-  includeContext?: boolean;
-  contextLines?: number;
-  groupByType?: boolean;
-  includeStatistics?: boolean;
-  includeTimeline?: boolean;
 }
 
 export type SeverityLevel = 'low' | 'medium' | 'high' | 'critical';
