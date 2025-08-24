@@ -16,6 +16,7 @@ matchers:
     type: "error"
     severity: "high"
     pattern: '(error|fail|exception|crash)'
+    ignorePattern: 'flaky'
     color: "#FF4444"
     minimap: true
     description: "Lines containing error-related keywords"

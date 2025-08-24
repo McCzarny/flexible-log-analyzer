@@ -118,6 +118,18 @@ export class ConfigValidator {
       }
     }
 
+    // Validate ignore pattern if present
+    if (matcher.ignorePattern) {
+      try {
+        new RegExp(matcher.ignorePattern, matcher.ignoreCase ? 'i' : '');
+      } catch (error) {
+        errors.push({
+          path: `${basePath}.ignorePattern`,
+          message: `Invalid ignore regex pattern: ${error}`
+        });
+      }
+    }
+
     if (!matcher.color) {
       warnings.push({
         path: `${basePath}.color`,

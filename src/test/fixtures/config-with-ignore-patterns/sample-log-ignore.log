@@ -1,0 +1,11 @@
+[2025-08-24 10:30:00] ERROR: Database connection failed
+[2025-08-24 10:30:01] ERROR: Flaky test failed again  
+[2025-08-24 10:30:02] WARNING: High memory usage detected
+[2025-08-24 10:30:03] WARNING: Expected behavior in test mode
+[2025-08-24 10:30:04] FAIL: Authentication service down
+[2025-08-24 10:30:05] FAIL: Spec validation failed during testing
+[2025-08-24 10:30:06] CONNECTION FAILED: Unable to reach server
+[2025-08-24 10:30:07] CONNECTION LOST: Temporary network issue
+[2025-08-24 10:30:08] EXCEPTION: Null pointer exception
+[2025-08-24 10:30:09] CRASH: Application terminated unexpectedly
+[2025-08-24 10:30:10] WARN: Known issue with configuration

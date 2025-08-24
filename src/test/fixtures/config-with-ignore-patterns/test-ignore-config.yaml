@@ -1,0 +1,53 @@
+version: "1.0"
+name: "Test Config with Ignore Patterns"
+description: "Configuration to test ignore pattern functionality"
+
+detector:
+  type: "first-line"
+  pattern: "^\\[.*\\] .*$"
+  changeLanguageMode: true
+
+matchers:
+  - name: "Error Messages"
+    type: "error"
+    severity: "high"
+    pattern: '(error|fail|exception|crash)'
+    ignorePattern: 'flaky|test|spec'
+    color: "#FF4444"
+    minimap: true
+    description: "Lines containing error-related keywords (ignoring test/flaky errors)"
+    ignoreCase: true
+    icon: "$(error)"
+    
+  - name: "Warning Messages"
+    type: "warning" 
+    severity: "medium"
+    pattern: '(warn|warning|caution|alert)'
+    ignorePattern: 'expected|known'
+    color: "#FFA500"
+    minimap: true
+    description: "Lines containing warning-related keywords (ignoring expected warnings)"
+    ignoreCase: true
+    icon: "$(warning)"
+    
+  - name: "Connection Issues"
+    type: "connection"
+    severity: "medium"
+    pattern: '(connection.*failed|connection.*refused|connection.*lost|disconnected)'
+    ignorePattern: 'retry|temporary'
+    color: "#FF7700"
+    minimap: true
+    description: "Network connection problems (ignoring temporary/retry issues)"
+    ignoreCase: true
+    icon: "$(plug)"
+
+filePatterns:
+  - "*.log"
+  - "*.out"
+  - "*.txt"
+
+performance:
+  maxLinesPerAnalysis: 25000
+  analysisTimeout: 30
+  cacheResults: true
+  debounceInterval: 500

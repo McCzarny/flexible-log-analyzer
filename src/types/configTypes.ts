@@ -45,6 +45,7 @@ export interface Matcher {
   type: string;
   severity: SeverityLevel;
   pattern: string;
+  ignorePattern?: string;
   color: string;
   minimap: boolean;
   description?: string;
@@ -98,6 +99,7 @@ export type SeverityLevel = 'low' | 'medium' | 'high' | 'critical';
 export interface CompiledMatcher {
   original: Matcher;
   regex: RegExp;
+  ignoreRegex?: RegExp;
   compiledAt: Date;
 }
 

@@ -47,9 +47,20 @@ export class PatternMatcher {
 
       const regex = new RegExp(matcher.pattern, flags);
       
+      let ignoreRegex: RegExp | undefined;
+      if (matcher.ignorePattern) {
+        try {
+          ignoreRegex = new RegExp(matcher.ignorePattern, flags);
+        } catch (error) {
+          this.outputChannel.appendLine(`Failed to compile ignore pattern for matcher "${matcher.name}": ${error}`);
+          // Continue without ignore pattern if it's invalid
+        }
+      }
+      
       return {
         original: matcher,
         regex,
+        ignoreRegex,
         compiledAt: new Date()
       };
     } catch (error) {
@@ -68,6 +79,12 @@ export class PatternMatcher {
     for (const compiledMatcher of this.compiledMatchers) {
       const match = compiledMatcher.regex.exec(line);
       if (match) {
+        // Check if line should be ignored
+        if (compiledMatcher.ignoreRegex && compiledMatcher.ignoreRegex.test(line)) {
+          // Skip this match as it matches the ignore pattern
+          continue;
+        }
+
         const result: MatchResult = {
           matcher: compiledMatcher.original,
           line: lineNumber,
