@@ -17,6 +17,8 @@ LOG_MESSAGES=(
 # Trim "${LOG_FILE}"
 true > "${LOG_FILE}"
 
+echo "Log file created at: ${LOG_FILE}"
+
 while true; do
     LOG_LEVEL=${LOG_LEVELS[RANDOM % ${#LOG_LEVELS[@]}]}
     LOGGED_FILE=${LOGGED_FILES[RANDOM % ${#LOGGED_FILES[@]}]}

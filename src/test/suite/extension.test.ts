@@ -21,7 +21,8 @@ suite('Extension Test Suite', () => {
 			'flexible-log-analyzer.openConfiguration',
 			'flexible-log-analyzer.createConfiguration',
 			'flexible-log-analyzer.refreshTree',
-			'flexible-log-analyzer.jumpToLocation'
+			'flexible-log-analyzer.jumpToLocation',
+			'flexible-log-analyzer.toggleMinimap'
 		];
 
 		for (const command of extensionCommands) {

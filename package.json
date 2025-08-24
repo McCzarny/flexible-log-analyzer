@@ -68,6 +68,11 @@
       {
         "command": "flexible-log-analyzer.jumpToLocation",
         "title": "Go to Location"
+      },
+      {
+        "command": "flexible-log-analyzer.toggleMinimap",
+        "title": "Toggle Minimap Decorations",
+        "icon": "$(eye)"
       }
     ],
     "menus": {
@@ -90,6 +95,11 @@
         {
           "command": "flexible-log-analyzer.createConfiguration",
           "group": "2_workspace",
+          "when": "view == flexible-log-analyzer-view"
+        },
+        {
+          "command": "flexible-log-analyzer.toggleMinimap",
+          "group": "3_minimap",
           "when": "view == flexible-log-analyzer-view"
         }
       ],

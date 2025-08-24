@@ -1,0 +1,8 @@
+{
+    "workbench.colorCustomizations": {
+        "activityBar.background": "#1B322C",
+        "titleBar.activeBackground": "#26463D",
+        "titleBar.activeForeground": "#F8FBFB"
+    },
+    "flexible-log-analyzer.showMinimapDecorations": true
+}

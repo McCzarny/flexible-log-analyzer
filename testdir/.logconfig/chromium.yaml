@@ -26,7 +26,7 @@ matchers:
   - name: "Warning Messages"
     type: "warning"
     severity: "medium"
-    pattern: '(warn|warning|caution|alert)'
+    pattern: '(warning|warn|caution|alert)'
     color: "#FFA500"
     minimap: true
     description: "Lines containing warning-related keywords"
@@ -79,7 +79,7 @@ matchers:
 highlighting:
   # Highlight common error words
   - name: "Error Keywords"
-    pattern: '(error|fail|exception|crash)'
+    pattern: '(error|\\bfail\\b|exception|crash)\\b'
     style:
       color: "#FF0000"
       fontWeight: "bold"

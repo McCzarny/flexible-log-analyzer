@@ -5,10 +5,12 @@ import * as path from "path";
 import { ConfigManager } from "./config/configManager";
 import { PatternMatcher } from "./analysis/patternMatcher";
 import { EnhancedTreeView } from "./ui/enhancedTreeView";
+import { MinimapDecorationService } from "./ui/minimapDecorations";
 
 let configManager: ConfigManager;
 let patternMatcher: PatternMatcher;
 let enhancedTreeView: EnhancedTreeView;
+let minimapService: MinimapDecorationService;
 let treeView: vscode.TreeView<any>;
 let outputChannel: vscode.OutputChannel;
 
@@ -65,6 +67,9 @@ async function initializeConfigurationSystem(
 
   // Initialize enhanced tree view
   enhancedTreeView = new EnhancedTreeView(context);
+
+  // Initialize minimap decoration service
+  minimapService = new MinimapDecorationService(outputChannel);
 }
 
 function registerCommands(context: vscode.ExtensionContext): void {
@@ -104,6 +109,15 @@ function registerCommands(context: vscode.ExtensionContext): void {
     }
   );
   context.subscriptions.push(createConfigCommand);
+
+  // Minimap toggle command
+  const toggleMinimapCommand = vscode.commands.registerCommand(
+    "flexible-log-analyzer.toggleMinimap",
+    async () => {
+      await toggleMinimapDecorations();
+    }
+  );
+  context.subscriptions.push(toggleMinimapCommand);
 
   // Legacy command mapping for backward compatibility
   const legacyRunScriptsCommand = vscode.commands.registerCommand(
@@ -248,6 +262,9 @@ function setupFileWatchers(context: vscode.ExtensionContext): void {
       outputChannel.appendLine(
         `[DEBUG ${timestamp}] onDidChangeVisibleTextEditors fired with ${editors.length} editors`
       );
+
+      // Refresh minimap decorations for the active editor
+      minimapService.refreshActiveEditor();
 
       // Analyze all newly visible editors that should be auto-analyzed
       // Only process file editors to avoid issues with output panels, settings, etc.
@@ -456,6 +473,9 @@ async function analyzeDocument(document: vscode.TextDocument): Promise<void> {
 
       // Update tree view
       enhancedTreeView.updateResults(result);
+
+      // Update minimap decorations
+      minimapService.updateDecorations(result);
     } finally {
       // Always clear the in-progress flag
       analysisInProgress.delete(document.fileName);
@@ -599,6 +619,26 @@ groups:
   return baseTemplate;
 }
 
+async function toggleMinimapDecorations(): Promise<void> {
+  const config = vscode.workspace.getConfiguration('flexible-log-analyzer');
+  const currentValue = config.get<boolean>('showMinimapDecorations', true);
+  const newValue = !currentValue;
+  
+  await config.update('showMinimapDecorations', newValue, vscode.ConfigurationTarget.Workspace);
+  
+  if (newValue) {
+    // Re-analyze active file to show decorations
+    if (vscode.window.activeTextEditor && shouldAutoAnalyze(vscode.window.activeTextEditor.document)) {
+      await analyzeDocument(vscode.window.activeTextEditor.document);
+    }
+    vscode.window.showInformationMessage('Minimap decorations enabled');
+  } else {
+    // Clear all decorations
+    minimapService.clearAllDecorations();
+    vscode.window.showInformationMessage('Minimap decorations disabled');
+  }
+}
+
 // this method is called when your extension is deactivated
 export function deactivate() {
   // Clean up all pending timeouts
@@ -613,6 +653,9 @@ export function deactivate() {
   }
   if (patternMatcher) {
     patternMatcher.dispose();
+  }
+  if (minimapService) {
+    minimapService.dispose();
   }
   if (outputChannel) {
     outputChannel.dispose();
