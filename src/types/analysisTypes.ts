@@ -133,3 +133,15 @@ export interface PerformanceMetrics {
   memoryUsage: number;
   totalTime: number;
 }
+
+// File link match information
+export interface FileLinkMatch {
+  line: number;
+  column: number;
+  length: number;
+  fileUri: string;
+  lineNumber?: number;
+  description?: string;
+  pattern: string;
+  originalText: string;
+}

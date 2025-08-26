@@ -4,7 +4,7 @@
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 LOG_FILE="${SCRIPT_DIR}/test_logs"
 LOG_LEVELS=("INFO" "WARNING" "ERROR")
-LOGGED_FILES=("chrome/browser/file1.cpp" "chrome/browser/file2.cpp" "chrome/browser/file3.cpp" "")
+LOGGED_FILES=("chrome/browser/file1.cpp" "chrome/browser/file2.cpp" "chrome/browser/file3.cpp" "" "loggenator.sh" "chromium.yaml")
 LOG_MESSAGES=(
     "Some random log message"
     "Warning! Something is happening"
@@ -24,6 +24,6 @@ while true; do
     LOGGED_FILE=${LOGGED_FILES[RANDOM % ${#LOGGED_FILES[@]}]}
     LOG_MESSAGE=${LOG_MESSAGES[RANDOM % ${#LOG_MESSAGES[@]}]}
     TIMESTAMP=$(date +"%Y-%m-%d %H:%M:%S")
-    echo "[${TIMESTAMP}] [${LOG_LEVEL}] [${LOGGED_FILE}] ${LOG_MESSAGE}" >> "${LOG_FILE}"
+    echo "[${TIMESTAMP}:${LOG_LEVEL}:${LOGGED_FILE}:5] ${LOG_MESSAGE}" >> "${LOG_FILE}"
     sleep "$(awk -v r=$RANDOM 'BEGIN { printf "%.1f", (r % 10) * 0.1 }')"
 done

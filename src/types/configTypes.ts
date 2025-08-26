@@ -10,6 +10,7 @@ export interface LogConfig {
   highlighting?: HighlightRule[];
   groups?: GroupRule[];
   filePatterns?: string[];
+  fileLinks?: FileLink[];
   performance?: PerformanceSettings;
   checksum: string;
 }
@@ -71,6 +72,12 @@ export interface PerformanceSettings {
   debounceInterval?: number;
 }
 
+export interface FileLink {
+  pattern: string;
+  fileUri: string;
+  lineNumber?: string;
+}
+
 export type SeverityLevel = 'low' | 'medium' | 'high' | 'critical';
 
 export interface CompiledMatcher {
@@ -96,6 +103,7 @@ export interface AnalysisResult {
   filePath: string;
   totalLines: number;
   matches: MatchResult[];
+  fileLinks?: import('./analysisTypes').FileLinkMatch[];
   config: LogConfig;
   analysisTime: number;
   errors?: string[];

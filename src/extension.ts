@@ -6,6 +6,8 @@ import { ConfigManager } from "./config/configManager";
 import { PatternMatcher } from "./analysis/patternMatcher";
 import { EnhancedTreeView } from "./ui/enhancedTreeView";
 import { MinimapDecorationService } from "./ui/minimapDecorations";
+import { FileLinkProvider } from "./ui/fileLinkProvider";
+import { FileLinkMatch } from "./types/analysisTypes";
 
 let configManager: ConfigManager;
 let patternMatcher: PatternMatcher;
@@ -13,6 +15,9 @@ let enhancedTreeView: EnhancedTreeView;
 let minimapService: MinimapDecorationService;
 let treeView: vscode.TreeView<any>;
 let outputChannel: vscode.OutputChannel;
+
+// Track file link matches for click handling
+const fileLinkMatches = new Map<string, FileLinkMatch[]>();
 
 // Deduplication mechanism to prevent double analysis
 const analysisInProgress = new Map<string, boolean>();
@@ -41,6 +46,9 @@ export async function activate(context: vscode.ExtensionContext) {
 
     // Set up file watchers and auto-analysis
     setupFileWatchers(context);
+
+    // Set up file link click handling
+    setupFileLinkHandling(context);
 
     outputChannel.appendLine(
       "Flexible Log Analyzer: Configuration system initialized successfully"
@@ -153,6 +161,29 @@ function setupTreeView(context: vscode.ExtensionContext): void {
   context.subscriptions.push(treeView);
 }
 
+function setupFileLinkHandling(context: vscode.ExtensionContext): void {
+  // Register a minimal command for opening specific file links (used by CodeLens)
+  const openSpecificFileLinkCommand = vscode.commands.registerCommand('flexible-log-analyzer.openSpecificFileLink', async (match: any) => {
+    if (match && match.fileUri) {
+      const fileLinkProvider = patternMatcher.getFileLinkProvider();
+      try {
+        await fileLinkProvider.openFileLink(match);
+        outputChannel.appendLine(`Opened file link: ${match.fileUri}${match.lineNumber ? `:${match.lineNumber}` : ''}`);
+      } catch (error) {
+        outputChannel.appendLine(`Failed to open file link: ${error}`);
+        vscode.window.showErrorMessage(`Failed to open file: ${error}`);
+      }
+    }
+  });
+  
+  // Register CodeLens provider
+  const fileLinkProvider = patternMatcher.getFileLinkProvider();
+  const codeLensProvider = vscode.languages.registerCodeLensProvider('*', fileLinkProvider);
+  
+  context.subscriptions.push(openSpecificFileLinkCommand);
+  context.subscriptions.push(codeLensProvider);
+}
+
 function setupFileWatchers(context: vscode.ExtensionContext): void {
   // Auto-analyze when log files are opened
   const onDidOpenTextDocument = vscode.workspace.onDidOpenTextDocument(
@@ -251,6 +282,11 @@ function setupFileWatchers(context: vscode.ExtensionContext): void {
         changeTimeouts.delete(filePath);
       }
       lastAnalysisTime.delete(filePath);
+      
+      // Clean up file link matches
+      fileLinkMatches.delete(filePath);
+      const fileLinkProvider = patternMatcher.getFileLinkProvider();
+      fileLinkProvider.clearFileLinkMatches(filePath);
     }
   );
   context.subscriptions.push(onDidCloseTextDocument);
@@ -476,6 +512,20 @@ async function analyzeDocument(document: vscode.TextDocument): Promise<void> {
 
       // Update minimap decorations
       minimapService.updateDecorations(result);
+
+      // Store file links if present
+      if (result.fileLinks && result.fileLinks.length > 0) {
+        const fileLinkProvider = patternMatcher.getFileLinkProvider();
+        fileLinkProvider.storeFileLinkMatches(document.fileName, result.fileLinks);
+        
+        // Store file link matches for click handling
+        fileLinkMatches.set(document.fileName, result.fileLinks);
+        
+        outputChannel.appendLine(`Stored ${result.fileLinks.length} file links for ${fileName}`);
+      } else {
+        // Clear any existing file links
+        fileLinkMatches.delete(document.fileName);
+      }
     } finally {
       // Always clear the in-progress flag
       analysisInProgress.delete(document.fileName);
@@ -647,6 +697,7 @@ export function deactivate() {
   }
   changeTimeouts.clear();
   lastAnalysisTime.clear();
+  fileLinkMatches.clear();
 
   if (configManager) {
     configManager.dispose();

@@ -1,0 +1,10 @@
+[INFO:chrome/browser/ui/tabs/tab_strip_model.cc:1234] Tab strip model initialized
+[ERROR:net/base/network_delegate.cc:567] Network request failed with error code 404
+[DEBUG:ui/views/widget/widget.cc:890] Widget destroyed successfully
+[WARNING:content/browser/renderer_host/render_process_host_impl.cc:2345] Renderer process taking too long to respond
+[FATAL:base/memory/memory_pressure_monitor.cc:123] Out of memory condition detected
+[INFO:chrome/browser/sessions/session_restore.cc:678] Session restore completed
+[ERROR:gpu/command_buffer/service/gles2_cmd_decoder.cc:4567] OpenGL context lost
+[DEBUG:chrome/browser/profiles/profile_manager.cc:234] Profile manager shutdown initiated
+[WARNING:net/socket/tcp_socket_posix.cc:456] TCP socket connection timeout
+[INFO:chrome/browser/extensions/extension_service.cc:789] Extension service initialized with 12 extensions

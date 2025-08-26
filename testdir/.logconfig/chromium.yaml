@@ -9,7 +9,19 @@ detector:
   # Flag to change language mode of a file to "log" when this detector matches
   changeLanguageMode: true
 
-  # Simple matchers for common patterns
+# Match common log file extensions
+filePatterns:
+  - "*.log"
+  - "*.out"
+  - "*.txt"
+
+# Generate file links based on patterns
+fileLinks:
+  - pattern: "^\\[.*:([^:]+):(\\d+)\\]"
+    fileUri: "$1"
+    lineNumber: "$2"
+
+# Simple matchers for common patterns
 matchers:
   # Basic error detection
   - name: "Error Messages"
@@ -111,12 +123,6 @@ groups:
     icon: "$(warning)"
     color: "#FFA500"
     priority: 2
-
-# Match common log file extensions
-filePatterns:
-  - "*.log"
-  - "*.out"
-  - "*.txt"
 
 # Conservative performance settings
 performance:

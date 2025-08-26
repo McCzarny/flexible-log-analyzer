@@ -1,14 +1,17 @@
 import * as vscode from 'vscode';
 import { LogConfig, Matcher, CompiledMatcher, MatchResult, AnalysisResult, SeverityLevel } from '../types/configTypes';
-import { FileAnalysisContext, PerformanceMetrics } from '../types/analysisTypes';
+import { FileAnalysisContext, PerformanceMetrics, FileLinkMatch } from '../types/analysisTypes';
+import { FileLinkProvider } from '../ui/fileLinkProvider';
 
 export class PatternMatcher {
   private compiledMatchers: CompiledMatcher[] = [];
   private outputChannel: vscode.OutputChannel;
   private compiledMatcherChecksum: string = '';
+  private fileLinkProvider: FileLinkProvider;
 
   constructor(outputChannel: vscode.OutputChannel) {
     this.outputChannel = outputChannel;
+    this.fileLinkProvider = new FileLinkProvider(outputChannel);
   }
 
   compile(config: LogConfig): void {
@@ -24,6 +27,11 @@ export class PatternMatcher {
         if (compiledMatcher) {
           this.compiledMatchers.push(compiledMatcher);
         }
+      }
+
+      // Compile file links if present
+      if (config.fileLinks && config.fileLinks.length > 0) {
+        this.fileLinkProvider.compileFileLinks(config.fileLinks);
       }
 
       this.compiledMatcherChecksum = config.checksum;
@@ -117,30 +125,34 @@ export class PatternMatcher {
 
       const matches: MatchResult[] = [];
       let totalLines = 0;
+      let fileLinks: FileLinkMatch[] = [];
 
       if (context.isLargeFile) {
         // Use streaming analysis for large files
         const streamResults = await this.analyzeFileStream(filePath, context);
         matches.push(...streamResults.matches);
         totalLines = streamResults.totalLines;
+        fileLinks = streamResults.fileLinks;
       } else {
         // Read entire file for smaller files
         const fileResults = await this.analyzeFileContent(filePath, context);
         matches.push(...fileResults.matches);
         totalLines = fileResults.totalLines;
+        fileLinks = fileResults.fileLinks;
       }
 
       const analysisTime = Date.now() - startTime;
       const summary = this.createAnalysisSummary(matches);
 
       this.outputChannel.appendLine(
-        `Analysis completed: ${matches.length} matches found in ${totalLines} lines (${analysisTime}ms)`
+        `Analysis completed: ${matches.length} matches, ${fileLinks.length} file links found in ${totalLines} lines (${analysisTime}ms)`
       );
 
       return {
         filePath,
         totalLines,
         matches,
+        fileLinks,
         config,
         analysisTime,
         summary
@@ -186,7 +198,7 @@ export class PatternMatcher {
     }
   }
 
-  private async analyzeFileContent(filePath: string, context: FileAnalysisContext): Promise<{ matches: MatchResult[], totalLines: number }> {
+  private async analyzeFileContent(filePath: string, context: FileAnalysisContext): Promise<{ matches: MatchResult[], totalLines: number, fileLinks: FileLinkMatch[] }> {
     const uri = vscode.Uri.file(filePath);
     const content = await vscode.workspace.fs.readFile(uri);
     const text = Buffer.from(content).toString(context.encoding as BufferEncoding);
@@ -199,13 +211,17 @@ export class PatternMatcher {
       matches.push(...lineMatches);
     }
 
+    // Find file links in the content
+    const fileLinks = this.fileLinkProvider.findFileLinks(text, filePath);
+
     return {
       matches,
-      totalLines: lines.length
+      totalLines: lines.length,
+      fileLinks
     };
   }
 
-  private async analyzeFileStream(filePath: string, context: FileAnalysisContext): Promise<{ matches: MatchResult[], totalLines: number }> {
+  private async analyzeFileStream(filePath: string, context: FileAnalysisContext): Promise<{ matches: MatchResult[], totalLines: number, fileLinks: FileLinkMatch[] }> {
     // For large files, we'd implement streaming analysis
     // For now, fall back to regular file reading with progress reporting
     return this.analyzeFileContent(filePath, context);
@@ -286,6 +302,10 @@ export class PatternMatcher {
     return [...this.compiledMatchers];
   }
 
+  getFileLinkProvider(): FileLinkProvider {
+    return this.fileLinkProvider;
+  }
+
   isReady(): boolean {
     return this.compiledMatcherChecksum.length > 0 && this.compiledMatchers.length > 0;
   }
@@ -305,6 +325,7 @@ export class PatternMatcher {
   dispose(): void {
     this.compiledMatchers = [];
     this.compiledMatcherChecksum = '';
+    this.fileLinkProvider.dispose();
     // Note: outputChannel is shared and disposed by the extension
   }
 }
