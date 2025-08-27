@@ -76,6 +76,8 @@ export interface FileLink {
   pattern: string;
   fileUri: string;
   lineNumber?: string;
+  allowSearch: boolean;  // Controls if we should search in subdirectories
+  paths: string[];       // Specific paths to search for files (relative to workspace root)
 }
 
 export type SeverityLevel = 'low' | 'medium' | 'high' | 'critical';

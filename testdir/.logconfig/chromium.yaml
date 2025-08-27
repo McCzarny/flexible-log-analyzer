@@ -20,6 +20,14 @@ fileLinks:
   - pattern: "^\\[.*:([^:]+):(\\d+)\\]"
     fileUri: "$1"
     lineNumber: "$2"
+    # Do not search for files in whole workspace
+    # glob search can be slow on large workspaces
+    allowSearch: false
+    # Use specified paths for relative file search
+    # If empty, workspace root is used
+    paths:
+    - .
+    - .logconfig
 
 # Simple matchers for common patterns
 matchers:

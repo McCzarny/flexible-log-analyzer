@@ -4,7 +4,16 @@
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 LOG_FILE="${SCRIPT_DIR}/test_logs"
 LOG_LEVELS=("INFO" "WARNING" "ERROR")
-LOGGED_FILES=("chrome/browser/file1.cpp" "chrome/browser/file2.cpp" "chrome/browser/file3.cpp" "" "loggenator.sh" "chromium.yaml")
+LOGGED_FILES=(
+    "chrome/browser/file1.cpp"
+    "chrome/browser/file2.cpp"
+    "chrome/browser/file3.cpp"
+    ""
+    "loggenator.sh"
+    "chromium.yaml"
+    "file.cc"
+)
+
 LOG_MESSAGES=(
     "Some random log message"
     "Warning! Something is happening"

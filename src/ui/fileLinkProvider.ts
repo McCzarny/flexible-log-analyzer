@@ -21,6 +21,14 @@ export class FileLinkProvider implements vscode.DefinitionProvider {
           error
         );
       }
+
+      if (pattern.allowSearch === undefined) {
+        pattern.allowSearch = true; // Default to true if not set
+      }
+
+      if (pattern.paths === undefined) {
+        pattern.paths = ["."]; // Default to workspace root directory
+      }
     }
   }
 
@@ -144,40 +152,77 @@ export class FileLinkProvider implements vscode.DefinitionProvider {
       return undefined;
     }
 
-    return this.resolveFileUri(fileUri.trim());
+    return this.resolveFileUri(fileUri.trim(), pattern);
   }
 
   private async resolveFileUri(
-    filePath: string
+    filePath: string,
+    pattern: FileLink
   ): Promise<vscode.Uri | undefined> {
     let targetUri: vscode.Uri;
 
     if (path.isAbsolute(filePath)) {
       // Absolute path
       targetUri = vscode.Uri.file(filePath);
+      try {
+        await vscode.workspace.fs.stat(targetUri);
+        return targetUri;
+      } catch {
+        return undefined;
+      }
     } else {
-      // Check if file exists relative to workspace folders
+      // Relative path - check in specified paths first, then workspace folders
       const workspaceFolders = vscode.workspace.workspaceFolders;
-      if (workspaceFolders && workspaceFolders.length > 0) {
-        for (const folder of workspaceFolders) {
-          const workspaceRelative = vscode.Uri.joinPath(folder.uri, filePath);
+      if (!workspaceFolders || workspaceFolders.length === 0) {
+        return undefined;
+      }
+
+      // If specific paths are configured, search only in those paths
+      for (const folder of workspaceFolders) {
+        for (const searchPath of pattern.paths) {
+          const basePath = vscode.Uri.joinPath(folder.uri, searchPath);
+          const fullPath = vscode.Uri.joinPath(basePath, filePath);
+
           try {
-            await vscode.workspace.fs.stat(workspaceRelative);
-            return workspaceRelative; // Found valid path
+            await vscode.workspace.fs.stat(fullPath);
+            return fullPath; // Found valid path
           } catch {
-            // Not found in this folder, continue checking
+            // Not found in this path, continue checking
           }
         }
       }
 
-      // Try to find path in subdirectories of workspace
-      const foundPaths = await vscode.workspace.findFiles(
-        "**/" + filePath,
-        undefined,
-        1
-      );
-      if (foundPaths.length > 0) {
-        return foundPaths[0];
+      // If allowSearch is disabled or not set, don't fall back to global search
+      if (pattern.allowSearch === false) {
+        return undefined;
+      }
+
+      // If allowSearch is not explicitly disabled, try to find path in subdirectories
+      let searchPattern = "**/" + filePath;
+
+      // If specific paths are configured, limit search to those paths
+      if (pattern.paths && pattern.paths.length > 0) {
+        for (const searchPath of pattern.paths) {
+          const limitedPattern = searchPath + "/**/" + filePath;
+          const foundPaths = await vscode.workspace.findFiles(
+            limitedPattern,
+            undefined,
+            1
+          );
+          if (foundPaths.length > 0) {
+            return foundPaths[0];
+          }
+        }
+      } else {
+        // Search globally in workspace
+        const foundPaths = await vscode.workspace.findFiles(
+          searchPattern,
+          undefined,
+          1
+        );
+        if (foundPaths.length > 0) {
+          return foundPaths[0];
+        }
       }
     }
 
