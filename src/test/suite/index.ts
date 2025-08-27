@@ -1,6 +1,5 @@
 import * as path from 'path';
 import * as fs from 'fs';
-// eslint-disable-next-line @typescript-eslint/naming-convention
 import Mocha from 'mocha';
 
 export function run(): Promise<void> {

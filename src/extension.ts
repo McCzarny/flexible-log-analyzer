@@ -6,8 +6,6 @@ import { ConfigManager } from "./config/configManager";
 import { PatternMatcher } from "./analysis/patternMatcher";
 import { EnhancedTreeView } from "./ui/enhancedTreeView";
 import { MinimapDecorationService } from "./ui/minimapDecorations";
-import { FileLinkProvider } from "./ui/fileLinkProvider";
-import { FileLinkMatch } from "./types/analysisTypes";
 
 let configManager: ConfigManager;
 let patternMatcher: PatternMatcher;
@@ -15,9 +13,6 @@ let enhancedTreeView: EnhancedTreeView;
 let minimapService: MinimapDecorationService;
 let treeView: vscode.TreeView<any>;
 let outputChannel: vscode.OutputChannel;
-
-// Track file link matches for click handling
-const fileLinkMatches = new Map<string, FileLinkMatch[]>();
 
 // Deduplication mechanism to prevent double analysis
 const analysisInProgress = new Map<string, boolean>();
@@ -162,26 +157,18 @@ function setupTreeView(context: vscode.ExtensionContext): void {
 }
 
 function setupFileLinkHandling(context: vscode.ExtensionContext): void {
-  // Register a minimal command for opening specific file links (used by CodeLens)
-  const openSpecificFileLinkCommand = vscode.commands.registerCommand('flexible-log-analyzer.openSpecificFileLink', async (match: any) => {
-    if (match && match.fileUri) {
-      const fileLinkProvider = patternMatcher.getFileLinkProvider();
-      try {
-        await fileLinkProvider.openFileLink(match);
-        outputChannel.appendLine(`Opened file link: ${match.fileUri}${match.lineNumber ? `:${match.lineNumber}` : ''}`);
-      } catch (error) {
-        outputChannel.appendLine(`Failed to open file link: ${error}`);
-        vscode.window.showErrorMessage(`Failed to open file: ${error}`);
-      }
-    }
-  });
-  
-  // Register CodeLens provider
+  // Register DefinitionProvider for file links - provides "Go to Definition" functionality
   const fileLinkProvider = patternMatcher.getFileLinkProvider();
-  const codeLensProvider = vscode.languages.registerCodeLensProvider('*', fileLinkProvider);
-  
-  context.subscriptions.push(openSpecificFileLinkCommand);
-  context.subscriptions.push(codeLensProvider);
+  const definitionProvider = vscode.languages.registerDefinitionProvider(
+    "*",
+    fileLinkProvider
+  );
+
+  context.subscriptions.push(definitionProvider);
+
+  outputChannel.appendLine(
+    "File link DefinitionProvider registered - use F12 or Ctrl+Click on file paths to navigate"
+  );
 }
 
 function setupFileWatchers(context: vscode.ExtensionContext): void {
@@ -282,11 +269,6 @@ function setupFileWatchers(context: vscode.ExtensionContext): void {
         changeTimeouts.delete(filePath);
       }
       lastAnalysisTime.delete(filePath);
-      
-      // Clean up file link matches
-      fileLinkMatches.delete(filePath);
-      const fileLinkProvider = patternMatcher.getFileLinkProvider();
-      fileLinkProvider.clearFileLinkMatches(filePath);
     }
   );
   context.subscriptions.push(onDidCloseTextDocument);
@@ -513,18 +495,11 @@ async function analyzeDocument(document: vscode.TextDocument): Promise<void> {
       // Update minimap decorations
       minimapService.updateDecorations(result);
 
-      // Store file links if present
+      // Log file links if present (for debugging purposes)
       if (result.fileLinks && result.fileLinks.length > 0) {
-        const fileLinkProvider = patternMatcher.getFileLinkProvider();
-        fileLinkProvider.storeFileLinkMatches(document.fileName, result.fileLinks);
-        
-        // Store file link matches for click handling
-        fileLinkMatches.set(document.fileName, result.fileLinks);
-        
-        outputChannel.appendLine(`Stored ${result.fileLinks.length} file links for ${fileName}`);
-      } else {
-        // Clear any existing file links
-        fileLinkMatches.delete(document.fileName);
+        outputChannel.appendLine(
+          `Found ${result.fileLinks.length} file links in ${fileName} - use F12 or Ctrl+Click to navigate`
+        );
       }
     } finally {
       // Always clear the in-progress flag
@@ -670,22 +645,29 @@ groups:
 }
 
 async function toggleMinimapDecorations(): Promise<void> {
-  const config = vscode.workspace.getConfiguration('flexible-log-analyzer');
-  const currentValue = config.get<boolean>('showMinimapDecorations', true);
+  const config = vscode.workspace.getConfiguration("flexible-log-analyzer");
+  const currentValue = config.get<boolean>("showMinimapDecorations", true);
   const newValue = !currentValue;
-  
-  await config.update('showMinimapDecorations', newValue, vscode.ConfigurationTarget.Workspace);
-  
+
+  await config.update(
+    "showMinimapDecorations",
+    newValue,
+    vscode.ConfigurationTarget.Workspace
+  );
+
   if (newValue) {
     // Re-analyze active file to show decorations
-    if (vscode.window.activeTextEditor && shouldAutoAnalyze(vscode.window.activeTextEditor.document)) {
+    if (
+      vscode.window.activeTextEditor &&
+      shouldAutoAnalyze(vscode.window.activeTextEditor.document)
+    ) {
       await analyzeDocument(vscode.window.activeTextEditor.document);
     }
-    vscode.window.showInformationMessage('Minimap decorations enabled');
+    vscode.window.showInformationMessage("Minimap decorations enabled");
   } else {
     // Clear all decorations
     minimapService.clearAllDecorations();
-    vscode.window.showInformationMessage('Minimap decorations disabled');
+    vscode.window.showInformationMessage("Minimap decorations disabled");
   }
 }
 
@@ -697,7 +679,6 @@ export function deactivate() {
   }
   changeTimeouts.clear();
   lastAnalysisTime.clear();
-  fileLinkMatches.clear();
 
   if (configManager) {
     configManager.dispose();

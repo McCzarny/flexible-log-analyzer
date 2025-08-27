@@ -11,7 +11,7 @@ export class PatternMatcher {
 
   constructor(outputChannel: vscode.OutputChannel) {
     this.outputChannel = outputChannel;
-    this.fileLinkProvider = new FileLinkProvider(outputChannel);
+    this.fileLinkProvider = new FileLinkProvider();
   }
 
   compile(config: LogConfig): void {
@@ -211,8 +211,8 @@ export class PatternMatcher {
       matches.push(...lineMatches);
     }
 
-    // Find file links in the content
-    const fileLinks = this.fileLinkProvider.findFileLinks(text, filePath);
+    // File links are now handled by DefinitionProvider
+    const fileLinks: FileLinkMatch[] = [];
 
     return {
       matches,
@@ -325,7 +325,7 @@ export class PatternMatcher {
   dispose(): void {
     this.compiledMatchers = [];
     this.compiledMatcherChecksum = '';
-    this.fileLinkProvider.dispose();
+    // FileLinkProvider no longer needs disposal
     // Note: outputChannel is shared and disposed by the extension
   }
 }
