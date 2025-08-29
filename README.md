@@ -1,6 +1,6 @@
 # Flexible Log Analyzer
 
-![ScreenShot](./images/screen-shot.png)
+![ScreenShot](./images/preview.gif)
 
 A powerful VS Code extension for analyzing log files using configurable pattern matching rules. Transform your log analysis workflow with YAML-based configurations that detect errors, warnings, and custom patterns across your log files.
 

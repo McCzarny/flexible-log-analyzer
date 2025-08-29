@@ -62,14 +62,24 @@ export class FileLinkProvider implements vscode.DefinitionProvider {
           if (targetUri) {
             // Check if the target file actually exists
             try {
-              await vscode.workspace.fs.stat(targetUri);
               const targetRange = this.resolveLineNumber(match, pattern);
-
               const matchBounds = this.getMatchBounds(match);
               if (matchBounds) {
                 matchStart = matchBounds.start;
                 matchEnd = matchBounds.end;
               }
+
+              // Check again if position is within updated match bounds
+              // Whole match can contain some extra text before/after the actual path.
+              if (
+                position.character < matchStart ||
+                position.character > matchEnd
+              ) {
+                continue;
+              }
+
+              // Check if file exists at the end of all processing
+              await vscode.workspace.fs.stat(targetUri);
 
               return [
                 {
