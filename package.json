@@ -8,7 +8,7 @@
     "type": "git",
     "url": "https://github.com/McCzarny/flexible-log-analyzer"
   },
-  "version": "0.2.2",
+  "version": "0.2.3",
   "engines": {
     "vscode": "^1.100.0"
   },
@@ -155,6 +155,12 @@
           "type": "number",
           "default": 1000,
           "description": "Maximum number of analysis results to show per file"
+        },
+        "flexible-log-analyzer.fileLinkCacheSize": {
+          "type": "number",
+          "default": 100,
+          "minimum": 0,
+          "description": "Maximum number of resolved file link paths to keep in cache. Set to 0 to disable caching."
         },
         "flexible-log-analyzer.scripsDirectory": {
           "type": "string",

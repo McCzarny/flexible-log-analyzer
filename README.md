@@ -8,6 +8,8 @@ A powerful VS Code extension for analyzing log files using configurable pattern 
 
 This is a work-in-progress (WIP) extension, and features may change as development continues. Please provide feedback and suggestions for improvement.
 
+Feel free to open issues or contribute to the project on [GitHub](https://github.com/McCzarny/flexible-log-analyzer/issues). Share ideas, report bugs, or request new features to help shape the future of this extension.
+
 ## Features
 
 - **Configuration-driven Analysis**: Use `.logconfig` YAML files to define custom patterns and rules
@@ -17,6 +19,8 @@ This is a work-in-progress (WIP) extension, and features may change as developme
 - **Hierarchical Configuration**: Supports workspace-specific, user-global, and built-in configurations
 - **Real-time Analysis**: Automatic analysis when files are opened or saved
 - **Flexible Pattern Matching**: Regex-based pattern engine with customizable matchers
+- **Automatic change of language mode to Log**: Based on the file content, the extension can automatically switch the language mode to "Log" for better syntax highlighting and analysis.
+- **File paths Support**: File paths in log files are clickable if files exist.
 
 ## Extension Settings
 
