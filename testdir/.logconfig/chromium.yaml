@@ -42,6 +42,7 @@ matchers:
     description: "Lines containing error-related keywords"
     ignoreCase: true
     icon: "$(error)"
+    includeInCount: true
     
   - name: "Warning Messages"
     type: "warning"
@@ -52,6 +53,7 @@ matchers:
     description: "Lines containing warning-related keywords"
     ignoreCase: true
     icon: "$(warning)"
+    includeInCount: true
     
   - name: "Success Messages"
     type: "success"
@@ -94,27 +96,6 @@ matchers:
     description: "Network connection problems"
     ignoreCase: true
     icon: "$(plug)"
-
-# Simple highlighting
-highlighting:
-  # Highlight common error words
-  - name: "Error Keywords"
-    pattern: '(error|\\bfail\\b|exception|crash)\\b'
-    style:
-      color: "#FF0000"
-      fontWeight: "bold"
-      
-  - name: "Warning Keywords"
-    pattern: '(warn|warning|caution|alert)'
-    style:
-      color: "#FF8800"
-      fontWeight: "bold"
-      
-  - name: "Success Keywords"
-    pattern: '(success|complete|done|passed)'
-    style:
-      color: "#00AA00"
-      fontWeight: "bold"
 
 # Simple grouping
 groups:

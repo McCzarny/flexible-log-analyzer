@@ -22,10 +22,18 @@ export class EnhancedTreeView
   private analysisResultsCache: Map<string, AnalysisResult> = new Map();
   private cacheAccessOrder: string[] = []; // Track access order for LRU eviction
   private currentActiveFile: string | null = null;
+  private treeView: vscode.TreeView<EnhancedTreeNode> | null = null;
 
   constructor(private context: vscode.ExtensionContext) {
     this.registerCommands();
     this.setupActiveEditorTracking();
+  }
+
+  /**
+   * Set the tree view reference to enable badge updates
+   */
+  setTreeView(treeView: vscode.TreeView<EnhancedTreeNode>): void {
+    this.treeView = treeView;
   }
 
   private setupActiveEditorTracking(): void {
@@ -44,6 +52,9 @@ export class EnhancedTreeView
             this.rebuildTreeDataForActiveFile();
             this.refresh();
           }
+        } else {
+          // No valid file editor, clear the badge
+          this.clearBadge();
         }
       });
     this.context.subscriptions.push(onDidChangeActiveTextEditor);
@@ -133,6 +144,27 @@ export class EnhancedTreeView
     if (result.filePath === this.currentActiveFile) {
       this.rebuildTreeDataForActiveFile();
       this.refresh();
+      this.updateBadge(result);
+    }
+  }
+
+  /**
+   * Update the tree view badge with the count from includeInCount matchers
+   */
+  private updateBadge(result: AnalysisResult): void {
+    if (!this.treeView) {
+      return;
+    }
+
+    const badgeCount = result.badgeCount || 0;
+    
+    if (badgeCount > 0) {
+      this.treeView.badge = {
+        value: badgeCount,
+        tooltip: `${badgeCount} counted issues`,
+      };
+    } else {
+      this.treeView.badge = undefined;
     }
   }
 
@@ -200,6 +232,16 @@ export class EnhancedTreeView
     this.cacheAccessOrder = [];
     this.rebuildTreeData();
     this.refresh();
+    this.clearBadge();
+  }
+
+  /**
+   * Clear the tree view badge
+   */
+  private clearBadge(): void {
+    if (this.treeView) {
+      this.treeView.badge = undefined;
+    }
   }
 
   private addToCache(result: AnalysisResult): void {
@@ -245,6 +287,7 @@ export class EnhancedTreeView
     this.treeData = [];
 
     if (!this.currentActiveFile) {
+      this.clearBadge();
       return;
     }
 
@@ -254,6 +297,9 @@ export class EnhancedTreeView
       if (configGroup.children.length > 0) {
         this.treeData.push(configGroup);
       }
+      this.updateBadge(result);
+    } else {
+      this.clearBadge();
     }
   }
 

@@ -50,13 +50,6 @@ export class ConfigValidator {
         });
       }
 
-      // Validate highlighting rules if present
-      if (config.highlighting && Array.isArray(config.highlighting)) {
-        config.highlighting.forEach((rule: any, index: number) => {
-          this.validateHighlightRule(rule, index, errors, warnings);
-        });
-      }
-
     } catch (error) {
       errors.push({
         path: 'root',
@@ -204,40 +197,6 @@ export class ConfigValidator {
         path: `${basePath}.priority`,
         message: 'Priority should be a positive number',
         suggestion: 'Use a number starting from 1 (1 = highest priority)'
-      });
-    }
-  }
-
-  private validateHighlightRule(rule: any, index: number, errors: ValidationError[], warnings: ValidationWarning[]): void {
-    const basePath = `highlighting[${index}]`;
-
-    if (!rule.name) {
-      warnings.push({
-        path: `${basePath}.name`,
-        message: 'Highlight rule name is recommended for documentation'
-      });
-    }
-
-    if (!rule.pattern) {
-      errors.push({
-        path: `${basePath}.pattern`,
-        message: 'Highlight rule pattern is required'
-      });
-    } else {
-      try {
-        new RegExp(rule.pattern);
-      } catch (error) {
-        errors.push({
-          path: `${basePath}.pattern`,
-          message: `Invalid regex pattern: ${error}`
-        });
-      }
-    }
-
-    if (!rule.style) {
-      errors.push({
-        path: `${basePath}.style`,
-        message: 'Highlight rule style is required'
       });
     }
   }

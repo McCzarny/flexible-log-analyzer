@@ -153,6 +153,9 @@ function setupTreeView(context: vscode.ExtensionContext): void {
     canSelectMany: false,
   });
 
+  // Pass the tree view reference to enable badge updates
+  enhancedTreeView.setTreeView(treeView);
+
   context.subscriptions.push(treeView);
 }
 
@@ -611,6 +614,7 @@ matchers:
     pattern: '(error|fail|exception|crash)'
     color: "#FF4444"
     minimap: true
+    includeInCount: true
     description: "Lines containing error-related keywords"
     ignoreCase: true
     icon: "$(error)"

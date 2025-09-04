@@ -92,10 +92,6 @@ suite('Unit Tests', () => {
 				assert.strictEqual(config.performance.cacheResults, true, 'Cache results should be true');
 				assert.strictEqual(config.performance.debounceInterval, 500, 'Debounce interval should be 500');
 				
-				// Check highlighting rules exist
-				assert.ok(config.highlighting, 'Highlighting rules should exist');
-				assert.ok(Array.isArray(config.highlighting), 'Highlighting should be an array');
-				
 				// Check groups exist
 				assert.ok(config.groups, 'Groups should exist');
 				assert.ok(Array.isArray(config.groups), 'Groups should be an array');

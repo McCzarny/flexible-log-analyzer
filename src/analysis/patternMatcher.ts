@@ -144,6 +144,9 @@ export class PatternMatcher {
       const analysisTime = Date.now() - startTime;
       const summary = this.createAnalysisSummary(matches);
 
+      // Calculate badge count from matches where includeInCount=true (default: false)
+      const badgeCount = matches.filter(match => match.matcher.includeInCount === true).length;
+
       this.outputChannel.appendLine(
         `Analysis completed: ${matches.length} matches, ${fileLinks.length} file links found in ${totalLines} lines (${analysisTime}ms)`
       );
@@ -155,7 +158,8 @@ export class PatternMatcher {
         fileLinks,
         config,
         analysisTime,
-        summary
+        summary,
+        badgeCount
       };
     } catch (error) {
       this.outputChannel.appendLine(`Error analyzing file ${filePath}: ${error}`);

@@ -7,7 +7,6 @@ export interface LogConfig {
   detector?: LogDetector;
   settings?: ConfigSettings;
   matchers: Matcher[];
-  highlighting?: HighlightRule[];
   groups?: GroupRule[];
   filePatterns?: string[];
   fileLinks?: FileLink[];
@@ -22,8 +21,6 @@ export interface LogDetector {
 }
 
 export interface ConfigSettings {
-  caseSensitive?: boolean;
-  multiline?: boolean;
   maxFileSize?: string;
   encoding?: string;
 }
@@ -36,24 +33,11 @@ export interface Matcher {
   ignorePattern?: string;
   color: string;
   minimap: boolean;
+  includeInCount?: boolean;
   description?: string;
   ignoreCase?: boolean;
   multiline?: boolean;
   icon?: string;
-}
-
-export interface HighlightRule {
-  name: string;
-  pattern: string;
-  style: HighlightStyle;
-}
-
-export interface HighlightStyle {
-  color?: string;
-  backgroundColor?: string;
-  fontWeight?: string;
-  fontStyle?: string;
-  textDecoration?: string;
 }
 
 export interface GroupRule {
@@ -110,7 +94,8 @@ export interface AnalysisResult {
   analysisTime: number;
   errors?: string[];
   summary: AnalysisSummary;
-  configPath?: string;     // Path to the configuration file used
+  configPath?: string;
+  badgeCount?: number;
 }
 
 export interface AnalysisSummary {
