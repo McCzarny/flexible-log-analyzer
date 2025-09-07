@@ -23,6 +23,12 @@ export class PatternMatcher {
 
     try {
       for (const matcher of config.matchers) {
+        // Skip disabled matchers
+        if (matcher.enabled === false) {
+          this.outputChannel.appendLine(`Skipping disabled matcher: ${matcher.name}`);
+          continue;
+        }
+        
         const compiledMatcher = this.compileMatcher(matcher);
         if (compiledMatcher) {
           this.compiledMatchers.push(compiledMatcher);

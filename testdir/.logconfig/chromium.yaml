@@ -45,6 +45,7 @@ matchers:
     includeInCount: true
     
   - name: "Warning Messages"
+    enabled: true
     type: "warning"
     severity: "medium"
     pattern: '(warning|warn|caution|alert)'
@@ -94,6 +95,17 @@ matchers:
     color: "#FF7700"
     minimap: true
     description: "Network connection problems"
+    ignoreCase: true
+    icon: "$(plug)"
+
+  - name: "Disabled matcher"
+    enabled: false
+    type: "specific thing"
+    severity: "medium"
+    pattern: '(something)'
+    color: "#FF7700"
+    minimap: true
+    description: "Matcher that is currently not needed"
     ignoreCase: true
     icon: "$(plug)"
 

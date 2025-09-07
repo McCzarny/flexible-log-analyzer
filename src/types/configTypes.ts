@@ -31,9 +31,10 @@ export interface Matcher {
   severity: SeverityLevel;
   pattern: string;
   ignorePattern?: string;
-  color: string;
-  minimap: boolean;
+  color?: string;
+  minimap?: boolean;
   includeInCount?: boolean;
+  enabled?: boolean;
   description?: string;
   ignoreCase?: boolean;
   multiline?: boolean;

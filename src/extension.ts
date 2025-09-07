@@ -625,7 +625,8 @@ matchers:
     pattern: '(warn|warning|caution|alert)'
     color: "#FFA500"
     minimap: true
-    description: "Lines containing warning-related keywords"
+    enabled: false
+    description: "Lines containing warning-related keywords (disabled example)"
     ignoreCase: true
     icon: "$(warning)"
 
