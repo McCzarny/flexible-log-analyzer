@@ -21,6 +21,8 @@ LOG_MESSAGES=(
     "Log message"
     "It's ok"
     "Error, but I'm a flaky bug to ignore!"
+    "Unicode test: 測試, тест, اختبار Error"
+    "Emoji test: 😃🚀🔥💧✨🎉 Error"
 )
 
 # Trim "${LOG_FILE}"

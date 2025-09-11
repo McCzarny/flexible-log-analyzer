@@ -483,10 +483,11 @@ async function analyzeDocument(document: vscode.TextDocument): Promise<void> {
         )}...)`
       );
 
-      // Analyze the file
+      // Analyze the file using editor content
       const result = await patternMatcher.analyzeFile(
         document.fileName,
-        config
+        config,
+        document.getText()
       );
 
       // Add checksum and metadata to result
