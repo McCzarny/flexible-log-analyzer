@@ -2,6 +2,9 @@
 
 import { MatchResult, LogConfig, SeverityLevel } from './configTypes';
 
+// Re-export performance types from the dedicated performance logger
+export { PerformanceMetrics, PerformanceTimer, PerformanceLogger } from '../utils/performanceLogger';
+
 // Enhanced tree node hierarchy for the new configuration system
 export type EnhancedTreeNode = ConfigGroupNode | MatchGroupNode | FileLocationNode;
 
@@ -108,6 +111,13 @@ export interface GroupedResults {
   byTimeRange?: Record<string, MatchResult[]>;
 }
 
+// Cache key for analysis results combining file path, document content, and config
+export interface CacheKey {
+  filePath: string;
+  documentChecksum: string;
+  configChecksum: string;
+}
+
 // Configuration discovery and loading
 export interface ConfigDiscoveryResult {
   found: boolean;
@@ -122,16 +132,6 @@ export interface ConfigLoadResult {
   errors?: string[];
   warnings?: string[];
   path: string;
-}
-
-// Performance monitoring
-export interface PerformanceMetrics {
-  configLoadTime: number;
-  patternCompileTime: number;
-  fileAnalysisTime: number;
-  uiUpdateTime: number;
-  memoryUsage: number;
-  totalTime: number;
 }
 
 // File link match information

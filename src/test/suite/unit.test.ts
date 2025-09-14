@@ -152,7 +152,8 @@ suite('Unit Tests', () => {
 						icon: '$(error)'
 					}
 				],
-                checksum: randomUUID()
+                checksum: randomUUID(),
+				filePath: 'in-memory-test-config.yaml'
 			};
 			
 			// Compile the configuration first

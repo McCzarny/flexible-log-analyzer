@@ -7,6 +7,7 @@ import {
   MatchGroupNode,
   FileLocationNode,
 } from "../types/analysisTypes";
+import { ChecksumUtils } from "../utils/checksumUtils";
 
 export class EnhancedTreeView
   implements vscode.TreeDataProvider<EnhancedTreeNode>
@@ -19,7 +20,7 @@ export class EnhancedTreeView
   > = this._onDidChangeTreeData.event;
 
   private treeData: EnhancedTreeNode[] = [];
-  private analysisResultsCache: Map<string, AnalysisResult> = new Map();
+  private analysisResultsCache: Map<string, AnalysisResult> = new Map(); // key: file path
   private cacheAccessOrder: string[] = []; // Track access order for LRU eviction
   private currentActiveFile: string | null = null;
   private treeView: vscode.TreeView<EnhancedTreeNode> | null = null;
@@ -41,20 +42,13 @@ export class EnhancedTreeView
     const onDidChangeActiveTextEditor =
       vscode.window.onDidChangeActiveTextEditor((editor) => {
         // Only update if we have a valid file editor, otherwise keep showing the last file's results
-        if (
-          editor &&
-          editor.document &&
-          editor.document.uri.scheme === "file"
-        ) {
+        if (editor?.document?.uri.scheme === "file") {
           const newActiveFile = editor.document.fileName;
           if (newActiveFile !== this.currentActiveFile) {
             this.currentActiveFile = newActiveFile;
             this.rebuildTreeDataForActiveFile();
             this.refresh();
           }
-        } else {
-          // No valid file editor, clear the badge
-          this.clearBadge();
         }
       });
     this.context.subscriptions.push(onDidChangeActiveTextEditor);
@@ -137,7 +131,10 @@ export class EnhancedTreeView
     }
   }
 
-  updateResults(result: AnalysisResult): void {
+  updateResults(result: AnalysisResult, documentContent: string): void {
+    // Calculate and store document checksum in the result
+    result.documentChecksum = ChecksumUtils.calculateDocumentChecksum(documentContent);
+    
     this.addToCache(result);
 
     // Only rebuild if this is the active file
@@ -157,7 +154,7 @@ export class EnhancedTreeView
     }
 
     const badgeCount = result.badgeCount || 0;
-    
+
     if (badgeCount > 0) {
       this.treeView.badge = {
         value: badgeCount,
@@ -169,37 +166,37 @@ export class EnhancedTreeView
   }
 
   /**
-   * Check if cached result is still valid based on configuration checksum
+   * Check if cached result is still valid based on document and configuration checksums
    */
-  isCacheValid(filePath: string, currentChecksum: string): boolean {
+  isCacheValid(filePath: string, documentContent: string, configChecksum: string): boolean {
     const cachedResult = this.analysisResultsCache.get(filePath);
     if (!cachedResult) {
       return false;
     }
 
-    return cachedResult.config.checksum === currentChecksum;
+    // Check both config checksum and document checksum
+    const currentDocumentChecksum = ChecksumUtils.calculateDocumentChecksum(documentContent);
+    return cachedResult.config.checksum === configChecksum && 
+           cachedResult.documentChecksum === currentDocumentChecksum;
   }
 
   /**
-   * Get cached result only if it's valid for the current configuration
+   * Get cached result only if it's valid for the current document and configuration
    */
   getCachedResult(
     filePath: string,
-    currentChecksum: string
+    documentContent: string,
+    configChecksum: string
   ): AnalysisResult | undefined {
-    if (this.isCacheValid(filePath, currentChecksum)) {
+    if (this.isCacheValid(filePath, documentContent, configChecksum)) {
       // Update access order for LRU
       this.updateAccessOrder(filePath);
       return this.analysisResultsCache.get(filePath);
     }
-
+    
     // Cache is invalid, remove it
     this.removeFromCache(filePath);
     return undefined;
-  }
-
-  getCachedResultForTesting(filePath: string): AnalysisResult | undefined {
-    return this.analysisResultsCache.get(filePath);
   }
 
   /**
@@ -209,7 +206,7 @@ export class EnhancedTreeView
     const invalidatedFiles: string[] = [];
 
     for (const [filePath, result] of this.analysisResultsCache.entries()) {
-      if (result.configPath === configPath) {
+      if (result.config.filePath === configPath) {
         this.removeFromCache(filePath);
         invalidatedFiles.push(filePath);
       }
@@ -260,9 +257,9 @@ export class EnhancedTreeView
     // Evict oldest entries if cache is full
     const maxCacheSize = this.getCacheSize();
     while (this.cacheAccessOrder.length > maxCacheSize) {
-      const oldestFile = this.cacheAccessOrder.shift();
-      if (oldestFile) {
-        this.analysisResultsCache.delete(oldestFile);
+      const oldestFilePath = this.cacheAccessOrder.shift();
+      if (oldestFilePath) {
+        this.analysisResultsCache.delete(oldestFilePath);
       }
     }
   }
@@ -291,7 +288,9 @@ export class EnhancedTreeView
       return;
     }
 
+    // Get the cached result for the current active file
     const result = this.analysisResultsCache.get(this.currentActiveFile);
+
     if (result) {
       const configGroup = this.createConfigGroupFromResult(result);
       if (configGroup.children.length > 0) {

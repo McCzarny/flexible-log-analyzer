@@ -40,7 +40,8 @@ suite('Ignore Pattern Tests', () => {
                     minimap: true,
                     ignoreCase: true
                 }],
-                checksum: randomUUID()
+                checksum: randomUUID(),
+                filePath: 'in-memory-config.yaml'
             };
 
             patternMatcher.compile(config);
@@ -79,7 +80,8 @@ suite('Ignore Pattern Tests', () => {
                     minimap: true,
                     ignoreCase: true
                 }],
-                checksum: randomUUID()
+                checksum: randomUUID(),
+                filePath: 'in-memory-config.yaml'
             };
 
             patternMatcher.compile(config);
@@ -113,7 +115,8 @@ suite('Ignore Pattern Tests', () => {
                     minimap: true,
                     ignoreCase: true  // This should apply to both pattern and ignorePattern
                 }],
-                checksum: randomUUID()
+                checksum: randomUUID(),
+                filePath: 'in-memory-config.yaml'
             };
 
             patternMatcher.compile(config);
@@ -149,7 +152,8 @@ suite('Ignore Pattern Tests', () => {
                     minimap: true,
                     ignoreCase: false
                 }],
-                checksum: randomUUID()
+                checksum: randomUUID(),
+                filePath: 'in-memory-config.yaml'
             };
 
             patternMatcher.compile(config);
@@ -195,7 +199,8 @@ suite('Ignore Pattern Tests', () => {
                     minimap: true,
                     ignoreCase: true
                 }],
-                checksum: randomUUID()
+                checksum: randomUUID(),
+                filePath: 'in-memory-config.yaml'
             };
 
             patternMatcher.compile(config);
@@ -238,7 +243,8 @@ suite('Ignore Pattern Tests', () => {
                     minimap: true,
                     ignoreCase: true
                 }],
-                checksum: randomUUID()
+                checksum: randomUUID(),
+                filePath: 'in-memory-config.yaml'
             };
 
             patternMatcher.compile(config);
@@ -279,7 +285,8 @@ suite('Ignore Pattern Tests', () => {
                     ignoreCase: true,
                     multiline: true
                 }],
-                checksum: randomUUID()
+                checksum: randomUUID(),
+                filePath: 'in-memory-config.yaml'
             };
 
             patternMatcher.compile(config);
@@ -399,7 +406,8 @@ suite('Ignore Pattern Tests', () => {
                     color: '#FF0000',
                     minimap: true
                 }],
-                checksum: randomUUID()
+                checksum: randomUUID(),
+                filePath: 'in-memory-config.yaml'
             };
 
             // Should not throw during compilation
@@ -426,7 +434,8 @@ suite('Ignore Pattern Tests', () => {
                     minimap: true,
                     ignoreCase: true
                 }],
-                checksum: randomUUID()
+                checksum: randomUUID(),
+                filePath: 'in-memory-config.yaml'
             };
 
             patternMatcher.compile(config);
@@ -464,7 +473,8 @@ suite('Ignore Pattern Tests', () => {
                     ignoreCase: true,
                     icon: '$(error)'
                 }],
-                checksum: randomUUID()
+                checksum: randomUUID(),
+                filePath: 'in-memory-config.yaml'
             };
 
             patternMatcher.compile(config);

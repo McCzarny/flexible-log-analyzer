@@ -8,7 +8,7 @@
     "type": "git",
     "url": "https://github.com/McCzarny/flexible-log-analyzer"
   },
-  "version": "0.3.2",
+  "version": "0.3.3",
   "engines": {
     "vscode": "^1.100.0"
   },
@@ -166,6 +166,11 @@
           "type": "string",
           "default": ".analysers",
           "description": "Legacy: Specifies the folder path containing the scripts for log analysis (deprecated - use .logconfig files instead)"
+        },
+        "flexible-log-analyzer.enablePerformanceLogging": {
+          "type": "boolean",
+          "default": false,
+          "description": "Enable detailed performance logging for analysis operations (helpful for debugging performance issues)"
         }
       }
     }

@@ -49,7 +49,8 @@ suite('Enabled Field Tests', () => {
           pattern: 'INFO'
           // enabled field not specified, should default to enabled
         }
-      ]
+      ],
+      filePath: '/in-memory-config.yaml'
     };
 
     patternMatcher.compile(config);

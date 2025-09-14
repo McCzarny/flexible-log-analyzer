@@ -7,25 +7,30 @@ import {
   AnalysisResult,
   SeverityLevel,
 } from "../types/configTypes";
-import { PerformanceMetrics, FileLinkMatch } from "../types/analysisTypes";
+import { PerformanceMetrics, PerformanceLogger, FileLinkMatch } from "../types/analysisTypes";
 import { FileLinkProvider } from "../ui/fileLinkProvider";
+import { ChecksumUtils } from "../utils/checksumUtils";
 
 export class PatternMatcher {
   private compiledMatchers: CompiledMatcher[] = [];
   private outputChannel: vscode.OutputChannel;
   private compiledMatcherChecksum: string = "";
   private fileLinkProvider: FileLinkProvider;
+  private performanceLogger: PerformanceLogger;
 
   constructor(outputChannel: vscode.OutputChannel) {
     this.outputChannel = outputChannel;
     this.fileLinkProvider = new FileLinkProvider();
+    this.performanceLogger = new PerformanceLogger(outputChannel);
   }
 
   compile(config: LogConfig): void {
     this.outputChannel.appendLine(
       `Compiling patterns for config: ${config.name}`
     );
-    const startTime = Date.now();
+    
+    const timer = this.performanceLogger.createTimer(`Pattern compilation for ${config.name}`);
+    timer.start();
 
     this.compiledMatchers = [];
     this.compiledMatcherChecksum = "";
@@ -52,11 +57,22 @@ export class PatternMatcher {
       }
 
       this.compiledMatcherChecksum = config.checksum;
-      const compileTime = Date.now() - startTime;
+      const compileTime = timer.stop();
+      
+      // Log performance metrics
+      if (this.performanceLogger.isLoggingEnabled()) {
+        this.performanceLogger.logMetrics('Pattern Compilation', {
+          patternCompileTime: compileTime,
+          totalTime: compileTime
+        }, `${config.name} (${this.compiledMatchers.length} matchers)`);
+      }
+      
       this.outputChannel.appendLine(
-        `Compiled ${this.compiledMatchers.length} matchers in ${compileTime}ms`
+        `Compiled ${this.compiledMatchers.length} matchers in ${compileTime.toFixed(2)}ms`
       );
     } catch (error) {
+      const errorTime = timer.elapsed();
+      this.performanceLogger.logError('Pattern compilation', error as Error, errorTime);
       this.outputChannel.appendLine(`Error compiling patterns: ${error}`);
       throw error;
     }
@@ -142,13 +158,19 @@ export class PatternMatcher {
     config: LogConfig,
     textContent: string
   ): Promise<AnalysisResult> {
-    const startTime = Date.now();
+    const timer = this.performanceLogger.createTimer(`File analysis for ${filePath}`);
+    timer.start();
+    
+    const fileName = filePath.split('/').pop() || filePath;
+    const fileSizeBytes = new TextEncoder().encode(textContent).length;
+    
     this.outputChannel.appendLine(
-      `Starting analysis of ${filePath} (editor content)`
+      `Starting analysis of ${fileName} (${fileSizeBytes} bytes)`
     );
 
     try {
       // Compile patterns if not already compiled
+      let compileTime = 0;
       if (this.compiledMatcherChecksum !== config.checksum) {
         this.compile(config);
       }
@@ -162,7 +184,7 @@ export class PatternMatcher {
       const totalLines = contentResults.totalLines;
       const fileLinks = contentResults.fileLinks;
 
-      const analysisTime = Date.now() - startTime;
+      const analysisTime = timer.stop();
       const summary = this.createAnalysisSummary(matches);
 
       // Calculate badge count from matches where includeInCount=true (default: false)
@@ -170,8 +192,22 @@ export class PatternMatcher {
         (match) => match.matcher.includeInCount === true
       ).length;
 
+      const documentChecksum = ChecksumUtils.calculateDocumentChecksum(textContent);
+
+      // Log performance metrics
+      if (this.performanceLogger.isLoggingEnabled()) {
+        this.performanceLogger.logMetrics('File Analysis', {
+          fileAnalysisTime: analysisTime - compileTime,
+          patternCompileTime: compileTime,
+          totalTime: analysisTime,
+          fileSizeBytes,
+          lineCount: totalLines,
+          matchCount: matches.length
+        }, fileName);
+      }
+
       this.outputChannel.appendLine(
-        `Analysis completed: ${matches.length} matches, ${fileLinks.length} file links found in ${totalLines} lines (${analysisTime}ms)`
+        `Analysis completed: ${matches.length} matches, ${fileLinks.length} file links found in ${totalLines} lines (${analysisTime.toFixed(2)}ms)`
       );
 
       return {
@@ -183,10 +219,13 @@ export class PatternMatcher {
         analysisTime,
         summary,
         badgeCount,
+        documentChecksum
       };
     } catch (error) {
+      const errorTime = timer.elapsed();
+      this.performanceLogger.logError('File analysis', error as Error, errorTime);
       this.outputChannel.appendLine(
-        `Error analyzing file ${filePath}: ${error}`
+        `Error analyzing file ${fileName}: ${error}`
       );
       throw error;
     }
@@ -310,14 +349,17 @@ export class PatternMatcher {
   }
 
   getPerformanceMetrics(): PerformanceMetrics {
-    // Return basic performance metrics
+    // Return basic performance metrics - these would be populated during actual analysis
     return {
       configLoadTime: 0,
       patternCompileTime: 0,
       fileAnalysisTime: 0,
       uiUpdateTime: 0,
-      memoryUsage: 0,
       totalTime: 0,
+      fileSizeBytes: 0,
+      matchCount: 0,
+      lineCount: 0,
+      cacheHit: false,
     };
   }
 

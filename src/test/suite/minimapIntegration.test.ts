@@ -100,6 +100,7 @@ suite("Minimap Integration Test Suite", () => {
         },
       ],
       checksum: "integration-test-checksum",
+      filePath: 'in-memory-config.yaml',
     };
 
     // Read file content and analyze
@@ -191,6 +192,7 @@ suite("Minimap Integration Test Suite", () => {
         },
       ],
       checksum: "initial-checksum",
+      filePath: 'in-memory-config.yaml',
     };
 
     // Read file content and analyze
@@ -228,6 +230,7 @@ suite("Minimap Integration Test Suite", () => {
         },
       ],
       checksum: "updated-checksum",
+      filePath: 'in-memory-config.yaml',
     };
 
     // Re-analyze and update decorations
@@ -274,6 +277,7 @@ suite("Minimap Integration Test Suite", () => {
         },
       ],
       checksum: "db-config-checksum",
+      filePath: 'in-memory-config.yaml',
     };
 
     const config2: LogConfig = {
@@ -290,6 +294,7 @@ suite("Minimap Integration Test Suite", () => {
         },
       ],
       checksum: "system-config-checksum",
+      filePath: 'in-memory-config.yaml',
     };
 
     // Analyze both files

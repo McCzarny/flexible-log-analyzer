@@ -6,6 +6,7 @@ import { ConfigManager } from "./config/configManager";
 import { PatternMatcher } from "./analysis/patternMatcher";
 import { EnhancedTreeView } from "./ui/enhancedTreeView";
 import { MinimapDecorationService } from "./ui/minimapDecorations";
+import { PerformanceLogger } from "./utils/performanceLogger";
 
 let configManager: ConfigManager;
 let patternMatcher: PatternMatcher;
@@ -13,6 +14,7 @@ let enhancedTreeView: EnhancedTreeView;
 let minimapService: MinimapDecorationService;
 let treeView: vscode.TreeView<any>;
 let outputChannel: vscode.OutputChannel;
+let performanceLogger: PerformanceLogger;
 
 // Deduplication mechanism to prevent double analysis
 const analysisInProgress = new Map<string, boolean>();
@@ -28,6 +30,9 @@ export async function activate(context: vscode.ExtensionContext) {
   // Create shared output channel
   outputChannel = vscode.window.createOutputChannel("Flexible Log Analyzer");
   context.subscriptions.push(outputChannel);
+
+  // Initialize performance logger
+  performanceLogger = new PerformanceLogger(outputChannel);
 
   try {
     // Initialize the new configuration-driven system
@@ -291,9 +296,7 @@ function setupFileWatchers(context: vscode.ExtensionContext): void {
       // Only process file editors to avoid issues with output panels, settings, etc.
       for (const editor of editors) {
         if (
-          editor &&
-          editor.document &&
-          editor.document.uri.scheme === "file" &&
+          editor?.document?.uri.scheme === "file" &&
           shouldAutoAnalyze(editor.document)
         ) {
           const fileName =
@@ -420,10 +423,22 @@ async function analyzeCurrentFile(): Promise<void> {
     return;
   }
 
+  // TODO get visible text editor, not just any active editor
+  if (activeEditor.document.uri.scheme !== "file") {
+    vscode.window.showWarningMessage(
+      "Active document is not a file on disk"
+    );
+    return;
+  }
+
   await analyzeDocument(activeEditor.document);
 }
 
 async function analyzeDocument(document: vscode.TextDocument): Promise<void> {
+  // Performance tracking
+  const analysisTimer = performanceLogger.createTimer('Document analysis');
+  analysisTimer.start();
+  
   try {
     // Debug logging to track analysis calls
     const fileName = document.fileName.split("/").pop() || document.fileName;
@@ -446,21 +461,25 @@ async function analyzeDocument(document: vscode.TextDocument): Promise<void> {
 
     try {
       // Get configuration with checksum for this file
-      const configWithChecksum = await configManager.getConfig(
+      const configTimer = performanceLogger.createTimer('Configuration loading');
+      configTimer.start();
+      
+      const config = await configManager.getConfig(
         document.fileName
       );
-      if (!configWithChecksum) {
+      if (!config) {
         outputChannel.appendLine(
           `[DEBUG ${timestamp}] No config found for: ${fileName}`
         );
         return;
       }
 
-      const { config, configPath } = configWithChecksum;
+      const configLoadTime = configTimer.stop();
 
       // Check if we have a valid cached result
       const cachedResult = enhancedTreeView.getCachedResult(
         document.fileName,
+        document.getText(),
         config.checksum
       );
 
@@ -473,7 +492,26 @@ async function analyzeDocument(document: vscode.TextDocument): Promise<void> {
         );
 
         // Update tree view with cached result
-        enhancedTreeView.updateResults(cachedResult);
+        const uiTimer = performanceLogger.createTimer('UI update (cached)');
+        uiTimer.start();
+        enhancedTreeView.updateResults(cachedResult, document.getText());
+        const uiUpdateTime = uiTimer.stop();
+        
+        const totalTime = analysisTimer.stop();
+        
+        // Log performance for cached result
+        if (performanceLogger.isLoggingEnabled()) {
+          performanceLogger.logMetrics('Document Analysis (Cached)', {
+            configLoadTime,
+            uiUpdateTime,
+            totalTime,
+            cacheHit: true,
+            fileSizeBytes: new TextEncoder().encode(document.getText()).length,
+            lineCount: document.lineCount
+          }, fileName);
+        }
+        
+        return;
       }
 
       outputChannel.appendLine(
@@ -490,14 +528,29 @@ async function analyzeDocument(document: vscode.TextDocument): Promise<void> {
         document.getText()
       );
 
-      // Add checksum and metadata to result
-      result.configPath = configPath;
-
-      // Update tree view
-      enhancedTreeView.updateResults(result);
-
-      // Update minimap decorations
+      // Update tree view and minimap
+      const uiTimer = performanceLogger.createTimer('UI update (fresh)');
+      uiTimer.start();
+      
+      enhancedTreeView.updateResults(result, document.getText());
       minimapService.updateDecorations(result);
+      
+      const uiUpdateTime = uiTimer.stop();
+      const totalTime = analysisTimer.stop();
+
+      // Log comprehensive performance metrics
+      if (performanceLogger.isLoggingEnabled()) {
+        performanceLogger.logMetrics('Document Analysis (Fresh)', {
+          configLoadTime,
+          fileAnalysisTime: result.analysisTime,
+          uiUpdateTime,
+          totalTime,
+          cacheHit: false,
+          fileSizeBytes: new TextEncoder().encode(document.getText()).length,
+          lineCount: document.lineCount,
+          matchCount: result.matches.length
+        }, fileName);
+      }
 
       // Log file links if present (for debugging purposes)
       if (result.fileLinks && result.fileLinks.length > 0) {
@@ -510,6 +563,8 @@ async function analyzeDocument(document: vscode.TextDocument): Promise<void> {
       analysisInProgress.delete(document.fileName);
     }
   } catch (error) {
+    const errorTime = analysisTimer.elapsed();
+    performanceLogger.logError('Document analysis', error as Error, errorTime);
     outputChannel.appendLine(`Error analyzing document: ${error}`);
     vscode.window.showErrorMessage(`Analysis failed: ${error}`);
     // Ensure we clear the in-progress flag even on error

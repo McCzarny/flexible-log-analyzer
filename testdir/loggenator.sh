@@ -36,5 +36,5 @@ while true; do
     LOG_MESSAGE=${LOG_MESSAGES[RANDOM % ${#LOG_MESSAGES[@]}]}
     TIMESTAMP=$(date +"%Y-%m-%d %H:%M:%S")
     echo "[${TIMESTAMP}:${LOG_LEVEL}:${LOGGED_FILE}:5] ${LOG_MESSAGE}" >> "${LOG_FILE}"
-    sleep "$(awk -v r=$RANDOM 'BEGIN { printf "%.1f", (r % 10) * 0.1 }')"
+    sleep "$(awk -v r=$RANDOM 'BEGIN { printf "%.1f", (r % 10) * 0.01 }')"
 done

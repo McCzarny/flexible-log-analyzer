@@ -3,6 +3,7 @@
 export interface LogConfig {
   version: string;
   name: string;
+  filePath: string;
   description?: string;
   detector?: LogDetector;
   settings?: ConfigSettings;
@@ -90,13 +91,12 @@ export interface AnalysisResult {
   filePath: string;
   totalLines: number;
   matches: MatchResult[];
-  fileLinks?: import('./analysisTypes').FileLinkMatch[];
+  fileLinks: import('./analysisTypes').FileLinkMatch[];
   config: LogConfig;
   analysisTime: number;
-  errors?: string[];
   summary: AnalysisSummary;
-  configPath?: string;
-  badgeCount?: number;
+  badgeCount: number;
+  documentChecksum: string; // SHA256 checksum of document content for cache validation
 }
 
 export interface AnalysisSummary {

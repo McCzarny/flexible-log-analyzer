@@ -6,56 +6,6 @@ import { ConfigManager } from "../../config/configManager";
 import { EnhancedTreeView } from "../../ui/enhancedTreeView";
 
 suite("Configuration Change Detection Tests", () => {
-  test("Should calculate consistent checksums for same configuration", async () => {
-    // Create a test output channel
-    const outputChannel = vscode.window.createOutputChannel("Test");
-    const configManager = new ConfigManager(outputChannel);
-
-    const testConfig = {
-      version: "1.0",
-      name: "Test Config",
-      matchers: [
-        {
-          name: "Error Matcher",
-          type: "error",
-          severity: "high" as const,
-          pattern: "ERROR",
-          color: "#FF0000",
-          minimap: true,
-        },
-      ],
-      checksum: "x"
-    };
-
-    const checksum1 = configManager.calculateConfigChecksum(
-      testConfig,
-      "/test/path"
-    );
-    const checksum2 = configManager.calculateConfigChecksum(
-      testConfig,
-      "/test/path"
-    );
-
-    assert.strictEqual(
-      checksum1,
-      checksum2,
-      "Same configuration should produce identical checksums"
-    );
-
-    // Different path should produce different checksum
-    const checksum3 = configManager.calculateConfigChecksum(
-      testConfig,
-      "/different/path"
-    );
-    assert.notStrictEqual(
-      checksum1,
-      checksum3,
-      "Same config with different path should produce different checksums"
-    );
-
-    outputChannel.dispose();
-  });
-
   test("Should invalidate cache when configuration changes", async () => {
     const outputChannel = vscode.window.createOutputChannel("Test");
 
@@ -298,78 +248,6 @@ suite("Configuration Change Detection Tests", () => {
 
     outputChannel.dispose();
   });
-});
-
-test("Should detect configuration content changes through checksum", async () => {
-  const outputChannel = vscode.window.createOutputChannel("Test");
-  const configManager = new ConfigManager(outputChannel);
-
-  // Same configuration content should produce same checksum
-  const config1 = {
-    version: "1.0",
-    name: "Test",
-    matchers: [
-      {
-        name: "Error",
-        pattern: "ERROR",
-        severity: "high" as const,
-        type: "error",
-        color: "#FF0000",
-        minimap: true,
-      },
-    ],
-    checksum: ""
-  };
-
-  const config2 = {
-    version: "1.0",
-    name: "Test",
-    matchers: [
-      {
-        name: "Error",
-        pattern: "ERROR",
-        severity: "high" as const,
-        type: "error",
-        color: "#FF0000",
-        minimap: true,
-      },
-    ],
-    checksum: ""
-  };
-
-  // Different configuration content should produce different checksum
-  const config3 = {
-    version: "1.0",
-    name: "Test",
-    matchers: [
-      {
-        name: "Error",
-        pattern: "FAIL",
-        severity: "high" as const,
-        type: "error",
-        color: "#FF0000",
-        minimap: true,
-      },
-    ],
-    checksum: ""
-  };
-
-  const checksum1 = configManager.calculateConfigChecksum(config1, "/test");
-  const checksum2 = configManager.calculateConfigChecksum(config2, "/test");
-  const checksum3 = configManager.calculateConfigChecksum(config3, "/test");
-
-  assert.strictEqual(
-    checksum1,
-    checksum2,
-    "Identical configurations should have same checksum"
-  );
-  assert.notStrictEqual(
-    checksum1,
-    checksum3,
-    "Different configurations should have different checksums"
-  );
-
-  outputChannel.dispose();
 });
 
 test("Should handle configuration changes when switching between tabs", async () => {

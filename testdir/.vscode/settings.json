@@ -4,5 +4,6 @@
         "titleBar.activeBackground": "#26463D",
         "titleBar.activeForeground": "#F8FBFB"
     },
-    "flexible-log-analyzer.showMinimapDecorations": true
+    "flexible-log-analyzer.showMinimapDecorations": true,
+    "flexible-log-analyzer.enablePerformanceLogging": true
 }

@@ -172,7 +172,8 @@ suite('Minimap Decorations Test Suite', () => {
       version: '1.0',
       name: 'Test Config',
       matchers: [],
-      checksum: 'test-checksum'
+      checksum: 'test-checksum',
+      filePath: 'in-memory-config.yaml',
     };
 
     const matcher1: Matcher = {
@@ -251,7 +252,10 @@ suite('Minimap Decorations Test Suite', () => {
           warning: 1,
           info: 1
         }
-      }
+      },
+      fileLinks: [],
+      badgeCount: 3,
+      documentChecksum: 'doc-checksum'
     };
   }
 });

@@ -40,6 +40,7 @@ suite("PatternMatcher Unit Tests", () => {
           },
         ],
         checksum: randomUUID(),
+        filePath: "in-memory-invalid-config.yaml",
       };
 
       // Should not throw
@@ -87,6 +88,7 @@ suite("PatternMatcher Unit Tests", () => {
           },
         ],
         checksum: randomUUID(),
+        filePath: "in-memory-invalid-config.yaml",
       };
 
       patternMatcher.compile(config);
@@ -144,6 +146,7 @@ suite("PatternMatcher Unit Tests", () => {
           },
         ],
         checksum: randomUUID(),
+        filePath: "in-memory-config.yaml",
       };
 
       // Should not throw, but should compile only valid patterns
@@ -169,6 +172,7 @@ suite("PatternMatcher Unit Tests", () => {
         name: "Empty Config",
         matchers: [],
         checksum: randomUUID(),
+        filePath: "in-memory-config.yaml",
       };
 
       patternMatcher.compile(config);
@@ -200,6 +204,7 @@ suite("PatternMatcher Unit Tests", () => {
           },
         ],
         checksum: randomUUID(),
+        filePath: "in-memory-config.yaml",
       };
 
       patternMatcher.compile(config);
@@ -256,6 +261,7 @@ suite("PatternMatcher Unit Tests", () => {
           },
         ],
         checksum: randomUUID(),
+        filePath: "in-memory-config.yaml",
       };
 
       patternMatcher.compile(config);
@@ -299,6 +305,7 @@ suite("PatternMatcher Unit Tests", () => {
           },
         ],
         checksum: randomUUID(),
+        filePath: "in-memory-config.yaml",
       };
 
       patternMatcher.compile(config);
@@ -338,6 +345,7 @@ suite("PatternMatcher Unit Tests", () => {
           },
         ],
         checksum: randomUUID(),
+        filePath: "in-memory-config.yaml",
       };
 
       patternMatcher.compile(config);
@@ -388,10 +396,6 @@ suite("PatternMatcher Unit Tests", () => {
         "uiUpdateTime should be a number"
       );
       assert.ok(
-        typeof metrics.memoryUsage === "number",
-        "memoryUsage should be a number"
-      );
-      assert.ok(
         typeof metrics.totalTime === "number",
         "totalTime should be a number"
       );
@@ -416,6 +420,7 @@ suite("PatternMatcher Unit Tests", () => {
           },
         ],
         checksum: randomUUID(),
+        filePath: "in-memory-config.yaml",
       };
 
       patternMatcher.compile(config);
@@ -443,6 +448,7 @@ suite("PatternMatcher Unit Tests", () => {
           },
         ],
         checksum: randomUUID(),
+        filePath: "in-memory-config.yaml",
       };
 
       patternMatcher.compile(config1);
@@ -474,6 +480,7 @@ suite("PatternMatcher Unit Tests", () => {
           },
         ],
         checksum: randomUUID(),
+        filePath: "in-memory-config.yaml",
       };
 
       patternMatcher.compile(config2);
@@ -504,6 +511,7 @@ suite("PatternMatcher Unit Tests", () => {
           },
         ],
         checksum: "checksum1",
+        filePath: "in-memory-config.yaml",
       };
 
       const selfPath = path.join(__dirname, "patternMatcher.test.js");

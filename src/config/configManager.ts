@@ -8,16 +8,20 @@ import {
   ConfigLoadResult,
 } from "../types/analysisTypes";
 import { ConfigValidator } from "./configValidator";
+import { PerformanceLogger } from "../utils/performanceLogger";
+import { ChecksumUtils } from "../utils/checksumUtils";
 
 export class ConfigManager {
   private configs: Map<string, LogConfig> = new Map();
   private fileWatchers: vscode.FileSystemWatcher[] = [];
   private validator: ConfigValidator;
   private outputChannel: vscode.OutputChannel;
+  private performanceLogger: PerformanceLogger;
 
   constructor(outputChannel: vscode.OutputChannel) {
     this.validator = new ConfigValidator();
     this.outputChannel = outputChannel;
+    this.performanceLogger = new PerformanceLogger(outputChannel);
   }
 
   async initialize(): Promise<void> {
@@ -26,20 +30,38 @@ export class ConfigManager {
   }
 
   async loadAllConfigurations(): Promise<void> {
+    const timer = this.performanceLogger.createTimer('Load all configurations');
+    timer.start();
+    
     this.outputChannel.appendLine("Loading log configurations...");
 
     // Clear existing configurations
     this.configs.clear();
 
-    // Load global configuration from ~/.logconfig
-    await this.loadGlobalConfiguration();
+    try {
+      // Load global configuration from ~/.logconfig
+      await this.loadGlobalConfiguration();
 
-    // Load local workspace configurations from .logconfig/*.yaml
-    await this.loadWorkspaceConfigurations();
+      // Load local workspace configurations from .logconfig/*.yaml
+      await this.loadWorkspaceConfigurations();
 
-    this.outputChannel.appendLine(
-      `Total configurations loaded: ${this.configs.size}`
-    );
+      const loadTime = timer.stop();
+      
+      if (this.performanceLogger.isLoggingEnabled()) {
+        this.performanceLogger.logMetrics('Configuration Loading', {
+          configLoadTime: loadTime,
+          totalTime: loadTime
+        }, `${this.configs.size} configs loaded`);
+      }
+
+      this.outputChannel.appendLine(
+        `Total configurations loaded: ${this.configs.size} in ${loadTime.toFixed(2)}ms`
+      );
+    } catch (error) {
+      const errorTime = timer.elapsed();
+      this.performanceLogger.logError('Configuration loading', error as Error, errorTime);
+      throw error;
+    }
   }
 
   async getConfigForFile(filePath: string): Promise<LogConfig | undefined> {
@@ -225,7 +247,7 @@ export class ConfigManager {
       const configText = content.toString();
 
       // Parse YAML configuration using js-yaml
-      const config = yaml.load(configText) as LogConfig;
+      let config = yaml.load(configText) as LogConfig;
 
       // Validate configuration
       const validation = this.validator.validate(config);
@@ -238,8 +260,8 @@ export class ConfigManager {
         };
       }
 
-      // Add checksum for the configuration
-      config.checksum = this.calculateConfigChecksum(config, configPath);
+      config.checksum = ChecksumUtils.calculateDocumentChecksum(configText);
+      config.filePath = configPath;
       return {
         success: true,
         config,
@@ -526,46 +548,11 @@ export class ConfigManager {
   }
 
   /**
-   * Calculate SHA256 checksum of a configuration object
-   */
-  calculateConfigChecksum(config: LogConfig, configPath?: string): string {
-    const configString = JSON.stringify(config, null, 0); // Deterministic serialization
-    const pathString = configPath || '';
-    const combined = `${configString}:${pathString}`;
-    return crypto.createHash('sha256').update(combined).digest('hex');
-  }
-
-  /**
    * Get configuration with checksum information
    */
-  async getConfig(filePath: string): Promise<{ config: LogConfig; configPath?: string } | undefined> {
+  async getConfig(filePath: string): Promise<LogConfig | undefined> {
     const config = await this.getConfigForFile(filePath);
-    if (!config) {
-      return undefined;
-    }
-
-    // Try to determine the configuration file path
-    let configPath: string | undefined;
-    const workspaceConfig = await this.findWorkspaceConfig(filePath);
-    if (workspaceConfig) {
-      // This came from workspace config
-      const workspaceFolders = vscode.workspace.workspaceFolders;
-      if (workspaceFolders && workspaceFolders.length > 0) {
-        configPath = path.join(workspaceFolders[0].uri.fsPath, '.logconfig');
-      }
-    } else {
-      // Check if it came from global config
-      const globalConfigPath = path.join(os.homedir(), '.logconfig');
-      try {
-        await vscode.workspace.fs.stat(vscode.Uri.file(globalConfigPath));
-        configPath = globalConfigPath;
-      } catch {
-        // Global config doesn't exist, might be built-in or auto-detected
-        configPath = 'builtin';
-      }
-    }
-
-    return { config, configPath };
+    return config ? config : undefined;
   }
 
   dispose(): void {
