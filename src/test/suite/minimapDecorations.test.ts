@@ -145,7 +145,6 @@ suite('Minimap Decorations Test Suite', () => {
     
     assert.strictEqual(decoration.severity, 'high', 'Should have correct severity');
     assert.strictEqual(decoration.matcherName, 'Error Pattern', 'Should have correct matcher name');
-    assert.strictEqual(decoration.color, '#FF0000', 'Should have correct color from matcher');
     assert.strictEqual(decoration.message, 'Found error pattern', 'Should have correct message');
     assert.ok(decoration.range instanceof vscode.Range, 'Should have valid range');
   });
@@ -181,7 +180,6 @@ suite('Minimap Decorations Test Suite', () => {
       type: 'error',
       severity: 'high',
       pattern: 'error',
-      color: '#FF0000',
       minimap: true
     };
 
@@ -190,7 +188,6 @@ suite('Minimap Decorations Test Suite', () => {
       type: 'warning',
       severity: 'medium',
       pattern: 'warn',
-      color: '#FFA500',
       minimap: true
     };
 
@@ -199,7 +196,6 @@ suite('Minimap Decorations Test Suite', () => {
       type: 'info',
       severity: 'low',
       pattern: 'info',
-      color: '#0066CC',
       minimap: false // This one should not appear in minimap
     };
 

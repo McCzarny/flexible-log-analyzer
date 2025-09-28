@@ -82,7 +82,6 @@ suite('Language Mode Change Tests', () => {
 					type: "error",
 					severity: "high" as const,
 					pattern: "ERROR",
-					color: "#ff0000",
 					minimap: true
 				}];
 			}
@@ -113,7 +112,6 @@ suite('Language Mode Change Tests', () => {
 					type: "error",
 					severity: "high" as const,
 					pattern: "ERROR",
-					color: "#ff0000",
 					minimap: true
 				}];
 			}
@@ -143,7 +141,6 @@ suite('Language Mode Change Tests', () => {
 					type: "info",
 					severity: "low" as const,
 					pattern: "info",
-					color: "#000000",
 					minimap: false
 				}]
 			};
@@ -177,7 +174,6 @@ suite('Language Mode Change Tests', () => {
 					type: "error",
 					severity: "high" as const,
 					pattern: "ERROR",
-					color: "#ff0000",
 					minimap: true
 				}];
 			}
@@ -228,7 +224,6 @@ suite('Language Mode Change Tests', () => {
 					type: "error",
 					severity: "high" as const,
 					pattern: "ERROR",
-					color: "#ff0000",
 					minimap: true
 				}];
 			}
@@ -276,7 +271,6 @@ suite('Language Mode Change Tests', () => {
 					type: "error",
 					severity: "high" as const,
 					pattern: "ERROR",
-					color: "#ff0000",
 					minimap: true
 				}];
 			}
@@ -325,7 +319,6 @@ suite('Language Mode Change Tests', () => {
 					type: "info",
 					severity: "low" as const,
 					pattern: "info",
-					color: "#000000",
 					minimap: false
 				}]
 			};
@@ -359,7 +352,6 @@ suite('Language Mode Change Tests', () => {
 					type: "info",
 					severity: "low" as const,
 					pattern: "info",
-					color: "#000000",
 					minimap: false
 				}]
 			};
@@ -389,7 +381,6 @@ suite('Language Mode Change Tests', () => {
 					type: "error",
 					severity: "high" as const,
 					pattern: "ERROR",
-					color: "#ff0000",
 					minimap: true
 				}];
 			}

@@ -36,7 +36,6 @@ suite('Ignore Pattern Tests', () => {
                     severity: 'high',
                     pattern: 'error',
                     ignorePattern: 'flaky',
-                    color: '#FF0000',
                     minimap: true,
                     ignoreCase: true
                 }],
@@ -76,7 +75,6 @@ suite('Ignore Pattern Tests', () => {
                     severity: 'high',
                     pattern: 'error',
                     // No ignorePattern
-                    color: '#FF0000',
                     minimap: true,
                     ignoreCase: true
                 }],
@@ -111,7 +109,6 @@ suite('Ignore Pattern Tests', () => {
                     severity: 'high',
                     pattern: 'error',
                     ignorePattern: 'FLAKY',
-                    color: '#FF0000',
                     minimap: true,
                     ignoreCase: true  // This should apply to both pattern and ignorePattern
                 }],
@@ -148,7 +145,6 @@ suite('Ignore Pattern Tests', () => {
                     severity: 'high',
                     pattern: 'error',
                     ignorePattern: 'FLAKY',
-                    color: '#FF0000',
                     minimap: true,
                     ignoreCase: false
                 }],
@@ -186,7 +182,6 @@ suite('Ignore Pattern Tests', () => {
                     severity: 'high',
                     pattern: 'error',
                     ignorePattern: 'flaky',
-                    color: '#FF0000',
                     minimap: true,
                     ignoreCase: true
                 }, {
@@ -195,7 +190,6 @@ suite('Ignore Pattern Tests', () => {
                     severity: 'medium',
                     pattern: 'warning',
                     ignorePattern: 'expected',
-                    color: '#FFA500',
                     minimap: true,
                     ignoreCase: true
                 }],
@@ -239,7 +233,6 @@ suite('Ignore Pattern Tests', () => {
                     severity: 'high',
                     pattern: 'error',
                     ignorePattern: '\\b(test|spec|flaky)\\b.*error',
-                    color: '#FF0000',
                     minimap: true,
                     ignoreCase: true
                 }],
@@ -280,7 +273,6 @@ suite('Ignore Pattern Tests', () => {
                     severity: 'high',
                     pattern: '^.*error.*$',
                     ignorePattern: '^.*flaky.*$',
-                    color: '#FF0000',
                     minimap: true,
                     ignoreCase: true,
                     multiline: true
@@ -318,7 +310,6 @@ suite('Ignore Pattern Tests', () => {
                     severity: 'high',
                     pattern: 'error',
                     ignorePattern: 'flaky|test|spec',
-                    color: '#FF0000',
                     minimap: true
                 }]
             };
@@ -338,7 +329,6 @@ suite('Ignore Pattern Tests', () => {
                     severity: 'high',
                     pattern: 'error',
                     ignorePattern: '[invalid regex',  // Invalid regex
-                    color: '#FF0000',
                     minimap: true
                 }]
             };
@@ -361,7 +351,6 @@ suite('Ignore Pattern Tests', () => {
                     severity: 'high',
                     pattern: 'error',
                     ignorePattern: '',  // Empty ignore pattern
-                    color: '#FF0000',
                     minimap: true
                 }]
             };
@@ -381,7 +370,6 @@ suite('Ignore Pattern Tests', () => {
                     severity: 'high',
                     pattern: 'error',
                     // No ignorePattern property
-                    color: '#FF0000',
                     minimap: true
                 }]
             };
@@ -403,7 +391,6 @@ suite('Ignore Pattern Tests', () => {
                     severity: 'high',
                     pattern: 'error',
                     ignorePattern: '[invalid',  // Invalid regex
-                    color: '#FF0000',
                     minimap: true
                 }],
                 checksum: randomUUID(),
@@ -430,7 +417,6 @@ suite('Ignore Pattern Tests', () => {
                     severity: 'high',
                     pattern: 'error',
                     ignorePattern: '[invalid',  // Invalid regex
-                    color: '#FF0000',
                     minimap: true,
                     ignoreCase: true
                 }],
@@ -467,7 +453,6 @@ suite('Ignore Pattern Tests', () => {
                     severity: 'high',
                     pattern: '(error|fail|exception|crash)',
                     ignorePattern: 'flaky',
-                    color: '#FF4444',
                     minimap: true,
                     description: 'Lines containing error-related keywords',
                     ignoreCase: true,

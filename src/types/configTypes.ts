@@ -32,7 +32,6 @@ export interface Matcher {
   severity: SeverityLevel;
   pattern: string;
   ignorePattern?: string;
-  color?: string;
   minimap?: boolean;
   includeInCount?: boolean;
   enabled?: boolean;
@@ -47,7 +46,6 @@ export interface GroupRule {
   description?: string;
   matchers: string[];
   icon: string;
-  color: string;
   priority: number;
 }
 

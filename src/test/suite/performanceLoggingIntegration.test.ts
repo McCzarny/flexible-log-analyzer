@@ -56,7 +56,6 @@ suite('Performance Logging Integration Tests', () => {
           type: 'error',
           pattern: '\\berror\\b',
           severity: 'high',
-          color: '#FF0000',
           enabled: true
         }
       ],
@@ -86,7 +85,6 @@ suite('Performance Logging Integration Tests', () => {
           type: 'error',
           pattern: '\\berror\\b',
           severity: 'high',
-          color: '#FF0000',
           enabled: true
         }
       ],
@@ -126,7 +124,6 @@ suite('Performance Logging Integration Tests', () => {
           type: 'error',
           pattern: '[invalid regex (',  // Invalid regex pattern
           severity: 'high',
-          color: '#FF0000',
           enabled: true
         }
       ],

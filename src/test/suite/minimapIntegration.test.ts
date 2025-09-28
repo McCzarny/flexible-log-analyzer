@@ -67,7 +67,6 @@ suite("Minimap Integration Test Suite", () => {
           type: "error",
           severity: "high",
           pattern: "\\bERROR\\b",
-          color: "#FF0000",
           minimap: true,
           ignoreCase: false,
         },
@@ -76,7 +75,6 @@ suite("Minimap Integration Test Suite", () => {
           type: "warning",
           severity: "medium",
           pattern: "\\bWARN\\b",
-          color: "#FFA500",
           minimap: true,
           ignoreCase: false,
         },
@@ -85,7 +83,6 @@ suite("Minimap Integration Test Suite", () => {
           type: "info",
           severity: "low",
           pattern: "\\bINFO\\b",
-          color: "#0066CC",
           minimap: false, // This should not appear in minimap
           ignoreCase: false,
         },
@@ -94,7 +91,6 @@ suite("Minimap Integration Test Suite", () => {
           type: "debug",
           severity: "low",
           pattern: "\\bDEBUG\\b",
-          color: "#666666",
           minimap: true,
           ignoreCase: false,
         },
@@ -166,7 +162,6 @@ suite("Minimap Integration Test Suite", () => {
         decoration.range.start.character >= 0,
         "Range should have valid start character"
       );
-      assert.ok(decoration.color.length > 0, "Decoration should have color");
       assert.ok(
         decoration.matcherName.length > 0,
         "Decoration should have matcher name"
@@ -187,7 +182,6 @@ suite("Minimap Integration Test Suite", () => {
           type: "error",
           severity: "high",
           pattern: "ERROR",
-          color: "#FF0000",
           minimap: true,
         },
       ],
@@ -225,7 +219,6 @@ suite("Minimap Integration Test Suite", () => {
           type: "error",
           severity: "high",
           pattern: "ERROR",
-          color: "#FF0000",
           minimap: false, // Disabled
         },
       ],
@@ -272,7 +265,6 @@ suite("Minimap Integration Test Suite", () => {
           type: "error",
           severity: "high",
           pattern: "ERROR",
-          color: "#FF0000",
           minimap: true,
         },
       ],
@@ -289,7 +281,6 @@ suite("Minimap Integration Test Suite", () => {
           type: "critical",
           severity: "critical",
           pattern: "CRITICAL",
-          color: "#8B0000",
           minimap: true,
         },
       ],

@@ -25,7 +25,6 @@ export interface MatchGroupNode {
   severity: SeverityLevel;
   locations: FileLocationNode[];
   icon: string;
-  color: string;
   uri: string[];
   totalMatches: number;
 }

@@ -59,7 +59,7 @@ suite('Unit Tests', () => {
 				assert.ok(errorMatcher, 'Error Messages matcher should exist');
 				assert.strictEqual(errorMatcher.type, 'error', 'Error matcher type should be error');
 				assert.strictEqual(errorMatcher.severity, 'high', 'Error matcher severity should be high');
-				assert.strictEqual(errorMatcher.color, '#FF4444', 'Error matcher color should be red');
+				assert.strictEqual(errorMatcher.severity, 'high', 'Error matcher severity should be high');
 				assert.strictEqual(errorMatcher.ignoreCase, true, 'Error matcher should ignore case');
 				
 				const warningMatcher = config.matchers.find(m => m.name === 'Warning Messages');
@@ -126,7 +126,6 @@ suite('Unit Tests', () => {
 						type: 'error',
 						severity: 'high',
 						pattern: '(error|fail|exception|crash)',
-						color: '#FF4444',
 						minimap: true,
 						ignoreCase: true,
 						icon: '$(error)'
@@ -136,7 +135,6 @@ suite('Unit Tests', () => {
 						type: 'warning',
 						severity: 'medium',
 						pattern: '(warn|warning|caution|alert)',
-						color: '#FFA500',
 						minimap: true,
 						ignoreCase: true,
 						icon: '$(warning)'
@@ -146,7 +144,6 @@ suite('Unit Tests', () => {
 						type: 'fatal',
 						severity: 'critical',
 						pattern: '(fatal|critical|severe)',
-						color: '#8B0000',
 						minimap: true,
 						ignoreCase: true,
 						icon: '$(error)'
@@ -248,7 +245,6 @@ matchers:
     type: "error"
     severity: "high"
     pattern: "error"
-    color: "#FF0000"
     minimap: true
 performance:
   maxLinesPerAnalysis: 25000

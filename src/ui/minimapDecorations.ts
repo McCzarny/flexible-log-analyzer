@@ -6,7 +6,6 @@ export interface MinimapDecoration {
   severity: SeverityLevel;
   matcherName: string;
   message: string;
-  color: string;
 }
 
 export class MinimapDecorationService {
@@ -174,7 +173,6 @@ export class MinimapDecorationService {
         severity: match.severity,
         matcherName: match.matcher.name,
         message: match.message,
-        color: match.matcher.color || '#ffffff'
       };
 
       decorations.push(decoration);

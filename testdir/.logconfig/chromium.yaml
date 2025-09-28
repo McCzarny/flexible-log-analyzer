@@ -37,7 +37,6 @@ matchers:
     severity: "high"
     pattern: '(error|fail|exception|crash)'
     ignorePattern: 'flaky'
-    color: "#FF4444"
     minimap: true
     description: "Lines containing error-related keywords"
     ignoreCase: true
@@ -49,7 +48,6 @@ matchers:
     type: "warning"
     severity: "medium"
     pattern: '(warning|warn|caution|alert)'
-    color: "#FFA500"
     minimap: true
     description: "Lines containing warning-related keywords"
     ignoreCase: true
@@ -60,7 +58,6 @@ matchers:
     type: "success"
     severity: "low"
     pattern: '(success|complete|done|passed)'
-    color: "#00AA00"
     minimap: false
     description: "Lines indicating successful operations"
     ignoreCase: true
@@ -71,7 +68,6 @@ matchers:
     type: "fatal"
     severity: "critical"
     pattern: '(fatal|critical|severe)'
-    color: "#8B0000"
     minimap: true
     description: "Critical errors and fatal conditions"
     ignoreCase: true
@@ -82,7 +78,6 @@ matchers:
     type: "timeout"
     severity: "medium"
     pattern: '(timeout|timed out|time.*out)'
-    color: "#FF6600"
     minimap: true
     description: "Timeout-related issues"
     ignoreCase: true
@@ -92,7 +87,6 @@ matchers:
     type: "connection"
     severity: "medium"
     pattern: '(connection.*failed|connection.*refused|connection.*lost|disconnected)'
-    color: "#FF7700"
     minimap: true
     description: "Network connection problems"
     ignoreCase: true
@@ -103,7 +97,6 @@ matchers:
     type: "specific thing"
     severity: "medium"
     pattern: '(something)'
-    color: "#FF7700"
     minimap: true
     description: "Matcher that is currently not needed"
     ignoreCase: true
@@ -115,14 +108,13 @@ groups:
     description: "Fatal errors and critical problems"
     matchers: ["fatal", "error"]
     icon: "$(error)"
-    color: "#FF0000"
+    color: "#0000FF"
     priority: 1
     
   - name: "Warnings & Issues"
     description: "Warnings and non-critical issues"
     matchers: ["warning", "timeout", "connection"]
     icon: "$(warning)"
-    color: "#FFA500"
     priority: 2
 
 # Conservative performance settings

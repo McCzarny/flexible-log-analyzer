@@ -369,9 +369,6 @@ export class EnhancedTreeView
         locations: locations.sort((a, b) => a.line - b.line),
         icon:
           groupConfig?.icon || this.getIconForSeverity(firstLocation.severity),
-        color:
-          groupConfig?.color ||
-          this.getColorForSeverity(firstLocation.severity),
         uri: ["group", result.filePath, type],
         totalMatches: locations.length,
       };

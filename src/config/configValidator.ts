@@ -123,20 +123,6 @@ export class ConfigValidator {
       }
     }
 
-    if (!matcher.color) {
-      warnings.push({
-        path: `${basePath}.color`,
-        message: 'Matcher color is recommended for visual indication',
-        suggestion: 'Add a color property with hex color code (e.g., "#FF0000")'
-      });
-    } else if (!this.isValidColor(matcher.color)) {
-      warnings.push({
-        path: `${basePath}.color`,
-        message: 'Color should be a valid hex color code',
-        suggestion: 'Use format like "#FF0000" or "#ff0000"'
-      });
-    }
-
     if (matcher.minimap === undefined) {
       warnings.push({
         path: `${basePath}.minimap`,
@@ -209,11 +195,6 @@ export class ConfigValidator {
   private isValidSeverity(severity: string): boolean {
     const validSeverities: SeverityLevel[] = ['low', 'medium', 'high', 'critical'];
     return validSeverities.includes(severity as SeverityLevel);
-  }
-
-  private isValidColor(color: string): boolean {
-    // Validate hex color codes
-    return /^#[0-9A-Fa-f]{6}$/.test(color);
   }
 
   private isValidIcon(icon: string): boolean {

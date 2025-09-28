@@ -668,7 +668,6 @@ matchers:
     type: "error"
     severity: "high"
     pattern: '(error|fail|exception|crash)'
-    color: "#FF4444"
     minimap: true
     includeInCount: true
     description: "Lines containing error-related keywords"
@@ -679,7 +678,6 @@ matchers:
     type: "warning"
     severity: "medium"
     pattern: '(warn|warning|caution|alert)'
-    color: "#FFA500"
     minimap: true
     enabled: false
     description: "Lines containing warning-related keywords (disabled example)"
@@ -691,14 +689,12 @@ groups:
     description: "Fatal errors and critical problems"
     matchers: ["fatal", "error"]
     icon: "$(error)"
-    color: "#FF0000"
     priority: 1
     
   - name: "Warnings"
     description: "Warning conditions"
     matchers: ["warning"]
     icon: "$(warning)"
-    color: "#FFA500"
     priority: 2
 `;
 
