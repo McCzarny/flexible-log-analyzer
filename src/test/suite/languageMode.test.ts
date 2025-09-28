@@ -28,7 +28,7 @@ suite("Language Mode Change Tests", () => {
     test("Should parse changeLanguageMode flag from detector when true", async () => {
       const configPath = path.join(
         __dirname,
-        "../fixtures/config-with-language-mode/chromium-with-mode.yaml",
+        "../../../src/test/fixtures/config-with-language-mode/chromium-with-mode.yaml",
       );
       const configUri = vscode.Uri.file(configPath);
 
@@ -59,7 +59,7 @@ suite("Language Mode Change Tests", () => {
     test("Should parse changeLanguageMode flag from detector when false", async () => {
       const configPath = path.join(
         __dirname,
-        "../fixtures/config-without-language-mode/chromium-without-mode.yaml",
+        "../../../src/test/fixtures/config-without-language-mode/chromium-without-mode.yaml",
       );
       const configUri = vscode.Uri.file(configPath);
 
@@ -92,7 +92,7 @@ suite("Language Mode Change Tests", () => {
       // Load test configuration from file
       const configPath = path.join(
         __dirname,
-        "../fixtures/config-with-language-mode/chromium-with-mode.yaml",
+        "../../../src/test/fixtures/config-with-language-mode/chromium-with-mode.yaml",
       );
       const configContent = await vscode.workspace.fs.readFile(
         vscode.Uri.file(configPath),
@@ -118,7 +118,7 @@ suite("Language Mode Change Tests", () => {
 
       const testFilePath = path.join(
         __dirname,
-        "../fixtures/chromium-log-no-ext",
+        "../../../src/test/fixtures/chromium-log-no-ext",
       );
       const config = await configManager.getConfigForFile(testFilePath);
 
@@ -140,7 +140,7 @@ suite("Language Mode Change Tests", () => {
       // Load test configuration from file
       const configPath = path.join(
         __dirname,
-        "../fixtures/config-without-language-mode/chromium-without-mode.yaml",
+        "../../../src/test/fixtures/config-without-language-mode/chromium-without-mode.yaml",
       );
       const configContent = await vscode.workspace.fs.readFile(
         vscode.Uri.file(configPath),
@@ -165,7 +165,7 @@ suite("Language Mode Change Tests", () => {
 
       const testFilePath = path.join(
         __dirname,
-        "../fixtures/chromium-log-no-ext",
+        "../../../src/test/fixtures/chromium-log-no-ext",
       );
       const config = await configManager.getConfigForFile(testFilePath);
 
@@ -207,7 +207,7 @@ suite("Language Mode Change Tests", () => {
 
       const testFilePath = path.join(
         __dirname,
-        "../fixtures/non-chromium-log.log",
+        "../../../src/test/fixtures/non-chromium-log.log",
       );
       const config = await configManager.getConfigForFile(testFilePath);
 
@@ -228,7 +228,7 @@ suite("Language Mode Change Tests", () => {
       // Load test configuration from file
       const configPath = path.join(
         __dirname,
-        "../fixtures/config-with-language-mode/chromium-with-mode.yaml",
+        "../../../src/test/fixtures/config-with-language-mode/chromium-with-mode.yaml",
       );
       const configContent = await vscode.workspace.fs.readFile(
         vscode.Uri.file(configPath),
@@ -253,7 +253,7 @@ suite("Language Mode Change Tests", () => {
 
       const testFilePath = path.join(
         __dirname,
-        "../fixtures/chromium-log-no-ext",
+        "../../../src/test/fixtures/chromium-log-no-ext",
       );
 
       // Open the document first
@@ -300,7 +300,7 @@ suite("Language Mode Change Tests", () => {
       // even with a config that has changeLanguageMode=true
       const configPath = path.join(
         __dirname,
-        "../fixtures/config-with-language-mode/chromium-with-mode.yaml",
+        "../../../src/test/fixtures/config-with-language-mode/chromium-with-mode.yaml",
       );
       const configContent = await vscode.workspace.fs.readFile(
         vscode.Uri.file(configPath),
@@ -326,7 +326,7 @@ suite("Language Mode Change Tests", () => {
       // Use a file that doesn't match the detector pattern
       const testFilePath = path.join(
         __dirname,
-        "../fixtures/different-format-log.txt",
+        "../../../src/test/fixtures/different-format-log.txt",
       );
 
       // Open the document first
@@ -372,7 +372,7 @@ suite("Language Mode Change Tests", () => {
       // Load test configuration with changeLanguageMode=false
       const configPath = path.join(
         __dirname,
-        "../fixtures/config-without-language-mode/chromium-without-mode.yaml",
+        "../../../src/test/fixtures/config-without-language-mode/chromium-without-mode.yaml",
       );
       const configContent = await vscode.workspace.fs.readFile(
         vscode.Uri.file(configPath),
@@ -397,7 +397,7 @@ suite("Language Mode Change Tests", () => {
 
       const testFilePath = path.join(
         __dirname,
-        "../fixtures/chromium-log-with-ext.log",
+        "../../../src/test/fixtures/chromium-log-with-ext.log",
       );
 
       // Open the document first
@@ -469,7 +469,7 @@ suite("Language Mode Change Tests", () => {
 
       const testFilePath = path.join(
         __dirname,
-        "../fixtures/non-chromium-log.log",
+        "../../../src/test/fixtures/non-chromium-log.log",
       );
 
       const document = await vscode.workspace.openTextDocument(testFilePath);
@@ -511,7 +511,7 @@ suite("Language Mode Change Tests", () => {
 
       const testFilePath = path.join(
         __dirname,
-        "../fixtures/chromium-log-no-ext",
+        "../../../src/test/fixtures/chromium-log-no-ext",
       );
 
       // This should not throw an error and should not change language mode
@@ -528,7 +528,7 @@ suite("Language Mode Change Tests", () => {
       // Load test configuration from file
       const configPath = path.join(
         __dirname,
-        "../fixtures/config-with-language-mode/chromium-with-mode.yaml",
+        "../../../src/test/fixtures/config-with-language-mode/chromium-with-mode.yaml",
       );
       const configContent = await vscode.workspace.fs.readFile(
         vscode.Uri.file(configPath),
@@ -553,7 +553,7 @@ suite("Language Mode Change Tests", () => {
 
       const testFilePath = path.join(
         __dirname,
-        "../fixtures/chromium-log-no-ext",
+        "../../../src/test/fixtures/chromium-log-no-ext",
       );
 
       // Don't open the document, just call getConfigForFile
