@@ -51,20 +51,20 @@ export async function activate(context: vscode.ExtensionContext) {
     setupFileLinkHandling(context);
 
     outputChannel.appendLine(
-      "Flexible Log Analyzer: Configuration system initialized successfully"
+      "Flexible Log Analyzer: Configuration system initialized successfully",
     );
   } catch (error) {
     outputChannel.appendLine(
-      `Failed to initialize Flexible Log Analyzer: ${error}`
+      `Failed to initialize Flexible Log Analyzer: ${error}`,
     );
     vscode.window.showErrorMessage(
-      `Failed to initialize Flexible Log Analyzer: ${error}`
+      `Failed to initialize Flexible Log Analyzer: ${error}`,
     );
   }
 }
 
 async function initializeConfigurationSystem(
-  context: vscode.ExtensionContext
+  context: vscode.ExtensionContext,
 ): Promise<void> {
   // Initialize configuration manager with shared output channel
   configManager = new ConfigManager(outputChannel);
@@ -86,9 +86,9 @@ function registerCommands(context: vscode.ExtensionContext): void {
     "flexible-log-analyzer.helloWorld",
     () => {
       vscode.window.showInformationMessage(
-        "Hello World from Flexible Log Analyzer!"
+        "Hello World from Flexible Log Analyzer!",
       );
-    }
+    },
   );
   context.subscriptions.push(helloWorldCommand);
 
@@ -97,7 +97,7 @@ function registerCommands(context: vscode.ExtensionContext): void {
     "flexible-log-analyzer.analyzeCurrentFile",
     async () => {
       await analyzeCurrentFile();
-    }
+    },
   );
   context.subscriptions.push(analyzeCurrentFileCommand);
 
@@ -106,7 +106,7 @@ function registerCommands(context: vscode.ExtensionContext): void {
     "flexible-log-analyzer.openConfiguration",
     async () => {
       await openConfigurationFile();
-    }
+    },
   );
   context.subscriptions.push(openConfigCommand);
 
@@ -114,7 +114,7 @@ function registerCommands(context: vscode.ExtensionContext): void {
     "flexible-log-analyzer.createConfiguration",
     async () => {
       await createConfigurationFile();
-    }
+    },
   );
   context.subscriptions.push(createConfigCommand);
 
@@ -123,7 +123,7 @@ function registerCommands(context: vscode.ExtensionContext): void {
     "flexible-log-analyzer.toggleMinimap",
     async () => {
       await toggleMinimapDecorations();
-    }
+    },
   );
   context.subscriptions.push(toggleMinimapCommand);
 
@@ -134,19 +134,19 @@ function registerCommands(context: vscode.ExtensionContext): void {
       vscode.window
         .showWarningMessage(
           "Script-based analysis is deprecated. Using new configuration-based analysis.",
-          "Learn More"
+          "Learn More",
         )
         .then((selection) => {
           if (selection === "Learn More") {
             vscode.env.openExternal(
               vscode.Uri.parse(
-                "https://github.com/McCzarny/flexible-log-analyzer#migration"
-              )
+                "https://github.com/McCzarny/flexible-log-analyzer#migration",
+              ),
             );
           }
         });
       await analyzeCurrentFile();
-    }
+    },
   );
   context.subscriptions.push(legacyRunScriptsCommand);
 }
@@ -169,13 +169,13 @@ function setupFileLinkHandling(context: vscode.ExtensionContext): void {
   const fileLinkProvider = patternMatcher.getFileLinkProvider();
   const definitionProvider = vscode.languages.registerDefinitionProvider(
     "*",
-    fileLinkProvider
+    fileLinkProvider,
   );
 
   context.subscriptions.push(definitionProvider);
 
   outputChannel.appendLine(
-    "File link DefinitionProvider registered - use F12 or Ctrl+Click on file paths to navigate"
+    "File link DefinitionProvider registered - use F12 or Ctrl+Click on file paths to navigate",
   );
 }
 
@@ -191,15 +191,15 @@ function setupFileWatchers(context: vscode.ExtensionContext): void {
       const fileName = document.fileName.split("/").pop() || document.fileName;
       const timestamp = new Date().toISOString();
       outputChannel.appendLine(
-        `[DEBUG ${timestamp}] onDidOpenTextDocument fired for: ${fileName}`
+        `[DEBUG ${timestamp}] onDidOpenTextDocument fired for: ${fileName}`,
       );
       if (shouldAutoAnalyze(document)) {
         outputChannel.appendLine(
-          `[DEBUG ${timestamp}] Triggering analysis from onDidOpenTextDocument for: ${fileName}`
+          `[DEBUG ${timestamp}] Triggering analysis from onDidOpenTextDocument for: ${fileName}`,
         );
         await analyzeDocument(document);
       }
-    }
+    },
   );
   context.subscriptions.push(onDidOpenTextDocument);
 
@@ -209,15 +209,15 @@ function setupFileWatchers(context: vscode.ExtensionContext): void {
       const fileName = document.fileName.split("/").pop() || document.fileName;
       const timestamp = new Date().toISOString();
       outputChannel.appendLine(
-        `[DEBUG ${timestamp}] onDidSaveTextDocument fired for: ${fileName}`
+        `[DEBUG ${timestamp}] onDidSaveTextDocument fired for: ${fileName}`,
       );
       if (shouldAutoAnalyze(document)) {
         outputChannel.appendLine(
-          `[DEBUG ${timestamp}] Triggering analysis from onDidSaveTextDocument for: ${fileName}`
+          `[DEBUG ${timestamp}] Triggering analysis from onDidSaveTextDocument for: ${fileName}`,
         );
         await analyzeDocument(document);
       }
-    }
+    },
   );
   context.subscriptions.push(onDidSaveTextDocument);
 
@@ -247,7 +247,7 @@ function setupFileWatchers(context: vscode.ExtensionContext): void {
           outputChannel.appendLine(`[DEBUG] Forcing analysis for: ${filePath}`);
         } else {
           outputChannel.appendLine(
-            `[DEBUG] Delaying analysis for: ${filePath} by ${delay}ms`
+            `[DEBUG] Delaying analysis for: ${filePath} by ${delay}ms`,
           );
         }
 
@@ -263,7 +263,7 @@ function setupFileWatchers(context: vscode.ExtensionContext): void {
 
         changeTimeouts.set(filePath, newTimeout);
       }
-    }
+    },
   );
   context.subscriptions.push(onDidChangeTextDocument);
 
@@ -277,7 +277,7 @@ function setupFileWatchers(context: vscode.ExtensionContext): void {
         changeTimeouts.delete(filePath);
       }
       lastAnalysisTime.delete(filePath);
-    }
+    },
   );
   context.subscriptions.push(onDidCloseTextDocument);
 
@@ -286,7 +286,7 @@ function setupFileWatchers(context: vscode.ExtensionContext): void {
     vscode.window.onDidChangeVisibleTextEditors(async (editors) => {
       const timestamp = new Date().toISOString();
       outputChannel.appendLine(
-        `[DEBUG ${timestamp}] onDidChangeVisibleTextEditors fired with ${editors.length} editors`
+        `[DEBUG ${timestamp}] onDidChangeVisibleTextEditors fired with ${editors.length} editors`,
       );
 
       // Refresh minimap decorations for the active editor
@@ -303,7 +303,7 @@ function setupFileWatchers(context: vscode.ExtensionContext): void {
             editor.document.fileName.split("/").pop() ||
             editor.document.fileName;
           outputChannel.appendLine(
-            `[DEBUG ${timestamp}] Triggering analysis from tab switch for: ${fileName}`
+            `[DEBUG ${timestamp}] Triggering analysis from tab switch for: ${fileName}`,
           );
           await analyzeDocument(editor.document);
         }
@@ -313,7 +313,7 @@ function setupFileWatchers(context: vscode.ExtensionContext): void {
 
   // Watch for configuration file changes and reload configurations
   const configWatcher = vscode.workspace.createFileSystemWatcher(
-    "**/.logconfig{,/**}"
+    "**/.logconfig{,/**}",
   );
 
   configWatcher.onDidCreate(async (uri) => {
@@ -326,7 +326,7 @@ function setupFileWatchers(context: vscode.ExtensionContext): void {
 
     // Invalidate cache entries that use this configuration
     const invalidatedFiles = enhancedTreeView.invalidateCacheForConfigPath(
-      uri.fsPath
+      uri.fsPath,
     );
     if (invalidatedFiles.length > 0) {
       outputChannel.appendLine(
@@ -334,7 +334,7 @@ function setupFileWatchers(context: vscode.ExtensionContext): void {
           invalidatedFiles.length
         } files due to config change: ${invalidatedFiles
           .map((f) => path.basename(f))
-          .join(", ")}`
+          .join(", ")}`,
       );
     }
 
@@ -347,8 +347,8 @@ function setupFileWatchers(context: vscode.ExtensionContext): void {
     ) {
       outputChannel.appendLine(
         `Re-analyzing active file due to configuration change: ${path.basename(
-          vscode.window.activeTextEditor.document.fileName
-        )}`
+          vscode.window.activeTextEditor.document.fileName,
+        )}`,
       );
       await analyzeDocument(vscode.window.activeTextEditor.document);
     }
@@ -367,11 +367,11 @@ function setupFileWatchers(context: vscode.ExtensionContext): void {
     const fileName = document.fileName.split("/").pop() || document.fileName;
     const timestamp = new Date().toISOString();
     outputChannel.appendLine(
-      `[DEBUG ${timestamp}] Initial analysis check for active file: ${fileName}`
+      `[DEBUG ${timestamp}] Initial analysis check for active file: ${fileName}`,
     );
     if (shouldAutoAnalyze(document)) {
       outputChannel.appendLine(
-        `[DEBUG ${timestamp}] Triggering initial analysis for: ${fileName}`
+        `[DEBUG ${timestamp}] Triggering initial analysis for: ${fileName}`,
       );
       analyzeDocument(document);
     }
@@ -390,14 +390,14 @@ function shouldAutoAnalyze(document: vscode.TextDocument): boolean {
   // Check file patterns and size
   const fileName = document.fileName.toLowerCase();
   outputChannel.appendLine(
-    `Checking auto-analysis for file: ${fileName} (${document.uri.scheme})`
+    `Checking auto-analysis for file: ${fileName} (${document.uri.scheme})`,
   );
   const logExtensions = [".log", ".out", ".txt"];
   const hasLogExtension = logExtensions.some((ext) => fileName.endsWith(ext));
   const hasNoExtension = fileName.indexOf(".") === -1;
   const result = hasLogExtension || hasNoExtension;
   outputChannel.appendLine(
-    `Auto-analysis result for ${fileName}: ${result} (${hasLogExtension} ${hasNoExtension})`
+    `Auto-analysis result for ${fileName}: ${result} (${hasLogExtension} ${hasNoExtension})`,
   );
   return result;
 }
@@ -406,7 +406,7 @@ function shouldAnalyzeOnChange(): boolean {
   const config = vscode.workspace.getConfiguration("flexible-log-analyzer");
   const result = config.get<boolean>("enableAutoAnalysisOnChange", true);
   outputChannel.appendLine(
-    `Auto-analysis on change is ${result ? "enabled" : "disabled"}`
+    `Auto-analysis on change is ${result ? "enabled" : "disabled"}`,
   );
   return result;
 }
@@ -425,9 +425,7 @@ async function analyzeCurrentFile(): Promise<void> {
 
   // TODO get visible text editor, not just any active editor
   if (activeEditor.document.uri.scheme !== "file") {
-    vscode.window.showWarningMessage(
-      "Active document is not a file on disk"
-    );
+    vscode.window.showWarningMessage("Active document is not a file on disk");
     return;
   }
 
@@ -436,22 +434,22 @@ async function analyzeCurrentFile(): Promise<void> {
 
 async function analyzeDocument(document: vscode.TextDocument): Promise<void> {
   // Performance tracking
-  const analysisTimer = performanceLogger.createTimer('Document analysis');
+  const analysisTimer = performanceLogger.createTimer("Document analysis");
   analysisTimer.start();
-  
+
   try {
     // Debug logging to track analysis calls
     const fileName = document.fileName.split("/").pop() || document.fileName;
     const timestamp = new Date().toISOString();
     const callId = Math.random().toString(36).substr(2, 9);
     outputChannel.appendLine(
-      `[DEBUG ${timestamp}] analyzeDocument called for: ${fileName} (call-id: ${callId})`
+      `[DEBUG ${timestamp}] analyzeDocument called for: ${fileName} (call-id: ${callId})`,
     );
 
     // Check if analysis is already in progress for this file
     if (analysisInProgress.get(document.fileName)) {
       outputChannel.appendLine(
-        `[DEBUG ${timestamp}] Analysis already in progress for: ${fileName}, skipping duplicate call`
+        `[DEBUG ${timestamp}] Analysis already in progress for: ${fileName}, skipping duplicate call`,
       );
       return;
     }
@@ -461,15 +459,15 @@ async function analyzeDocument(document: vscode.TextDocument): Promise<void> {
 
     try {
       // Get configuration with checksum for this file
-      const configTimer = performanceLogger.createTimer('Configuration loading');
-      configTimer.start();
-      
-      const config = await configManager.getConfig(
-        document.fileName
+      const configTimer = performanceLogger.createTimer(
+        "Configuration loading",
       );
+      configTimer.start();
+
+      const config = await configManager.getConfig(document.fileName);
       if (!config) {
         outputChannel.appendLine(
-          `[DEBUG ${timestamp}] No config found for: ${fileName}`
+          `[DEBUG ${timestamp}] No config found for: ${fileName}`,
         );
         return;
       }
@@ -480,82 +478,91 @@ async function analyzeDocument(document: vscode.TextDocument): Promise<void> {
       const cachedResult = enhancedTreeView.getCachedResult(
         document.fileName,
         document.getText(),
-        config.checksum
+        config.checksum,
       );
 
       if (cachedResult) {
         outputChannel.appendLine(
           `[DEBUG ${timestamp}] Using cached analysis for: ${fileName} (config checksum: ${cachedResult.config.checksum.substring(
             0,
-            8
-          )}...)`
+            8,
+          )}...)`,
         );
 
         // Update tree view with cached result
-        const uiTimer = performanceLogger.createTimer('UI update (cached)');
+        const uiTimer = performanceLogger.createTimer("UI update (cached)");
         uiTimer.start();
         enhancedTreeView.updateResults(cachedResult, document.getText());
         const uiUpdateTime = uiTimer.stop();
-        
+
         const totalTime = analysisTimer.stop();
-        
+
         // Log performance for cached result
         if (performanceLogger.isLoggingEnabled()) {
-          performanceLogger.logMetrics('Document Analysis (Cached)', {
-            configLoadTime,
-            uiUpdateTime,
-            totalTime,
-            cacheHit: true,
-            fileSizeBytes: new TextEncoder().encode(document.getText()).length,
-            lineCount: document.lineCount
-          }, fileName);
+          performanceLogger.logMetrics(
+            "Document Analysis (Cached)",
+            {
+              configLoadTime,
+              uiUpdateTime,
+              totalTime,
+              cacheHit: true,
+              fileSizeBytes: new TextEncoder().encode(document.getText())
+                .length,
+              lineCount: document.lineCount,
+            },
+            fileName,
+          );
         }
-        
+
         return;
       }
 
       outputChannel.appendLine(
         `[DEBUG ${timestamp}] Performing fresh analysis for: ${fileName} (config checksum: ${config.checksum.substring(
           0,
-          8
-        )}...)`
+          8,
+        )}...)`,
       );
 
       // Analyze the file using editor content
       const result = await patternMatcher.analyzeFile(
         document.fileName,
         config,
-        document.getText()
+        document.getText(),
       );
 
       // Update tree view and minimap
-      const uiTimer = performanceLogger.createTimer('UI update (fresh)');
+      const uiTimer = performanceLogger.createTimer("UI update (fresh)");
       uiTimer.start();
-      
+
       enhancedTreeView.updateResults(result, document.getText());
       minimapService.updateDecorations(result);
-      
+
       const uiUpdateTime = uiTimer.stop();
       const totalTime = analysisTimer.stop();
 
       // Log comprehensive performance metrics
       if (performanceLogger.isLoggingEnabled()) {
-        performanceLogger.logMetrics('Document Analysis (Fresh)', {
-          configLoadTime,
-          fileAnalysisTime: result.analysisTime,
-          uiUpdateTime,
-          totalTime,
-          cacheHit: false,
-          fileSizeBytes: new TextEncoder().encode(document.getText()).length,
-          lineCount: document.lineCount,
-          matchCount: result.matches.length
-        }, fileName);
+        performanceLogger.logMetrics(
+          "Document Analysis (Fresh)",
+          {
+            configLoadTime,
+            fileAnalysisTime: result.analysisTime,
+            uiUpdateTime,
+            totalTime,
+            cacheHit: false,
+            fileSizeBytes: new TextEncoder().encode(document.getText()).length,
+            lineCount: document.lineCount,
+            matchCount: result.matches.length,
+          },
+          fileName,
+        );
       }
 
       // Log file links if present (for debugging purposes)
       if (result.fileLinks && result.fileLinks.length > 0) {
         outputChannel.appendLine(
-          `Found ${result.fileLinks.length} file links in ${fileName} - use F12 or Ctrl+Click to navigate`
+          `Found ${result.fileLinks.length} file links in ${fileName} - use F12 or Ctrl+Click to navigate`,
         );
       }
     } finally {
@@ -564,7 +571,7 @@ async function analyzeDocument(document: vscode.TextDocument): Promise<void> {
     }
   } catch (error) {
     const errorTime = analysisTimer.elapsed();
-    performanceLogger.logError('Document analysis', error as Error, errorTime);
+    performanceLogger.logError("Document analysis", error as Error, errorTime);
     outputChannel.appendLine(`Error analyzing document: ${error}`);
     vscode.window.showErrorMessage(`Analysis failed: ${error}`);
     // Ensure we clear the in-progress flag even on error
@@ -582,7 +589,7 @@ async function openConfigurationFile(): Promise<void> {
 
     const configPath = vscode.Uri.joinPath(
       workspaceFolders[0].uri,
-      ".logconfig"
+      ".logconfig",
     );
 
     try {
@@ -600,21 +607,21 @@ async function openConfigurationFile(): Promise<void> {
         {
           placeHolder:
             "Configuration file not found. What would you like to do?",
-        }
+        },
       );
 
       if (createConfig === "Create new configuration") {
         await createConfigurationFile();
       } else if (createConfig === "Open global configuration (~/.logconfig)") {
         const homeConfig = vscode.Uri.file(
-          require("os").homedir() + "/.logconfig"
+          require("os").homedir() + "/.logconfig",
         );
         try {
           const document = await vscode.workspace.openTextDocument(homeConfig);
           await vscode.window.showTextDocument(document);
         } catch {
           vscode.window.showWarningMessage(
-            "Global configuration file not found"
+            "Global configuration file not found",
           );
         }
       }
@@ -634,7 +641,7 @@ async function createConfigurationFile(): Promise<void> {
 
     const configDirPath = vscode.Uri.joinPath(
       workspaceFolders[0].uri,
-      ".logconfig"
+      ".logconfig",
     );
     await vscode.workspace.fs.createDirectory(configDirPath);
     const configPath = vscode.Uri.joinPath(configDirPath, "example.yaml");
@@ -644,7 +651,7 @@ async function createConfigurationFile(): Promise<void> {
     const encoder = new (require("util").TextEncoder)();
     await vscode.workspace.fs.writeFile(
       configPath,
-      encoder.encode(templateContent)
+      encoder.encode(templateContent),
     );
 
     const document = await vscode.workspace.openTextDocument(configPath);
@@ -709,7 +716,7 @@ async function toggleMinimapDecorations(): Promise<void> {
   await config.update(
     "showMinimapDecorations",
     newValue,
-    vscode.ConfigurationTarget.Workspace
+    vscode.ConfigurationTarget.Workspace,
   );
 
   if (newValue) {

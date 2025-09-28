@@ -1,8 +1,8 @@
-import * as assert from 'assert';
-import * as vscode from 'vscode';
-import { PerformanceLogger } from '../../utils/performanceLogger';
+import * as assert from "assert";
+import * as vscode from "vscode";
+import { PerformanceLogger } from "../../utils/performanceLogger";
 
-suite('Performance Logger Tests', () => {
+suite("Performance Logger Tests", () => {
   let mockOutputChannel: vscode.OutputChannel;
   let performanceLogger: PerformanceLogger;
   let loggedMessages: string[] = [];
@@ -14,52 +14,63 @@ suite('Performance Logger Tests', () => {
       appendLine: (message: string) => {
         loggedMessages.push(message);
       },
-      dispose: () => { /* no-op */ }
+      dispose: () => {
+        /* no-op */
+      },
     } as any;
 
     performanceLogger = new PerformanceLogger(mockOutputChannel);
   });
 
-  test('Should not log when performance logging is disabled by default', () => {
+  test("Should not log when performance logging is disabled by default", () => {
     // Performance logging should be disabled by default
     assert.strictEqual(performanceLogger.isLoggingEnabled(), false);
 
     // Log some metrics
-    performanceLogger.logMetrics('Test Operation', {
+    performanceLogger.logMetrics("Test Operation", {
       totalTime: 100,
-      fileAnalysisTime: 50
+      fileAnalysisTime: 50,
     });
 
     // Should not have logged anything
-    const perfMessages = loggedMessages.filter(msg => msg.includes('[PERF]'));
-    assert.strictEqual(perfMessages.length, 0, 'Should not log when disabled');
+    const perfMessages = loggedMessages.filter((msg) => msg.includes("[PERF]"));
+    assert.strictEqual(perfMessages.length, 0, "Should not log when disabled");
   });
 
-  test('Should create timer with correct interface', () => {
-    const timer = performanceLogger.createTimer('Test Operation');
+  test("Should create timer with correct interface", () => {
+    const timer = performanceLogger.createTimer("Test Operation");
 
     // Timer should have required methods
-    assert.ok(typeof timer.start === 'function', 'Timer should have start method');
-    assert.ok(typeof timer.stop === 'function', 'Timer should have stop method');
-    assert.ok(typeof timer.elapsed === 'function', 'Timer should have elapsed method');
+    assert.ok(
+      typeof timer.start === "function",
+      "Timer should have start method",
+    );
+    assert.ok(
+      typeof timer.stop === "function",
+      "Timer should have stop method",
+    );
+    assert.ok(
+      typeof timer.elapsed === "function",
+      "Timer should have elapsed method",
+    );
   });
 
-  test('Timer should measure time correctly', async () => {
-    const timer = performanceLogger.createTimer('Test Operation');
-    
+  test("Timer should measure time correctly", async () => {
+    const timer = performanceLogger.createTimer("Test Operation");
+
     timer.start();
-    
+
     // Wait a small amount of time
-    await new Promise(resolve => setTimeout(resolve, 10));
-    
+    await new Promise((resolve) => setTimeout(resolve, 10));
+
     const elapsed = timer.stop();
-    
+
     // Should have measured some time
-    assert.ok(elapsed > 0, 'Timer should measure positive elapsed time');
-    assert.ok(elapsed >= 10, 'Timer should measure at least the delay time');
+    assert.ok(elapsed > 0, "Timer should measure positive elapsed time");
+    assert.ok(elapsed >= 10, "Timer should measure at least the delay time");
   });
 
-  test('Should format metrics correctly when logging would be enabled', () => {
+  test("Should format metrics correctly when logging would be enabled", () => {
     // Test the metrics structure
     const testMetrics = {
       totalTime: 150.5,
@@ -70,22 +81,26 @@ suite('Performance Logger Tests', () => {
       lineCount: 50,
       matchCount: 10,
       cacheHit: true,
-      memoryUsage: 2048000
+      memoryUsage: 2048000,
     };
 
     // Should accept all the metrics without error
     assert.doesNotThrow(() => {
-      performanceLogger.logMetrics('Test Operation', testMetrics, 'test-file.log');
-    }, 'Should handle all metric types without error');
+      performanceLogger.logMetrics(
+        "Test Operation",
+        testMetrics,
+        "test-file.log",
+      );
+    }, "Should handle all metric types without error");
   });
 
-  test('Should handle error logging correctly', () => {
-    const testError = new Error('Test error message');
+  test("Should handle error logging correctly", () => {
+    const testError = new Error("Test error message");
     const duration = 123.45;
 
     // Should not throw when logging errors
     assert.doesNotThrow(() => {
-      performanceLogger.logError('Test Operation', testError, duration);
-    }, 'Should handle error logging without throwing');
+      performanceLogger.logError("Test Operation", testError, duration);
+    }, "Should handle error logging without throwing");
   });
 });

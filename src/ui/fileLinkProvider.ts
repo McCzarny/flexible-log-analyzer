@@ -32,7 +32,9 @@ export class FileLinkProvider implements vscode.DefinitionProvider {
 
   private getCacheKey(filePath: string, pattern: FileLink): string {
     // Cache varies by filePath + allowSearch + paths + workspace folders
-    const folders = (vscode.workspace.workspaceFolders || []).map(f => f.uri.toString());
+    const folders = (vscode.workspace.workspaceFolders || []).map((f) =>
+      f.uri.toString(),
+    );
     return JSON.stringify({
       filePath,
       allowSearch: pattern.allowSearch !== false, // undefined treated as true
@@ -90,7 +92,7 @@ export class FileLinkProvider implements vscode.DefinitionProvider {
       } catch (error) {
         console.error(
           `Failed to compile file link pattern: ${pattern.pattern}`,
-          error
+          error,
         );
       }
 
@@ -107,7 +109,7 @@ export class FileLinkProvider implements vscode.DefinitionProvider {
   public async provideDefinition(
     document: vscode.TextDocument,
     position: vscode.Position,
-    _token: vscode.CancellationToken
+    _token: vscode.CancellationToken,
   ): Promise<vscode.LocationLink[] | undefined> {
     if (this.compiledPatterns.length === 0) {
       return undefined;
@@ -159,7 +161,7 @@ export class FileLinkProvider implements vscode.DefinitionProvider {
                     position.line,
                     matchStart,
                     position.line,
-                    matchEnd
+                    matchEnd,
                   ),
                 },
               ];
@@ -176,7 +178,7 @@ export class FileLinkProvider implements vscode.DefinitionProvider {
   }
 
   private getMatchBounds(
-    match: RegExpMatchArray
+    match: RegExpMatchArray,
   ): { start: number; end: number } | undefined {
     if (match.index === undefined) {
       return undefined;
@@ -190,11 +192,11 @@ export class FileLinkProvider implements vscode.DefinitionProvider {
       for (let i = 1; i < match.length; i++) {
         minStart = Math.min(
           minStart,
-          match.indices?.[i]?.[0] ?? Number.MAX_SAFE_INTEGER
+          match.indices?.[i]?.[0] ?? Number.MAX_SAFE_INTEGER,
         );
         maxEnd = Math.max(
           maxEnd,
-          match.indices?.[i]?.[1] ?? Number.MIN_SAFE_INTEGER
+          match.indices?.[i]?.[1] ?? Number.MIN_SAFE_INTEGER,
         );
       }
 
@@ -214,7 +216,7 @@ export class FileLinkProvider implements vscode.DefinitionProvider {
 
   private async resolveTargetUri(
     match: RegExpMatchArray,
-    pattern: FileLink
+    pattern: FileLink,
   ): Promise<vscode.Uri | undefined> {
     // Use the fileUri template and replace placeholders
     let fileUri = pattern.fileUri;
@@ -223,7 +225,7 @@ export class FileLinkProvider implements vscode.DefinitionProvider {
       const placeholder = `$${i}`;
       fileUri = fileUri.replace(
         new RegExp("\\" + placeholder, "g"),
-        match[i] || ""
+        match[i] || "",
       );
     }
 
@@ -236,7 +238,7 @@ export class FileLinkProvider implements vscode.DefinitionProvider {
 
   private async resolveFileUri(
     filePath: string,
-    pattern: FileLink
+    pattern: FileLink,
   ): Promise<vscode.Uri | undefined> {
     // Check cache first
     const cacheKey = this.getCacheKey(filePath, pattern);
@@ -293,7 +295,7 @@ export class FileLinkProvider implements vscode.DefinitionProvider {
               const foundPaths = await vscode.workspace.findFiles(
                 limitedPattern,
                 undefined,
-                1
+                1,
               );
               if (foundPaths.length > 0) {
                 resolved = foundPaths[0];
@@ -305,7 +307,7 @@ export class FileLinkProvider implements vscode.DefinitionProvider {
             const foundPaths = await vscode.workspace.findFiles(
               searchPattern,
               undefined,
-              1
+              1,
             );
             if (foundPaths.length > 0) {
               resolved = foundPaths[0];
@@ -322,7 +324,7 @@ export class FileLinkProvider implements vscode.DefinitionProvider {
 
   private resolveLineNumber(
     match: RegExpMatchArray,
-    pattern: FileLink
+    pattern: FileLink,
   ): vscode.Range {
     let lineNumber = 0;
 
@@ -333,7 +335,7 @@ export class FileLinkProvider implements vscode.DefinitionProvider {
         const placeholder = `$${i}`;
         lineNumberStr = lineNumberStr.replace(
           new RegExp("\\" + placeholder, "g"),
-          match[i] || ""
+          match[i] || "",
         );
       }
 

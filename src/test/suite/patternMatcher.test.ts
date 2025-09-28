@@ -46,19 +46,19 @@ suite("PatternMatcher Unit Tests", () => {
       patternMatcher.compile(config);
       assert.ok(
         patternMatcher.isReady(),
-        "PatternMatcher should be ready after compilation"
+        "PatternMatcher should be ready after compilation",
       );
 
       const compiledMatchers = patternMatcher.getCompiledMatchers();
       assert.strictEqual(
         compiledMatchers.length,
         1,
-        "Should have one compiled matcher"
+        "Should have one compiled matcher",
       );
       assert.strictEqual(
         compiledMatchers[0].original.name,
         "Error Matcher",
-        "Matcher name should match"
+        "Matcher name should match",
       );
     });
 
@@ -94,29 +94,29 @@ suite("PatternMatcher Unit Tests", () => {
       assert.strictEqual(
         compiledMatchers.length,
         2,
-        "Should have two compiled matchers"
+        "Should have two compiled matchers",
       );
 
       // Check flags
       const caseInsensitiveMatcher = compiledMatchers.find(
-        (m) => m.original.name === "Case Insensitive"
+        (m) => m.original.name === "Case Insensitive",
       );
       assert.ok(
         caseInsensitiveMatcher,
-        "Case insensitive matcher should exist"
+        "Case insensitive matcher should exist",
       );
       assert.ok(
         caseInsensitiveMatcher.regex.flags.includes("i"),
-        "Should have ignoreCase flag"
+        "Should have ignoreCase flag",
       );
 
       const multilineMatcher = compiledMatchers.find(
-        (m) => m.original.name === "Multiline"
+        (m) => m.original.name === "Multiline",
       );
       assert.ok(multilineMatcher, "Multiline matcher should exist");
       assert.ok(
         multilineMatcher.regex.flags.includes("m"),
-        "Should have multiline flag"
+        "Should have multiline flag",
       );
     });
 
@@ -152,12 +152,12 @@ suite("PatternMatcher Unit Tests", () => {
       assert.strictEqual(
         compiledMatchers.length,
         1,
-        "Should compile only valid patterns"
+        "Should compile only valid patterns",
       );
       assert.strictEqual(
         compiledMatchers[0].original.name,
         "Valid Regex",
-        "Should keep valid matcher"
+        "Should keep valid matcher",
       );
     });
 
@@ -173,12 +173,12 @@ suite("PatternMatcher Unit Tests", () => {
       patternMatcher.compile(config);
       assert.ok(
         !patternMatcher.isReady(),
-        "PatternMatcher should not be ready with no matchers"
+        "PatternMatcher should not be ready with no matchers",
       );
       assert.strictEqual(
         patternMatcher.getCompiledMatchers().length,
         0,
-        "Should have no compiled matchers"
+        "Should have no compiled matchers",
       );
     });
   });
@@ -220,22 +220,22 @@ suite("PatternMatcher Unit Tests", () => {
       assert.strictEqual(
         allMatches[0].line,
         1,
-        "First match should be on line 1"
+        "First match should be on line 1",
       );
       assert.strictEqual(
         allMatches[1].line,
         3,
-        "Second match should be on line 3"
+        "Second match should be on line 3",
       );
       assert.strictEqual(
         allMatches[0].column,
         11,
-        "First match should start at column 11"
+        "First match should start at column 11",
       );
       assert.strictEqual(
         allMatches[0].length,
         5,
-        "Match length should be 5 (ERROR)"
+        "Match length should be 5 (ERROR)",
       );
     });
 
@@ -307,17 +307,17 @@ suite("PatternMatcher Unit Tests", () => {
       assert.strictEqual(
         matches.length,
         2,
-        "Should find both ERROR and FAILED"
+        "Should find both ERROR and FAILED",
       );
       assert.strictEqual(
         matches[0].matcher.name,
         "Error Matcher",
-        "First match should be ERROR"
+        "First match should be ERROR",
       );
       assert.strictEqual(
         matches[1].matcher.name,
         "Failed Matcher",
-        "Second match should be FAILED"
+        "Second match should be FAILED",
       );
     });
 
@@ -348,7 +348,7 @@ suite("PatternMatcher Unit Tests", () => {
       assert.strictEqual(
         matches[0].originalLine,
         line,
-        "Should preserve original line"
+        "Should preserve original line",
       );
     });
 
@@ -359,7 +359,7 @@ suite("PatternMatcher Unit Tests", () => {
           patternMatcher.matchLine("test line", 1);
         },
         /Patterns must be compiled before matching/,
-        "Should throw error when not compiled"
+        "Should throw error when not compiled",
       );
     });
   });
@@ -371,23 +371,23 @@ suite("PatternMatcher Unit Tests", () => {
       assert.ok(metrics, "Should return metrics object");
       assert.ok(
         typeof metrics.configLoadTime === "number",
-        "configLoadTime should be a number"
+        "configLoadTime should be a number",
       );
       assert.ok(
         typeof metrics.patternCompileTime === "number",
-        "patternCompileTime should be a number"
+        "patternCompileTime should be a number",
       );
       assert.ok(
         typeof metrics.fileAnalysisTime === "number",
-        "fileAnalysisTime should be a number"
+        "fileAnalysisTime should be a number",
       );
       assert.ok(
         typeof metrics.uiUpdateTime === "number",
-        "uiUpdateTime should be a number"
+        "uiUpdateTime should be a number",
       );
       assert.ok(
         typeof metrics.totalTime === "number",
-        "totalTime should be a number"
+        "totalTime should be a number",
       );
     });
   });
@@ -418,7 +418,7 @@ suite("PatternMatcher Unit Tests", () => {
       patternMatcher.dispose();
       assert.ok(
         !patternMatcher.isReady(),
-        "Should not be ready after disposal"
+        "Should not be ready after disposal",
       );
     });
 
@@ -443,7 +443,7 @@ suite("PatternMatcher Unit Tests", () => {
       assert.strictEqual(
         patternMatcher.getCompiledMatchers().length,
         1,
-        "Should have 1 matcher"
+        "Should have 1 matcher",
       );
 
       const config2: LogConfig = {
@@ -473,7 +473,7 @@ suite("PatternMatcher Unit Tests", () => {
       assert.strictEqual(
         patternMatcher.getCompiledMatchers().length,
         2,
-        "Should have 2 matchers after recompilation"
+        "Should have 2 matchers after recompilation",
       );
 
       const matcherNames = patternMatcher
@@ -503,35 +503,35 @@ suite("PatternMatcher Unit Tests", () => {
       assert.ok(fs.existsSync(selfPath), "Self path should exist: " + selfPath);
 
       const fileContent = await vscode.workspace.fs.readFile(
-        vscode.Uri.file(selfPath)
+        vscode.Uri.file(selfPath),
       );
       const textContent = Buffer.from(fileContent).toString("utf-8");
       await patternMatcher.analyzeFile(selfPath, config, textContent);
       assert.ok(
         patternMatcher.getCompiledMatchers().length > 0,
-        "Matchers should be compiled"
+        "Matchers should be compiled",
       );
       assert.equal(
         patternMatcher.getCompiledMatchers()[0].original.name,
         "Test Matcher",
-        "Matcher name should match"
+        "Matcher name should match",
       );
 
       config.checksum = "checksum2"; // Change checksum
       config.matchers[0].name = "Test Matcher 2"; // Change matcher name
       const fileContent2 = await vscode.workspace.fs.readFile(
-        vscode.Uri.file(selfPath)
+        vscode.Uri.file(selfPath),
       );
       const textContent2 = Buffer.from(fileContent2).toString("utf-8");
       await patternMatcher.analyzeFile(selfPath, config, textContent2);
       assert.ok(
         patternMatcher.getCompiledMatchers().length > 0,
-        "Matchers should be recompiled"
+        "Matchers should be recompiled",
       );
       assert.equal(
         patternMatcher.getCompiledMatchers()[0].original.name,
         "Test Matcher 2",
-        "Matcher name should match"
+        "Matcher name should match",
       );
     });
   });

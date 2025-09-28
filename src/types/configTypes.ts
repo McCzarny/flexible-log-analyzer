@@ -16,7 +16,7 @@ export interface LogConfig {
 }
 
 export interface LogDetector {
-  type: 'first-line' | 'content' | 'filename';
+  type: "first-line" | "content" | "filename";
   pattern: string;
   changeLanguageMode?: boolean;
 }
@@ -60,11 +60,11 @@ export interface FileLink {
   pattern: string;
   fileUri: string;
   lineNumber?: string;
-  allowSearch: boolean;  // Controls if we should search in subdirectories
-  paths: string[];       // Specific paths to search for files (relative to workspace root)
+  allowSearch: boolean; // Controls if we should search in subdirectories
+  paths: string[]; // Specific paths to search for files (relative to workspace root)
 }
 
-export type SeverityLevel = 'low' | 'medium' | 'high' | 'critical';
+export type SeverityLevel = "low" | "medium" | "high" | "critical";
 
 export interface CompiledMatcher {
   original: Matcher;
@@ -89,7 +89,7 @@ export interface AnalysisResult {
   filePath: string;
   totalLines: number;
   matches: MatchResult[];
-  fileLinks: import('./analysisTypes').FileLinkMatch[];
+  fileLinks: import("./analysisTypes").FileLinkMatch[];
   config: LogConfig;
   analysisTime: number;
   summary: AnalysisSummary;

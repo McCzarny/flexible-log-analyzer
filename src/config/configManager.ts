@@ -4,9 +4,7 @@ import * as os from "os";
 import * as crypto from "crypto";
 import * as yaml from "js-yaml";
 import { LogConfig } from "../types/configTypes";
-import {
-  ConfigLoadResult,
-} from "../types/analysisTypes";
+import { ConfigLoadResult } from "../types/analysisTypes";
 import { ConfigValidator } from "./configValidator";
 import { PerformanceLogger } from "../utils/performanceLogger";
 import { ChecksumUtils } from "../utils/checksumUtils";
@@ -30,9 +28,9 @@ export class ConfigManager {
   }
 
   async loadAllConfigurations(): Promise<void> {
-    const timer = this.performanceLogger.createTimer('Load all configurations');
+    const timer = this.performanceLogger.createTimer("Load all configurations");
     timer.start();
-    
+
     this.outputChannel.appendLine("Loading log configurations...");
 
     // Clear existing configurations
@@ -46,20 +44,28 @@ export class ConfigManager {
       await this.loadWorkspaceConfigurations();
 
       const loadTime = timer.stop();
-      
+
       if (this.performanceLogger.isLoggingEnabled()) {
-        this.performanceLogger.logMetrics('Configuration Loading', {
-          configLoadTime: loadTime,
-          totalTime: loadTime
-        }, `${this.configs.size} configs loaded`);
+        this.performanceLogger.logMetrics(
+          "Configuration Loading",
+          {
+            configLoadTime: loadTime,
+            totalTime: loadTime,
+          },
+          `${this.configs.size} configs loaded`,
+        );
       }
 
       this.outputChannel.appendLine(
-        `Total configurations loaded: ${this.configs.size} in ${loadTime.toFixed(2)}ms`
+        `Total configurations loaded: ${this.configs.size} in ${loadTime.toFixed(2)}ms`,
       );
     } catch (error) {
       const errorTime = timer.elapsed();
-      this.performanceLogger.logError('Configuration loading', error as Error, errorTime);
+      this.performanceLogger.logError(
+        "Configuration loading",
+        error as Error,
+        errorTime,
+      );
       throw error;
     }
   }
@@ -82,14 +88,14 @@ export class ConfigManager {
 
           if (this.matchesDetector(firstLine, workspaceConfig.detector)) {
             this.outputChannel.appendLine(
-              `Detector also matches for workspace config ${workspaceConfig.name}`
+              `Detector also matches for workspace config ${workspaceConfig.name}`,
             );
             // Handle language mode change since detector matched
             await this.handleLanguageModeChange(filePath, workspaceConfig);
           }
         } catch (error) {
           this.outputChannel.appendLine(
-            `Error checking detector for workspace config: ${error}`
+            `Error checking detector for workspace config: ${error}`,
           );
         }
       }
@@ -124,7 +130,7 @@ export class ConfigManager {
   }
 
   private async findWorkspaceConfig(
-    filePath: string
+    filePath: string,
   ): Promise<LogConfig | undefined> {
     // Check if the file matches any of the loaded workspace configurations
     const fileName = path.basename(filePath);
@@ -134,21 +140,21 @@ export class ConfigManager {
     for (const [configName, config] of this.configs) {
       if (configName !== "global") {
         this.outputChannel.appendLine(
-          `Checking workspace config '${configName}' for ${fileName}`
+          `Checking workspace config '${configName}' for ${fileName}`,
         );
         this.outputChannel.appendLine(
           `Config metadata: name='${config.name}', filePatterns=${
             Array.isArray(config.filePatterns) ? config.filePatterns.length : 0
-          }, detector=${config.detector ? "present" : "absent"}`
+          }, detector=${config.detector ? "present" : "absent"}`,
         );
         if (this.configMatches(config, fileName, fileExtension)) {
           this.outputChannel.appendLine(
-            `Using workspace config '${configName}' for ${fileName}`
+            `Using workspace config '${configName}' for ${fileName}`,
           );
           return config;
         } else {
           this.outputChannel.appendLine(
-            `Config '${configName}' does not match ${fileName}`
+            `Config '${configName}' does not match ${fileName}`,
           );
         }
       }
@@ -160,24 +166,24 @@ export class ConfigManager {
   private configMatches(
     config: LogConfig,
     fileName: string,
-    _fileExtension: string
+    _fileExtension: string,
   ): boolean {
     // Check if the configuration file patterns match the file
     if (config.filePatterns) {
       for (const pattern of config.filePatterns) {
         this.outputChannel.appendLine(
-          `Checking file pattern '${pattern}' for ${fileName}`
+          `Checking file pattern '${pattern}' for ${fileName}`,
         );
         if (this.matchesGlobPattern(fileName, pattern)) {
           this.outputChannel.appendLine(
-            `File ${fileName} matches pattern '${pattern}'`
+            `File ${fileName} matches pattern '${pattern}'`,
           );
           return true;
         }
       }
     } else {
       this.outputChannel.appendLine(
-        `No file patterns specified in config for ${fileName}`
+        `No file patterns specified in config for ${fileName}`,
       );
     }
 
@@ -193,7 +199,7 @@ export class ConfigManager {
   }
 
   private async detectConfigFromFile(
-    filePath: string
+    filePath: string,
   ): Promise<LogConfig | undefined> {
     try {
       const fileUri = vscode.Uri.file(filePath);
@@ -204,14 +210,14 @@ export class ConfigManager {
       // Try to match against detector patterns from loaded configs
       for (const [configName, config] of this.configs) {
         this.outputChannel.appendLine(
-          `Checking config '${configName}' for file: ${filePath} has detector: ${!!config.detector}`
+          `Checking config '${configName}' for file: ${filePath} has detector: ${!!config.detector}`,
         );
         if (
           config.detector &&
           this.matchesDetector(firstLine, config.detector)
         ) {
           this.outputChannel.appendLine(
-            `Auto-detected config: ${config.name} for file: ${filePath}`
+            `Auto-detected config: ${config.name} for file: ${filePath}`,
           );
           return config;
         }
@@ -220,7 +226,7 @@ export class ConfigManager {
       return undefined;
     } catch (error) {
       this.outputChannel.appendLine(
-        `Error detecting config for ${filePath}: ${error}`
+        `Error detecting config for ${filePath}: ${error}`,
       );
       return undefined;
     }
@@ -232,14 +238,14 @@ export class ConfigManager {
       return regex.test(content);
     } catch (error) {
       this.outputChannel.appendLine(
-        `Invalid detector pattern: ${detector.pattern}`
+        `Invalid detector pattern: ${detector.pattern}`,
       );
       return false;
     }
   }
 
   private async loadConfigFromPath(
-    configPath: string
+    configPath: string,
   ): Promise<ConfigLoadResult> {
     try {
       const configUri = vscode.Uri.file(configPath);
@@ -310,30 +316,30 @@ export class ConfigManager {
       await vscode.workspace.fs.stat(vscode.Uri.file(globalConfigPath));
     } catch (error) {
       this.outputChannel.appendLine(
-        `No global configuration found at ${globalConfigPath}`
+        `No global configuration found at ${globalConfigPath}`,
       );
       return;
     }
 
     try {
       this.outputChannel.appendLine(
-        `Loading global configuration from: ${globalConfigPath}`
+        `Loading global configuration from: ${globalConfigPath}`,
       );
       const result = await this.loadConfigFromPath(globalConfigPath);
 
       if (result.success && result.config) {
         this.configs.set("global", result.config);
         this.outputChannel.appendLine(
-          `Global configuration loaded successfully`
+          `Global configuration loaded successfully`,
         );
       } else if (result.errors) {
         this.outputChannel.appendLine(
-          `Failed to load global config: ${result.errors.join(", ")}`
+          `Failed to load global config: ${result.errors.join(", ")}`,
         );
       }
     } catch (error) {
       this.outputChannel.appendLine(
-        `Got error while loading global configuration: ${error}`
+        `Got error while loading global configuration: ${error}`,
       );
     }
   }
@@ -341,7 +347,7 @@ export class ConfigManager {
   private async loadWorkspaceConfigurations(): Promise<void> {
     if (!vscode.workspace.workspaceFolders) {
       this.outputChannel.appendLine(
-        "No workspace folders found, skipping workspace configurations"
+        "No workspace folders found, skipping workspace configurations",
       );
       return;
     }
@@ -351,12 +357,12 @@ export class ConfigManager {
 
       try {
         this.outputChannel.appendLine(
-          `Loading workspace configurations from: ${configDir}`
+          `Loading workspace configurations from: ${configDir}`,
         );
 
         // Read all .yaml files in the .logconfig directory
         const files = await vscode.workspace.fs.readDirectory(
-          vscode.Uri.file(configDir)
+          vscode.Uri.file(configDir),
         );
 
         for (const [fileName, fileType] of files) {
@@ -373,23 +379,23 @@ export class ConfigManager {
               if (result.success && result.config) {
                 this.configs.set(configName, result.config);
                 this.outputChannel.appendLine(
-                  `✅ Loaded workspace config: ${fileName}`
+                  `✅ Loaded workspace config: ${fileName}`,
                 );
               } else if (result.errors) {
                 this.outputChannel.appendLine(
-                  `❌ Failed to load ${fileName}: ${result.errors.join(", ")}`
+                  `❌ Failed to load ${fileName}: ${result.errors.join(", ")}`,
                 );
               }
             } catch (error) {
               this.outputChannel.appendLine(
-                `❌ Error loading ${fileName}: ${error}`
+                `❌ Error loading ${fileName}: ${error}`,
               );
             }
           }
         }
       } catch (error) {
         this.outputChannel.appendLine(
-          `ℹ️ No .logconfig directory found in workspace: ${folder.uri.fsPath}`
+          `ℹ️ No .logconfig directory found in workspace: ${folder.uri.fsPath}`,
         );
       }
     }
@@ -424,26 +430,26 @@ export class ConfigManager {
 
     // Watch for workspace .logconfig directory and .yaml files
     const workspaceConfigWatcher = vscode.workspace.createFileSystemWatcher(
-      "**/.logconfig/*.{yaml,yml}"
+      "**/.logconfig/*.{yaml,yml}",
     );
 
     workspaceConfigWatcher.onDidChange((uri) => {
       this.outputChannel.appendLine(
-        `Workspace configuration changed: ${uri.fsPath}`
+        `Workspace configuration changed: ${uri.fsPath}`,
       );
       this.reloadWorkspaceConfig(uri.fsPath);
     });
 
     workspaceConfigWatcher.onDidCreate((uri) => {
       this.outputChannel.appendLine(
-        `Workspace configuration created: ${uri.fsPath}`
+        `Workspace configuration created: ${uri.fsPath}`,
       );
       this.reloadWorkspaceConfig(uri.fsPath);
     });
 
     workspaceConfigWatcher.onDidDelete((uri) => {
       this.outputChannel.appendLine(
-        `Workspace configuration deleted: ${uri.fsPath}`
+        `Workspace configuration deleted: ${uri.fsPath}`,
       );
       const configName = path.basename(uri.fsPath, path.extname(uri.fsPath));
       this.configs.delete(configName);
@@ -470,17 +476,17 @@ export class ConfigManager {
       if (result.success && result.config) {
         this.configs.set(configName, result.config);
         this.outputChannel.appendLine(
-          `✅ Reloaded workspace config: ${configName} checksum: ${result.config.checksum}`
+          `✅ Reloaded workspace config: ${configName} checksum: ${result.config.checksum}`,
         );
         this.notifyConfigChange(configName, result.config);
       } else if (result.errors) {
         this.outputChannel.appendLine(
-          `❌ Failed to reload ${configName}: ${result.errors.join(", ")}`
+          `❌ Failed to reload ${configName}: ${result.errors.join(", ")}`,
         );
       }
     } catch (error) {
       this.outputChannel.appendLine(
-        `❌ Error reloading ${configName}: ${error}`
+        `❌ Error reloading ${configName}: ${error}`,
       );
     }
   }
@@ -493,19 +499,19 @@ export class ConfigManager {
 
   private async handleLanguageModeChange(
     filePath: string,
-    config: LogConfig
+    config: LogConfig,
   ): Promise<void> {
     // Check if the configuration has the changeLanguageMode flag set in detector and detector matched
     if (config.detector?.changeLanguageMode === true) {
       this.outputChannel.appendLine(
         `Changing language mode to 'log' for file: ${path.basename(
-          filePath
-        )} (detector matched)`
+          filePath,
+        )} (detector matched)`,
       );
       try {
         // Find the document if it's already open
         const openDoc = vscode.workspace.textDocuments.find(
-          (doc) => doc.fileName === filePath
+          (doc) => doc.fileName === filePath,
         );
 
         if (openDoc) {
@@ -516,33 +522,33 @@ export class ConfigManager {
 
             this.outputChannel.appendLine(
               `Successfully changed language mode to 'log' for: ${path.basename(
-                filePath
-              )}`
+                filePath,
+              )}`,
             );
           } else {
             this.outputChannel.appendLine(
-              `File ${path.basename(filePath)} already has 'log' language mode`
+              `File ${path.basename(filePath)} already has 'log' language mode`,
             );
           }
         } else {
           this.outputChannel.appendLine(
             `File ${path.basename(
-              filePath
-            )} is not currently open, will change language mode when opened`
+              filePath,
+            )} is not currently open, will change language mode when opened`,
           );
         }
       } catch (error) {
         this.outputChannel.appendLine(
           `Failed to change language mode for ${path.basename(
-            filePath
-          )}: ${error}`
+            filePath,
+          )}: ${error}`,
         );
       }
     } else {
       this.outputChannel.appendLine(
         `Language mode change requested but detector did not match for: ${path.basename(
-          filePath
-        )}`
+          filePath,
+        )}`,
       );
     }
   }

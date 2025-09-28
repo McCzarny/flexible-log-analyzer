@@ -74,7 +74,7 @@ export class EnhancedTreeView
         "flexible-log-analyzer.jumpToLocation",
         (node: FileLocationNode) => {
           this.jumpToFileLocation(node);
-        }
+        },
       );
       this.context.subscriptions.push(jumpToLocationCommand);
 
@@ -83,7 +83,7 @@ export class EnhancedTreeView
         "flexible-log-analyzer.refreshTree",
         () => {
           this.refresh();
-        }
+        },
       );
       this.context.subscriptions.push(refreshCommand);
 
@@ -92,7 +92,7 @@ export class EnhancedTreeView
         "flexible-log-analyzer.clearResults",
         () => {
           this.clearResults();
-        }
+        },
       );
       this.context.subscriptions.push(clearCommand);
     } catch (error) {
@@ -133,8 +133,9 @@ export class EnhancedTreeView
 
   updateResults(result: AnalysisResult, documentContent: string): void {
     // Calculate and store document checksum in the result
-    result.documentChecksum = ChecksumUtils.calculateDocumentChecksum(documentContent);
-    
+    result.documentChecksum =
+      ChecksumUtils.calculateDocumentChecksum(documentContent);
+
     this.addToCache(result);
 
     // Only rebuild if this is the active file
@@ -168,16 +169,23 @@ export class EnhancedTreeView
   /**
    * Check if cached result is still valid based on document and configuration checksums
    */
-  isCacheValid(filePath: string, documentContent: string, configChecksum: string): boolean {
+  isCacheValid(
+    filePath: string,
+    documentContent: string,
+    configChecksum: string,
+  ): boolean {
     const cachedResult = this.analysisResultsCache.get(filePath);
     if (!cachedResult) {
       return false;
     }
 
     // Check both config checksum and document checksum
-    const currentDocumentChecksum = ChecksumUtils.calculateDocumentChecksum(documentContent);
-    return cachedResult.config.checksum === configChecksum && 
-           cachedResult.documentChecksum === currentDocumentChecksum;
+    const currentDocumentChecksum =
+      ChecksumUtils.calculateDocumentChecksum(documentContent);
+    return (
+      cachedResult.config.checksum === configChecksum &&
+      cachedResult.documentChecksum === currentDocumentChecksum
+    );
   }
 
   /**
@@ -186,14 +194,14 @@ export class EnhancedTreeView
   getCachedResult(
     filePath: string,
     documentContent: string,
-    configChecksum: string
+    configChecksum: string,
   ): AnalysisResult | undefined {
     if (this.isCacheValid(filePath, documentContent, configChecksum)) {
       // Update access order for LRU
       this.updateAccessOrder(filePath);
       return this.analysisResultsCache.get(filePath);
     }
-    
+
     // Cache is invalid, remove it
     this.removeFromCache(filePath);
     return undefined;
@@ -314,7 +322,7 @@ export class EnhancedTreeView
       type: "config-group",
       id: `config-${result.filePath}`,
       configName: `${result.config.name} (${this.getFileName(
-        result.filePath
+        result.filePath,
       )})`,
       totalMatches: result.matches.length,
       children: matchGroups,
@@ -393,19 +401,19 @@ export class EnhancedTreeView
     }
 
     return result.config.groups.find((group) =>
-      group.matchers.includes(matcherType)
+      group.matchers.includes(matcherType),
     );
   }
 
   private createConfigGroupItem(element: ConfigGroupNode): vscode.TreeItem {
     const item = new vscode.TreeItem(
       `${element.configName} (${element.totalMatches})`,
-      vscode.TreeItemCollapsibleState.Expanded
+      vscode.TreeItemCollapsibleState.Expanded,
     );
 
     item.id = element.id;
     item.iconPath = new vscode.ThemeIcon(
-      element.icon.replace("$(", "").replace(")", "")
+      element.icon.replace("$(", "").replace(")", ""),
     );
     item.contextValue = "configGroup";
     item.tooltip = `Configuration: ${element.configName}\nTotal matches: ${element.totalMatches}`;
@@ -416,13 +424,13 @@ export class EnhancedTreeView
   private createMatchGroupItem(element: MatchGroupNode): vscode.TreeItem {
     const item = new vscode.TreeItem(
       `${element.groupName} (${element.totalMatches})`,
-      vscode.TreeItemCollapsibleState.Expanded
+      vscode.TreeItemCollapsibleState.Expanded,
     );
 
     item.id = element.id;
     item.iconPath = new vscode.ThemeIcon(
       element.icon.replace("$(", "").replace(")", ""),
-      new vscode.ThemeColor(this.getThemeColorForSeverity(element.severity))
+      new vscode.ThemeColor(this.getThemeColorForSeverity(element.severity)),
     );
     item.contextValue = "matchGroup";
     item.tooltip = `${element.groupName}\nSeverity: ${element.severity}\nMatches: ${element.totalMatches}`;
@@ -433,13 +441,13 @@ export class EnhancedTreeView
   private createFileLocationItem(element: FileLocationNode): vscode.TreeItem {
     const item = new vscode.TreeItem(
       `${element.matcherName}: ${element.preview}`,
-      vscode.TreeItemCollapsibleState.None
+      vscode.TreeItemCollapsibleState.None,
     );
 
     item.id = element.id;
     item.iconPath = new vscode.ThemeIcon(
       "go-to-file",
-      new vscode.ThemeColor(this.getThemeColorForSeverity(element.severity))
+      new vscode.ThemeColor(this.getThemeColorForSeverity(element.severity)),
     );
     item.contextValue = "fileLocation";
     item.command = {
@@ -452,7 +460,7 @@ export class EnhancedTreeView
         `File: ${element.filePath}\n` +
         `Line: ${element.line}, Column: ${element.column}\n\n` +
         `Preview: \`${element.preview}\`\n\n` +
-        `Click to jump to location`
+        `Click to jump to location`,
     );
 
     return item;
@@ -471,7 +479,7 @@ export class EnhancedTreeView
       editor.selection = new vscode.Selection(range.start, range.end);
       editor.revealRange(
         range,
-        vscode.TextEditorRevealType.InCenterIfOutsideViewport
+        vscode.TextEditorRevealType.InCenterIfOutsideViewport,
       );
     } catch (error) {
       vscode.window.showErrorMessage(`Failed to open file: ${error}`);
@@ -562,7 +570,7 @@ export class EnhancedTreeView
   }
 
   getParent(
-    element: EnhancedTreeNode
+    element: EnhancedTreeNode,
   ): vscode.ProviderResult<EnhancedTreeNode> {
     // Find parent in tree hierarchy
     for (const rootNode of this.treeData) {

@@ -1,15 +1,22 @@
 // Analysis result type definitions for the tree view and UI components
 
-import { MatchResult, LogConfig, SeverityLevel } from './configTypes';
+import { MatchResult, LogConfig, SeverityLevel } from "./configTypes";
 
 // Re-export performance types from the dedicated performance logger
-export { PerformanceMetrics, PerformanceTimer, PerformanceLogger } from '../utils/performanceLogger';
+export {
+  PerformanceMetrics,
+  PerformanceTimer,
+  PerformanceLogger,
+} from "../utils/performanceLogger";
 
 // Enhanced tree node hierarchy for the new configuration system
-export type EnhancedTreeNode = ConfigGroupNode | MatchGroupNode | FileLocationNode;
+export type EnhancedTreeNode =
+  | ConfigGroupNode
+  | MatchGroupNode
+  | FileLocationNode;
 
 export interface ConfigGroupNode {
-  type: 'config-group';
+  type: "config-group";
   id: string;
   configName: string;
   totalMatches: number;
@@ -19,7 +26,7 @@ export interface ConfigGroupNode {
 }
 
 export interface MatchGroupNode {
-  type: 'match-group';
+  type: "match-group";
   id: string;
   groupName: string;
   severity: SeverityLevel;
@@ -30,7 +37,7 @@ export interface MatchGroupNode {
 }
 
 export interface FileLocationNode {
-  type: 'file-location';
+  type: "file-location";
   id: string;
   filePath: string;
   line: number;
@@ -89,7 +96,7 @@ export interface FileAnalysisContext {
 
 // Real-time analysis event types
 export interface AnalysisEvent {
-  type: 'started' | 'progress' | 'completed' | 'error' | 'cancelled';
+  type: "started" | "progress" | "completed" | "error" | "cancelled";
   filePath: string;
   timestamp: Date;
   data?: any;
@@ -121,7 +128,7 @@ export interface CacheKey {
 export interface ConfigDiscoveryResult {
   found: boolean;
   path?: string;
-  source: 'workspace' | 'home' | 'builtin' | 'detected';
+  source: "workspace" | "home" | "builtin" | "detected";
   detector?: string;
 }
 

@@ -104,58 +104,58 @@ suite("Configuration Change Detection Tests", () => {
     // Verify cache is valid for correct checksums
     assert.ok(
       mockTreeView.isCacheValid("/test/file1.log", "checksum1"),
-      "Cache should be valid for matching checksum"
+      "Cache should be valid for matching checksum",
     );
     assert.ok(
       mockTreeView.isCacheValid("/test/file2.log", "checksum1"),
-      "Cache should be valid for matching checksum"
+      "Cache should be valid for matching checksum",
     );
     assert.ok(
       mockTreeView.isCacheValid("/test/file3.log", "checksum2"),
-      "Cache should be valid for matching checksum"
+      "Cache should be valid for matching checksum",
     );
 
     // Verify cache is invalid for wrong checksums
     assert.ok(
       !mockTreeView.isCacheValid("/test/file1.log", "wrong_checksum"),
-      "Cache should be invalid for wrong checksum"
+      "Cache should be invalid for wrong checksum",
     );
 
     // Test cache invalidation by config path
     const invalidatedFiles = mockTreeView.invalidateCacheForConfigPath(
-      "/workspace/.logconfig"
+      "/workspace/.logconfig",
     );
 
     assert.strictEqual(
       invalidatedFiles.length,
       2,
-      "Should invalidate 2 files using the workspace config"
+      "Should invalidate 2 files using the workspace config",
     );
     assert.ok(
       invalidatedFiles.includes("/test/file1.log"),
-      "Should invalidate file1"
+      "Should invalidate file1",
     );
     assert.ok(
       invalidatedFiles.includes("/test/file2.log"),
-      "Should invalidate file2"
+      "Should invalidate file2",
     );
     assert.ok(
       !invalidatedFiles.includes("/test/file3.log"),
-      "Should not invalidate file3 (different config path)"
+      "Should not invalidate file3 (different config path)",
     );
 
     // Verify invalidated files are no longer in cache
     assert.ok(
       !mockTreeView.isCacheValid("/test/file1.log", "checksum1"),
-      "File1 should no longer be in cache"
+      "File1 should no longer be in cache",
     );
     assert.ok(
       !mockTreeView.isCacheValid("/test/file2.log", "checksum1"),
-      "File2 should no longer be in cache"
+      "File2 should no longer be in cache",
     );
     assert.ok(
       mockTreeView.isCacheValid("/test/file3.log", "checksum2"),
-      "File3 should still be in cache"
+      "File3 should still be in cache",
     );
 
     outputChannel.dispose();
@@ -215,35 +215,35 @@ suite("Configuration Change Detection Tests", () => {
     // Should return cached result for valid checksum
     const cachedResult = mockTreeView.getCachedResult(
       "/test/file.log",
-      "valid_checksum"
+      "valid_checksum",
     );
     assert.ok(cachedResult, "Should return cached result for valid checksum");
     assert.strictEqual(
       cachedResult?.filePath,
       "/test/file.log",
-      "Should return correct cached result"
+      "Should return correct cached result",
     );
 
     // Should return undefined for invalid checksum and remove from cache
     const invalidResult = mockTreeView.getCachedResult(
       "/test/file.log",
-      "invalid_checksum"
+      "invalid_checksum",
     );
     assert.strictEqual(
       invalidResult,
       undefined,
-      "Should return undefined for invalid checksum"
+      "Should return undefined for invalid checksum",
     );
 
     // Verify that the invalid cache was removed
     const afterInvalidation = mockTreeView.getCachedResult(
       "/test/file.log",
-      "valid_checksum"
+      "valid_checksum",
     );
     assert.strictEqual(
       afterInvalidation,
       undefined,
-      "Invalid cache should have been removed"
+      "Invalid cache should have been removed",
     );
 
     outputChannel.dispose();
@@ -316,7 +316,7 @@ test("Should handle configuration changes when switching between tabs", async ()
   // Verify file1 is cached
   assert.ok(
     mockTreeView.isCacheValid("/workspace/file1.log", "workspace_config_v1"),
-    "File1 should be cached with original config"
+    "File1 should be cached with original config",
   );
 
   // Simulate configuration change while file1.log is still active
@@ -326,18 +326,18 @@ test("Should handle configuration changes when switching between tabs", async ()
   // Verify file1 cache was invalidated
   assert.ok(
     !mockTreeView.isCacheValid("/workspace/file1.log", "workspace_config_v1"),
-    "File1 cache should be invalidated after config change"
+    "File1 cache should be invalidated after config change",
   );
 
   // Simulate user switching to file2.log tab (new file, no cache)
   const file2CachedResult = mockTreeView.getCachedResult(
     "/workspace/file2.log",
-    "workspace_config_v2"
+    "workspace_config_v2",
   );
   assert.strictEqual(
     file2CachedResult,
     undefined,
-    "File2 should not have cached result (new file)"
+    "File2 should not have cached result (new file)",
   );
 
   // Simulate analysis of file2 with new configuration
@@ -362,19 +362,19 @@ test("Should handle configuration changes when switching between tabs", async ()
   // Verify file2 is now cached with new config
   assert.ok(
     mockTreeView.isCacheValid("/workspace/file2.log", "workspace_config_v2"),
-    "File2 should be cached with new config"
+    "File2 should be cached with new config",
   );
 
   // Simulate user switching back to file1.log tab
   // File1 should need re-analysis due to config change
   const file1CachedAfterSwitch = mockTreeView.getCachedResult(
     "/workspace/file1.log",
-    "workspace_config_v2"
+    "workspace_config_v2",
   );
   assert.strictEqual(
     file1CachedAfterSwitch,
     undefined,
-    "File1 should need re-analysis with new config checksum"
+    "File1 should need re-analysis with new config checksum",
   );
 
   // Simulate re-analysis of file1 with updated configuration
@@ -399,17 +399,17 @@ test("Should handle configuration changes when switching between tabs", async ()
   // Verify both files now use the updated configuration
   assert.ok(
     mockTreeView.isCacheValid("/workspace/file1.log", "workspace_config_v2"),
-    "File1 should be cached with updated config"
+    "File1 should be cached with updated config",
   );
   assert.ok(
     mockTreeView.isCacheValid("/workspace/file2.log", "workspace_config_v2"),
-    "File2 should still be cached with updated config"
+    "File2 should still be cached with updated config",
   );
 
   // Verify old checksum is no longer valid
   assert.ok(
     !mockTreeView.isCacheValid("/workspace/file1.log", "workspace_config_v1"),
-    "File1 should not be valid with old config checksum"
+    "File1 should not be valid with old config checksum",
   );
 
   outputChannel.dispose();

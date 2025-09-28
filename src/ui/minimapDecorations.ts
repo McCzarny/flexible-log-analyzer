@@ -1,5 +1,9 @@
-import * as vscode from 'vscode';
-import { AnalysisResult, MatchResult, SeverityLevel } from '../types/configTypes';
+import * as vscode from "vscode";
+import {
+  AnalysisResult,
+  MatchResult,
+  SeverityLevel,
+} from "../types/configTypes";
 
 export interface MinimapDecoration {
   range: vscode.Range;
@@ -9,7 +13,8 @@ export interface MinimapDecoration {
 }
 
 export class MinimapDecorationService {
-  private decorationTypes: Map<string, vscode.TextEditorDecorationType> = new Map();
+  private decorationTypes: Map<string, vscode.TextEditorDecorationType> =
+    new Map();
   private activeDecorations: Map<string, MinimapDecoration[]> = new Map();
   private outputChannel: vscode.OutputChannel;
 
@@ -22,42 +27,42 @@ export class MinimapDecorationService {
     // Create decoration types for each severity level with minimap support
     const severityConfigs = {
       critical: {
-        color: '#FF0000',
-        backgroundColor: 'rgba(255, 0, 0, 0.2)',
-        overviewRulerColor: '#FF0000',
-        overviewRulerLane: vscode.OverviewRulerLane.Right
+        color: "#FF0000",
+        backgroundColor: "rgba(255, 0, 0, 0.2)",
+        overviewRulerColor: "#FF0000",
+        overviewRulerLane: vscode.OverviewRulerLane.Right,
       },
       high: {
-        color: '#FF4444',
-        backgroundColor: 'rgba(255, 68, 68, 0.2)',
-        overviewRulerColor: '#FF4444',
-        overviewRulerLane: vscode.OverviewRulerLane.Right
+        color: "#FF4444",
+        backgroundColor: "rgba(255, 68, 68, 0.2)",
+        overviewRulerColor: "#FF4444",
+        overviewRulerLane: vscode.OverviewRulerLane.Right,
       },
       medium: {
-        color: '#FFA500',
-        backgroundColor: 'rgba(255, 165, 0, 0.2)',
-        overviewRulerColor: '#FFA500',
-        overviewRulerLane: vscode.OverviewRulerLane.Center
+        color: "#FFA500",
+        backgroundColor: "rgba(255, 165, 0, 0.2)",
+        overviewRulerColor: "#FFA500",
+        overviewRulerLane: vscode.OverviewRulerLane.Center,
       },
       low: {
-        color: '#0066CC',
-        backgroundColor: 'rgba(0, 102, 204, 0.2)',
-        overviewRulerColor: '#0066CC',
-        overviewRulerLane: vscode.OverviewRulerLane.Left
-      }
+        color: "#0066CC",
+        backgroundColor: "rgba(0, 102, 204, 0.2)",
+        overviewRulerColor: "#0066CC",
+        overviewRulerLane: vscode.OverviewRulerLane.Left,
+      },
     };
 
     for (const [severity, config] of Object.entries(severityConfigs)) {
       const decorationType = vscode.window.createTextEditorDecorationType({
         backgroundColor: config.backgroundColor,
-        borderWidth: '1px',
-        borderStyle: 'solid',
+        borderWidth: "1px",
+        borderStyle: "solid",
         borderColor: config.color,
-        borderRadius: '3px',
+        borderRadius: "3px",
         overviewRulerColor: config.overviewRulerColor,
         overviewRulerLane: config.overviewRulerLane,
         isWholeLine: false,
-        rangeBehavior: vscode.DecorationRangeBehavior.ClosedClosed
+        rangeBehavior: vscode.DecorationRangeBehavior.ClosedClosed,
       });
 
       this.decorationTypes.set(severity, decorationType);
@@ -70,28 +75,37 @@ export class MinimapDecorationService {
   updateDecorations(result: AnalysisResult): void {
     const filePath = result.filePath;
     const timestamp = new Date().toISOString();
-    
+
     this.outputChannel.appendLine(
-      `[MINIMAP ${timestamp}] Updating decorations for: ${this.getFileName(filePath)}`
+      `[MINIMAP ${timestamp}] Updating decorations for: ${this.getFileName(filePath)}`,
     );
 
     // Clear existing decorations for this file
     this.clearDecorationsForFile(filePath);
 
     // Check if minimap decorations are enabled
-    const config = vscode.workspace.getConfiguration('flexible-log-analyzer');
-    const showMinimapDecorations = config.get<boolean>('showMinimapDecorations', true);
-    
+    const config = vscode.workspace.getConfiguration("flexible-log-analyzer");
+    const showMinimapDecorations = config.get<boolean>(
+      "showMinimapDecorations",
+      true,
+    );
+
     if (!showMinimapDecorations) {
-      this.outputChannel.appendLine(`[MINIMAP ${timestamp}] Minimap decorations disabled in settings`);
+      this.outputChannel.appendLine(
+        `[MINIMAP ${timestamp}] Minimap decorations disabled in settings`,
+      );
       return;
     }
 
     // Filter matches that should show in minimap
-    const minimapMatches = result.matches.filter(match => match.matcher.minimap);
-    
+    const minimapMatches = result.matches.filter(
+      (match) => match.matcher.minimap,
+    );
+
     if (minimapMatches.length === 0) {
-      this.outputChannel.appendLine(`[MINIMAP ${timestamp}] No matches configured for minimap display`);
+      this.outputChannel.appendLine(
+        `[MINIMAP ${timestamp}] No matches configured for minimap display`,
+      );
       return;
     }
 
@@ -103,7 +117,7 @@ export class MinimapDecorationService {
     this.applyDecorationsToActiveEditor(filePath, decorations);
 
     this.outputChannel.appendLine(
-      `[MINIMAP ${timestamp}] Applied ${decorations.length} decorations for ${minimapMatches.length} minimap matches`
+      `[MINIMAP ${timestamp}] Applied ${decorations.length} decorations for ${minimapMatches.length} minimap matches`,
     );
   }
 
@@ -112,7 +126,7 @@ export class MinimapDecorationService {
    */
   clearDecorationsForFile(filePath: string): void {
     this.activeDecorations.delete(filePath);
-    
+
     // Clear decorations from active editor if it matches the file
     const activeEditor = vscode.window.activeTextEditor;
     if (activeEditor && activeEditor.document.fileName === filePath) {
@@ -127,7 +141,7 @@ export class MinimapDecorationService {
    */
   clearAllDecorations(): void {
     this.activeDecorations.clear();
-    
+
     // Clear decorations from active editor
     const activeEditor = vscode.window.activeTextEditor;
     if (activeEditor) {
@@ -142,22 +156,24 @@ export class MinimapDecorationService {
    */
   refreshActiveEditor(): void {
     const activeEditor = vscode.window.activeTextEditor;
-    if (!activeEditor || activeEditor.document.uri.scheme !== 'file') {
+    if (!activeEditor || activeEditor.document.uri.scheme !== "file") {
       return;
     }
 
     const filePath = activeEditor.document.fileName;
     const decorations = this.activeDecorations.get(filePath);
-    
+
     if (decorations) {
       this.applyDecorationsToActiveEditor(filePath, decorations);
       this.outputChannel.appendLine(
-        `[MINIMAP] Refreshed decorations for active editor: ${this.getFileName(filePath)}`
+        `[MINIMAP] Refreshed decorations for active editor: ${this.getFileName(filePath)}`,
       );
     }
   }
 
-  private createDecorationsFromMatches(matches: MatchResult[]): MinimapDecoration[] {
+  private createDecorationsFromMatches(
+    matches: MatchResult[],
+  ): MinimapDecoration[] {
     const decorations: MinimapDecoration[] = [];
 
     for (const match of matches) {
@@ -165,7 +181,7 @@ export class MinimapDecorationService {
         match.line - 1, // VS Code uses 0-based line numbers
         match.column,
         match.line - 1,
-        match.column + match.length
+        match.column + match.length,
       );
 
       const decoration: MinimapDecoration = {
@@ -181,15 +197,21 @@ export class MinimapDecorationService {
     return decorations;
   }
 
-  private applyDecorationsToActiveEditor(filePath: string, decorations: MinimapDecoration[]): void {
+  private applyDecorationsToActiveEditor(
+    filePath: string,
+    decorations: MinimapDecoration[],
+  ): void {
     const activeEditor = vscode.window.activeTextEditor;
     if (!activeEditor || activeEditor.document.fileName !== filePath) {
       return;
     }
 
     // Group decorations by severity
-    const decorationsBySeverity: Map<SeverityLevel, vscode.DecorationOptions[]> = new Map();
-    
+    const decorationsBySeverity: Map<
+      SeverityLevel,
+      vscode.DecorationOptions[]
+    > = new Map();
+
     for (const decoration of decorations) {
       if (!decorationsBySeverity.has(decoration.severity)) {
         decorationsBySeverity.set(decoration.severity, []);
@@ -198,8 +220,8 @@ export class MinimapDecorationService {
       const decorationOptions: vscode.DecorationOptions = {
         range: decoration.range,
         hoverMessage: new vscode.MarkdownString(
-          `**${decoration.matcherName}** (${decoration.severity})  \n\n${decoration.message}`
-        )
+          `**${decoration.matcherName}** (${decoration.severity})  \n\n${decoration.message}`,
+        ),
       };
 
       decorationsBySeverity.get(decoration.severity)!.push(decorationOptions);
@@ -207,7 +229,8 @@ export class MinimapDecorationService {
 
     // Apply decorations for each severity level
     for (const [severity, decorationType] of this.decorationTypes) {
-      const severityDecorations = decorationsBySeverity.get(severity as SeverityLevel) || [];
+      const severityDecorations =
+        decorationsBySeverity.get(severity as SeverityLevel) || [];
       activeEditor.setDecorations(decorationType, severityDecorations);
     }
   }
@@ -216,7 +239,7 @@ export class MinimapDecorationService {
    * Handle editor change events to refresh decorations
    */
   onActiveEditorChanged(editor: vscode.TextEditor | undefined): void {
-    if (!editor || editor.document.uri.scheme !== 'file') {
+    if (!editor || editor.document.uri.scheme !== "file") {
       return;
     }
 
@@ -239,7 +262,7 @@ export class MinimapDecorationService {
   }
 
   private getFileName(filePath: string): string {
-    return filePath.split('/').pop() || filePath;
+    return filePath.split("/").pop() || filePath;
   }
 
   /**
@@ -250,10 +273,12 @@ export class MinimapDecorationService {
     for (const decorationType of this.decorationTypes.values()) {
       decorationType.dispose();
     }
-    
+
     this.decorationTypes.clear();
     this.activeDecorations.clear();
-    
-    this.outputChannel.appendLine('[MINIMAP] MinimapDecorationService disposed');
+
+    this.outputChannel.appendLine(
+      "[MINIMAP] MinimapDecorationService disposed",
+    );
   }
 }

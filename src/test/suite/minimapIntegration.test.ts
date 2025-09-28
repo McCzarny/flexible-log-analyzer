@@ -14,7 +14,7 @@ suite("Minimap Integration Test Suite", () => {
 
   setup(() => {
     outputChannel = vscode.window.createOutputChannel(
-      "Integration Test Output"
+      "Integration Test Output",
     );
     patternMatcher = new PatternMatcher(outputChannel);
     minimapService = new MinimapDecorationService(outputChannel);
@@ -54,7 +54,7 @@ suite("Minimap Integration Test Suite", () => {
 2024-01-01 10:03:00 ERROR Authentication failed
 2024-01-01 10:04:00 INFO User logged in
 2024-01-01 10:05:00 DEBUG Processing request
-    `.trim()
+    `.trim(),
     );
 
     // Create test configuration
@@ -96,24 +96,24 @@ suite("Minimap Integration Test Suite", () => {
         },
       ],
       checksum: "integration-test-checksum",
-      filePath: 'in-memory-config.yaml',
+      filePath: "in-memory-config.yaml",
     };
 
     // Read file content and analyze
     const fileContent = await vscode.workspace.fs.readFile(
-      vscode.Uri.file(tempFilePath)
+      vscode.Uri.file(tempFilePath),
     );
     const textContent = Buffer.from(fileContent).toString("utf-8");
     const analysisResult = await patternMatcher.analyzeFile(
       tempFilePath,
       config,
-      textContent
+      textContent,
     );
 
     // Verify analysis results
     assert.ok(
       analysisResult.matches.length > 0,
-      "Should find matches in the log file"
+      "Should find matches in the log file",
     );
 
     // Update minimap decorations
@@ -125,46 +125,46 @@ suite("Minimap Integration Test Suite", () => {
 
     // Should have decorations for ERROR, WARN, and DEBUG (INFO has minimap: false)
     const expectedMinimapMatches = analysisResult.matches.filter(
-      (m) => m.matcher.minimap
+      (m) => m.matcher.minimap,
     );
     assert.strictEqual(
       decorations.length,
       expectedMinimapMatches.length,
-      "Should create decorations only for minimap-enabled matchers"
+      "Should create decorations only for minimap-enabled matchers",
     );
 
     // Verify decoration properties
     const errorDecorations = decorations.filter((d) => d.severity === "high");
     const warningDecorations = decorations.filter(
-      (d) => d.severity === "medium"
+      (d) => d.severity === "medium",
     );
 
     assert.ok(
       errorDecorations.length >= 2,
-      "Should have at least 2 error decorations"
+      "Should have at least 2 error decorations",
     );
     assert.ok(
       warningDecorations.length >= 1,
-      "Should have at least 1 warning decoration"
+      "Should have at least 1 warning decoration",
     );
 
     // Verify decoration ranges are valid
     for (const decoration of decorations) {
       assert.ok(
         decoration.range instanceof vscode.Range,
-        "Decoration should have valid range"
+        "Decoration should have valid range",
       );
       assert.ok(
         decoration.range.start.line >= 0,
-        "Range should have valid start line"
+        "Range should have valid start line",
       );
       assert.ok(
         decoration.range.start.character >= 0,
-        "Range should have valid start character"
+        "Range should have valid start character",
       );
       assert.ok(
         decoration.matcherName.length > 0,
-        "Decoration should have matcher name"
+        "Decoration should have matcher name",
       );
     }
   });
@@ -186,18 +186,18 @@ suite("Minimap Integration Test Suite", () => {
         },
       ],
       checksum: "initial-checksum",
-      filePath: 'in-memory-config.yaml',
+      filePath: "in-memory-config.yaml",
     };
 
     // Read file content and analyze
     let fileContent = await vscode.workspace.fs.readFile(
-      vscode.Uri.file(tempFilePath)
+      vscode.Uri.file(tempFilePath),
     );
     let textContent = Buffer.from(fileContent).toString("utf-8");
     let analysisResult = await patternMatcher.analyzeFile(
       tempFilePath,
       initialConfig,
-      textContent
+      textContent,
     );
     minimapService.updateDecorations(analysisResult);
 
@@ -206,7 +206,7 @@ suite("Minimap Integration Test Suite", () => {
     assert.strictEqual(
       decorations.length,
       1,
-      "Should have decoration when minimap is enabled"
+      "Should have decoration when minimap is enabled",
     );
 
     // Updated config with minimap disabled
@@ -223,18 +223,18 @@ suite("Minimap Integration Test Suite", () => {
         },
       ],
       checksum: "updated-checksum",
-      filePath: 'in-memory-config.yaml',
+      filePath: "in-memory-config.yaml",
     };
 
     // Re-analyze and update decorations
     fileContent = await vscode.workspace.fs.readFile(
-      vscode.Uri.file(tempFilePath)
+      vscode.Uri.file(tempFilePath),
     );
     textContent = Buffer.from(fileContent).toString("utf-8");
     analysisResult = await patternMatcher.analyzeFile(
       tempFilePath,
       updatedConfig,
-      textContent
+      textContent,
     );
     minimapService.updateDecorations(analysisResult);
 
@@ -242,17 +242,17 @@ suite("Minimap Integration Test Suite", () => {
     assert.strictEqual(
       decorations.length,
       0,
-      "Should have no decorations when minimap is disabled"
+      "Should have no decorations when minimap is disabled",
     );
   });
 
   test("Should handle multiple files with different configurations", async () => {
     // Create two different log files
     const logFile1 = await createTempLogFile(
-      "ERROR: Database error\nWARN: Low memory"
+      "ERROR: Database error\nWARN: Low memory",
     );
     const logFile2 = await createTempLogFile(
-      "CRITICAL: System failure\nINFO: System restored"
+      "CRITICAL: System failure\nINFO: System restored",
     );
 
     // Different configs for each file
@@ -269,7 +269,7 @@ suite("Minimap Integration Test Suite", () => {
         },
       ],
       checksum: "db-config-checksum",
-      filePath: 'in-memory-config.yaml',
+      filePath: "in-memory-config.yaml",
     };
 
     const config2: LogConfig = {
@@ -285,28 +285,28 @@ suite("Minimap Integration Test Suite", () => {
         },
       ],
       checksum: "system-config-checksum",
-      filePath: 'in-memory-config.yaml',
+      filePath: "in-memory-config.yaml",
     };
 
     // Analyze both files
     const fileContent1 = await vscode.workspace.fs.readFile(
-      vscode.Uri.file(logFile1)
+      vscode.Uri.file(logFile1),
     );
     const textContent1 = Buffer.from(fileContent1).toString("utf-8");
     const result1 = await patternMatcher.analyzeFile(
       logFile1,
       config1,
-      textContent1
+      textContent1,
     );
 
     const fileContent2 = await vscode.workspace.fs.readFile(
-      vscode.Uri.file(logFile2)
+      vscode.Uri.file(logFile2),
     );
     const textContent2 = Buffer.from(fileContent2).toString("utf-8");
     const result2 = await patternMatcher.analyzeFile(
       logFile2,
       config2,
-      textContent2
+      textContent2,
     );
 
     // Update decorations for both files
@@ -326,12 +326,12 @@ suite("Minimap Integration Test Suite", () => {
     assert.strictEqual(
       decorations1[0].severity,
       "high",
-      "File 1 should have high severity decorations"
+      "File 1 should have high severity decorations",
     );
     assert.strictEqual(
       decorations2[0].severity,
       "critical",
-      "File 2 should have critical severity decorations"
+      "File 2 should have critical severity decorations",
     );
   });
 
