@@ -1,0 +1,28 @@
+# Build outputs
+out/
+dist/
+*.js.map
+
+# Dependencies
+node_modules/
+
+# VS Code test environment
+.vscode-test/
+
+# Logs
+*.log
+
+# OS generated files
+.DS_Store
+Thumbs.db
+
+# Package files
+*.tgz
+*.tar.gz
+
+# Test fixtures (to avoid changing test data)
+src/test/fixtures/
+
+# Generated files
+CHANGELOG.md
+*.d.ts

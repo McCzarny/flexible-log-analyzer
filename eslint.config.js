@@ -1,5 +1,6 @@
 import typescriptEslint from '@typescript-eslint/eslint-plugin';
 import typescriptParser from '@typescript-eslint/parser';
+import eslintConfigPrettier from 'eslint-config-prettier';
 
 export default [
     {
@@ -22,6 +23,8 @@ export default [
             'semi': 'off',
         },
     },
+    // Prettier config must be last to override conflicting rules
+    eslintConfigPrettier,
     {
         ignores: [
             'out/**',
