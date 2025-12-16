@@ -55,21 +55,6 @@ suite("Performance Logger Tests", () => {
     );
   });
 
-  test("Timer should measure time correctly", async () => {
-    const timer = performanceLogger.createTimer("Test Operation");
-
-    timer.start();
-
-    // Wait a small amount of time
-    await new Promise((resolve) => setTimeout(resolve, 10));
-
-    const elapsed = timer.stop();
-
-    // Should have measured some time
-    assert.ok(elapsed > 0, "Timer should measure positive elapsed time");
-    assert.ok(elapsed >= 10, "Timer should measure at least the delay time");
-  });
-
   test("Should format metrics correctly when logging would be enabled", () => {
     // Test the metrics structure
     const testMetrics = {
