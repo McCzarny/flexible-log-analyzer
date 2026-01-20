@@ -8,9 +8,9 @@
     "type": "git",
     "url": "https://github.com/McCzarny/flexible-log-analyzer"
   },
-  "version": "0.3.7",
+  "version": "0.3.8",
   "engines": {
-    "vscode": "^1.107.0"
+    "vscode": "^1.108.0"
   },
   "categories": [
     "Other"
