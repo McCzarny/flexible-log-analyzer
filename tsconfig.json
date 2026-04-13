@@ -1,11 +1,12 @@
 {
 	"compilerOptions": {
-		"module": "commonjs",
+		"module": "node20",
 		"target": "ES2024",
 		"lib": [
 			"ES2024"
 		],
-		"moduleResolution": "node",
+		"types": ["node"],
+		"moduleResolution": "nodenext",
 		"allowSyntheticDefaultImports": true,
 		"sourceMap": true,
 		"rootDir": "src",

@@ -37,8 +37,7 @@ suite("Language Mode Change Tests", () => {
         const configText = content.toString();
 
         // Parse using js-yaml like the real implementation
-        const yaml = require("js-yaml");
-        const config = yaml.load(configText);
+        const config = yaml.load(configText) as any;
 
         assert.ok(config.detector, "Detector should exist");
         assert.strictEqual(
@@ -67,8 +66,7 @@ suite("Language Mode Change Tests", () => {
         const content = await vscode.workspace.fs.readFile(configUri);
         const configText = content.toString();
 
-        const yaml = require("js-yaml");
-        const config = yaml.load(configText);
+        const config = yaml.load(configText) as any;
 
         assert.ok(config.detector, "Detector should exist");
         assert.strictEqual(
@@ -124,13 +122,13 @@ suite("Language Mode Change Tests", () => {
 
       assert.ok(config, "Should find a configuration for Chromium log");
       assert.strictEqual(
-        config.name,
+        config!.name,
         "Chromium log with language mode",
         "Should match the test config",
       );
-      assert.ok(config.detector, "Config should have detector");
+      assert.ok(config!.detector, "Config should have detector");
       assert.strictEqual(
-        config.detector.changeLanguageMode,
+        config!.detector!.changeLanguageMode,
         true,
         "changeLanguageMode should be true",
       );
@@ -171,13 +169,13 @@ suite("Language Mode Change Tests", () => {
 
       assert.ok(config, "Should find a configuration for Chromium log");
       assert.strictEqual(
-        config.name,
+        config!.name,
         "Chromium log without language mode",
         "Should match the test config",
       );
-      assert.ok(config.detector, "Config should have detector");
+      assert.ok(config!.detector, "Config should have detector");
       assert.strictEqual(
-        config.detector.changeLanguageMode,
+        config!.detector!.changeLanguageMode,
         false,
         "changeLanguageMode should be false",
       );
@@ -268,7 +266,7 @@ suite("Language Mode Change Tests", () => {
       assert.ok(config, "Should find configuration");
       assert.ok(config.detector, "Config should have detector");
       assert.strictEqual(
-        config.detector.changeLanguageMode,
+        config!.detector!.changeLanguageMode,
         true,
         "Config should have changeLanguageMode=true",
       );

@@ -73,22 +73,22 @@ suite("Unit Tests", () => {
         );
         assert.ok(errorMatcher, "Error Messages matcher should exist");
         assert.strictEqual(
-          errorMatcher.type,
+          errorMatcher?.type,
           "error",
           "Error matcher type should be error",
         );
         assert.strictEqual(
-          errorMatcher.severity,
+          errorMatcher?.severity,
           "high",
           "Error matcher severity should be high",
         );
         assert.strictEqual(
-          errorMatcher.severity,
+          errorMatcher?.severity,
           "high",
           "Error matcher severity should be high",
         );
         assert.strictEqual(
-          errorMatcher.ignoreCase,
+          errorMatcher?.ignoreCase,
           true,
           "Error matcher should ignore case",
         );
@@ -98,12 +98,12 @@ suite("Unit Tests", () => {
         );
         assert.ok(warningMatcher, "Warning Messages matcher should exist");
         assert.strictEqual(
-          warningMatcher.severity,
+          warningMatcher?.severity,
           "medium",
           "Warning matcher severity should be medium",
         );
         assert.strictEqual(
-          warningMatcher.type,
+          warningMatcher?.type,
           "warning",
           "Warning matcher type should be warning",
         );
@@ -113,12 +113,12 @@ suite("Unit Tests", () => {
         );
         assert.ok(fatalMatcher, "Fatal/Critical matcher should exist");
         assert.strictEqual(
-          fatalMatcher.severity,
+          fatalMatcher?.severity,
           "critical",
           "Fatal matcher severity should be critical",
         );
         assert.strictEqual(
-          fatalMatcher.type,
+          fatalMatcher?.type,
           "fatal",
           "Fatal matcher type should be fatal",
         );
@@ -130,31 +130,31 @@ suite("Unit Tests", () => {
           "File patterns should be an array",
         );
         assert.ok(
-          config.filePatterns.includes("*.log"),
+          config.filePatterns?.includes("*.log"),
           "Should include *.log pattern",
         );
         assert.ok(
-          config.filePatterns.includes("*.out"),
+          config.filePatterns?.includes("*.out"),
           "Should include *.out pattern",
         );
         assert.ok(
-          config.filePatterns.includes("*.txt"),
+          config.filePatterns?.includes("*.txt"),
           "Should include *.txt pattern",
         );
 
         // Check detector
         assert.ok(config.detector, "Detector should exist");
         assert.strictEqual(
-          config.detector.type,
+          config.detector?.type,
           "first-line",
           "Detector type should be first-line",
         );
         assert.ok(
-          config.detector.pattern.length > 0,
+          (config.detector?.pattern.length || 0) > 0,
           "Detector pattern should not be empty",
         );
         assert.strictEqual(
-          config.detector.pattern,
+          config.detector?.pattern,
           "^\\[.*\\] .*$",
           "Detector pattern should match expected regex",
         );
@@ -162,22 +162,22 @@ suite("Unit Tests", () => {
         // Check performance settings
         assert.ok(config.performance, "Performance settings should exist");
         assert.strictEqual(
-          config.performance.maxLinesPerAnalysis,
+          config.performance?.maxLinesPerAnalysis,
           25000,
           "Max lines should be 25000",
         );
         assert.strictEqual(
-          config.performance.analysisTimeout,
+          config.performance?.analysisTimeout,
           30,
           "Analysis timeout should be 30",
         );
         assert.strictEqual(
-          config.performance.cacheResults,
+          config.performance?.cacheResults,
           true,
           "Cache results should be true",
         );
         assert.strictEqual(
-          config.performance.debounceInterval,
+          config.performance?.debounceInterval,
           500,
           "Debounce interval should be 500",
         );
@@ -189,12 +189,12 @@ suite("Unit Tests", () => {
         // Check changeLanguageMode flag in detector
         assert.ok(config.detector, "Detector should exist");
         assert.strictEqual(
-          config.detector.changeLanguageMode,
+          config.detector?.changeLanguageMode,
           true,
           "changeLanguageMode should be true in detector",
         );
         assert.strictEqual(
-          typeof config.detector.changeLanguageMode,
+          typeof config.detector?.changeLanguageMode,
           "boolean",
           "changeLanguageMode should be a boolean",
         );
@@ -375,22 +375,22 @@ performance:
 
       assert.ok(config.performance, "Performance settings should exist");
       assert.strictEqual(
-        config.performance.maxLinesPerAnalysis,
+        config.performance?.maxLinesPerAnalysis,
         25000,
         "maxLinesPerAnalysis should be 25000",
       );
       assert.strictEqual(
-        config.performance.analysisTimeout,
+        config.performance?.analysisTimeout,
         30,
         "analysisTimeout should be 30",
       );
       assert.strictEqual(
-        config.performance.cacheResults,
+        config.performance?.cacheResults,
         true,
         "cacheResults should be true",
       );
       assert.strictEqual(
-        config.performance.debounceInterval,
+        config.performance?.debounceInterval,
         500,
         "debounceInterval should be 500",
       );

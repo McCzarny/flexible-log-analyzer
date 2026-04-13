@@ -1,4 +1,5 @@
 import * as vscode from "vscode";
+import { performance } from "perf_hooks";
 
 export interface PerformanceMetrics {
   configLoadTime?: number;

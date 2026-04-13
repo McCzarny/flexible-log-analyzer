@@ -38,6 +38,9 @@ const extensionConfig = {
         use: [
           {
             loader: "ts-loader",
+            options: {
+              transpileOnly: true, // Skip type checking during webpack build
+            },
           },
         ],
       },

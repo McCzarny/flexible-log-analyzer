@@ -1,8 +1,6 @@
 import * as assert from "assert";
 import * as vscode from "vscode";
 import { ConfigManager } from "../../config/configManager";
-import { LogConfig } from "../../types/configTypes";
-import { randomUUID } from "crypto";
 
 suite("Utility Functions Tests", () => {
   let configManager: ConfigManager;
