@@ -5,5 +5,6 @@ node_modules
 *.vsix
 env.sh
 .DS_Store
+.vscode
 
 testdir/test_logs
